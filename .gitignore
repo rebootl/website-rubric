@@ -1,0 +1,14 @@
+Archive/
+__pycache__/
+
+website.db*
+media/
+static/
+templates/
+build/
+build_*/
+localfont/
+test*
+
+config.py
+upload.sh
