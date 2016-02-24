@@ -141,10 +141,8 @@ def render_post(ref, row):
     # set imagepage specifics
     if row['type'] == "imagepage":
         img_src = os.path.join("/media", row['data1'])
-        article_class = "imagepage"
     else:
         img_src = ""
-        article_class = ""
 
     if row['exifs_json'] == "":
         img_exifs_json = False
@@ -164,7 +162,6 @@ def render_post(ref, row):
                             title = row['title'],
                             date = row['date_norm'],
                             body_html = row['body_html'],
-                            article_class = article_class,
                             img_src = img_src,
                             page_nav = page_nav,
                             img_exifs_json = row['exifs_json'],
