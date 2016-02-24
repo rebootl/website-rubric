@@ -369,7 +369,7 @@ class EditPage(Page):
                           date_str = ?, datetime_norm = ?, date_norm = ?,
                           time_norm = ?, body_html = ?, body_md5sum = ?,
                           meta_json = ?, body_md = ?, data1 = ?,
-                          img_exifs_json = ?
+                          exifs_json = ?
                          WHERE id = ?''',
                       ( self.ref, self.type, self.title, self.author, \
                         self.date_str, self.datetime_norm, self.date_norm, \
@@ -391,7 +391,7 @@ class NewPage(Page):
                          (ref, type, title, author,
                           date_str, datetime_norm, date_norm,
                           time_norm, body_html, body_md5sum,
-                          meta_json, body_md, data1, img_exifs_json)
+                          meta_json, body_md, data1, exifs_json)
                         VALUES
                           (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
                       ( self.ref, self.type, self.title, self.author,
