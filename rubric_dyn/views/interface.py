@@ -224,21 +224,34 @@ def render_preview(id, text_input):
         img_src = ""
         article_class = ""
 
+    date_normed, \
+    time_norm, \
+    datetime_norm = date_norm( meta['date'],
+                               current_app.config['DATETIME_FORMAT'],
+                               current_app.config['DATE_FORMAT'] )
+
     if img_exifs_json == "":
         img_exifs_json = False
 
+    if 'tags' in meta.keys():
+        tags = meta['tags']
+    else:
+        tags = None
+
     # render stuff
     return render_template( 'edit.html',
-                            preview=True,
-                            id=id,
-                            text=text_input,
-                            title="Edit",
-                            preview_type=meta['type'],
-                            preview_title=meta['title'],
-                            preview_body_html=body_html,
-                            preview_article_class=article_class,
-                            preview_img_src=img_src,
-                            img_exifs_json=img_exifs_json )
+                            preview = True,
+                            id = id,
+                            text = text_input,
+                            title = "Edit",
+                            preview_type = meta['type'],
+                            preview_title = meta['title'],
+                            preview_date = date_normed,
+                            preview_body_html = body_html,
+                            preview_article_class = article_class,
+                            preview_img_src = img_src,
+                            img_exifs_json = img_exifs_json,
+                            tags = tags )
 
 def process_edit(text_input, return_md=False):
 

@@ -1,9 +1,24 @@
 import os
 import sqlite3
+import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
 pages = Blueprint('pages', __name__)
+
+QUERY_POST_SELECT_FROM = '''SELECT type, ref, title, date_norm,
+                             datetime_norm, body_html, data1, exifs_json,
+                             meta_json
+                            FROM entries
+                            '''
+QUERY_POST_WHERE = '''WHERE ( type = 'article' OR type = 'imagepage' )
+                      '''
+QUERY_POST_AND_PUB = '''AND pub = 1
+                        '''
+
+QUERY_POST = QUERY_POST_SELECT_FROM + \
+             QUERY_POST_WHERE + \
+             QUERY_POST_AND_PUB
 
 @pages.route('/')
 def home():
@@ -11,34 +26,23 @@ def home():
     if current_app.config['HOME_SHOWS'] == 'latest':
         # show the latest post by date
         g.db.row_factory = sqlite3.Row
-        cur = g.db.execute('''SELECT type, ref, title, date_norm,
-                               datetime_norm, body_html, data1, exifs_json
-                              FROM entries
-                              WHERE ( type = 'article' OR type = 'imagepage' )
-                              AND pub = 1
-                              ORDER BY datetime_norm DESC LIMIT 1''')
+        cur = g.db.execute( QUERY_POST +
+                            '''ORDER BY datetime_norm DESC LIMIT 1''')
         row = cur.fetchone()
 
     elif current_app.config['HOME_SHOWS'] == 'latest_id':
         # show the latest post by id
         g.db.row_factory = sqlite3.Row
-        cur = g.db.execute('''SELECT type, ref, title, date_norm,
-                               datetime_norm, body_html, data1, exifs_json
-                              FROM entries
-                              WHERE ( type = 'article' OR type = 'imagepage' )
-                              AND pub = 1
-                              ORDER BY id DESC LIMIT 1''')
+        cur = g.db.execute( QUERY_POST +
+                            '''ORDER BY id DESC LIMIT 1''')
         row = cur.fetchone()
 
     else:
         # show post id set in config
         id = current_app.config['HOME_SHOWS']
         g.db.row_factory = sqlite3.Row
-        cur = g.db.execute('''SELECT type, ref, title, date_norm,
-                               datetime_norm, body_html, data1, exifs_json
-                              FROM entries
-                              WHERE ( type = 'article' OR type = 'imagepage' )
-                              AND pub = 1 AND id = ?''', (id,))
+        cur = g.db.execute( QUERY_POST +
+                            '''AND id = ?''', (id,))
         row = cur.fetchone()
 
     return render_post(row['ref'], row)
@@ -98,10 +102,8 @@ def index():
 def about():
     # --> make function for special pages ?
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT type, ref, title, date_norm,
-                           datetime_norm, body_html, data1
-                          FROM entries
-                          WHERE ref = ?''', ('about',))
+    cur = g.db.execute( QUERY_POST_SELECT_FROM + \
+                        '''WHERE ref = ?''', ('about',))
     row = cur.fetchone()
 
     page_nav = { 'prev_href': url_for('pages.about'),
@@ -121,12 +123,10 @@ def show_post(post_ref):
     post_date, post_ref = os.path.split(post_ref)
 
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT type, title, date_norm, datetime_norm,
-                           body_html, data1, exifs_json
-                          FROM entries
-                          WHERE date_norm = ?
-                          AND ref = ?
-                          AND pub = 1''', (post_date, post_ref))
+    cur = g.db.execute( QUERY_POST_SELECT_FROM + \
+                        '''WHERE date_norm = ?
+                           AND ref = ?
+                           AND pub = 1''', (post_date, post_ref))
     row = cur.fetchone()
 
     # (catch not found !!!)
@@ -152,6 +152,13 @@ def render_post(ref, row):
     # get previous and next pages for navigation
     page_nav = get_page_nav(row['datetime_norm'], row['date_norm'], ref)
 
+    # get tags
+    meta = json.loads(row['meta_json'])
+    if 'tags' in meta.keys():
+        tags = meta['tags']
+    else:
+        tags = None
+
     return render_template( 'post.html',
                             type = row['type'],
                             title = row['title'],
@@ -160,18 +167,22 @@ def render_post(ref, row):
                             article_class = article_class,
                             img_src = img_src,
                             page_nav = page_nav,
-                            img_exifs_json = row['exifs_json'] )
+                            img_exifs_json = row['exifs_json'],
+                            tags = tags )
+
+QUERY_PAGE_NAV = '''SELECT date_norm, ref
+                    FROM entries
+                    WHERE date_norm IS NOT 'ERRONEOUS_DATE'
+                    AND ( type = 'article' OR type = 'imagepage' )
+                    AND pub = 1
+                    '''
 
 def get_page_nav(datetime_norm, post_date, post_ref):
     # get previous page
     # and create new page_nav list
-    cur = g.db.execute('''SELECT date_norm, ref
-                          FROM entries
-                          WHERE datetime_norm < ?
-                          AND date_norm IS NOT 'ERRONEOUS_DATE'
-                          AND ( type = 'article' OR type = 'imagepage' )
-                          AND pub = 1
-                          ORDER BY datetime_norm DESC LIMIT 1''', (datetime_norm,))
+    cur = g.db.execute( QUERY_PAGE_NAV + \
+                        '''AND datetime_norm < ?
+                           ORDER BY datetime_norm DESC LIMIT 1''', (datetime_norm,))
     prev_result = cur.fetchone()
     if prev_result is not None:
         prev_date = prev_result[0]
@@ -183,13 +194,9 @@ def get_page_nav(datetime_norm, post_date, post_ref):
 
     # get next page
     # and fill in page_nav list
-    cur = g.db.execute('''SELECT date_norm, ref
-                          FROM entries
-                          WHERE datetime_norm > ?
-                          AND date_norm IS NOT 'ERRONEOUS_DATE'
-                          AND ( type = 'article' OR type = 'imagepage' )
-                          AND pub = 1
-                          ORDER BY datetime_norm ASC LIMIT 1''', (datetime_norm,))
+    cur = g.db.execute( QUERY_PAGE_NAV + \
+                        '''AND datetime_norm > ?
+                           ORDER BY datetime_norm ASC LIMIT 1''', (datetime_norm,))
     next_result = cur.fetchone()
     if next_result is not None:
         next_date = next_result[0]
