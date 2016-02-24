@@ -219,10 +219,8 @@ def render_preview(id, text_input):
     # set imagepage specifics
     if meta['type'] == "imagepage":
         img_src = os.path.join("/media", meta['image'])
-        article_class = "imagepage"
     else:
         img_src = ""
-        article_class = ""
 
     date_normed, \
     time_norm, \
@@ -243,13 +241,11 @@ def render_preview(id, text_input):
                             preview = True,
                             id = id,
                             text = text_input,
-                            title = "Edit",
-                            preview_type = meta['type'],
-                            preview_title = meta['title'],
-                            preview_date = date_normed,
-                            preview_body_html = body_html,
-                            preview_article_class = article_class,
-                            preview_img_src = img_src,
+                            type = meta['type'],
+                            title = meta['title'],
+                            date = date_normed,
+                            body_html = body_html,
+                            img_src = img_src,
                             img_exifs_json = img_exifs_json,
                             tags = tags )
 
