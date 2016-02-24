@@ -13,5 +13,7 @@ create table entries (
   body_md5sum text not null,
   meta_json text not null,
   body_md text not null,
-  data1 text
+  data1 text,
+  pub int default 1,
+  exifs_json text
 );
