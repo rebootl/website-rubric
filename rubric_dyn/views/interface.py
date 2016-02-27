@@ -223,10 +223,10 @@ def render_preview(id, text_input):
         img_src = ""
 
     date_normed, \
-    time_norm, \
-    datetime_norm = date_norm( meta['date'],
-                               current_app.config['DATETIME_FORMAT'],
-                               current_app.config['DATE_FORMAT'] )
+    time_normed, \
+    datetime_normed = date_norm( meta['date'],
+                                 current_app.config['DATETIME_FORMAT'],
+                                 current_app.config['DATE_FORMAT'] )
 
     if img_exifs_json == "":
         img_exifs_json = False
