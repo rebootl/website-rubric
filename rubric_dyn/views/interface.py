@@ -389,8 +389,10 @@ class EditPage(Page):
 
 class NewPage(Page):
 
-#    def __init__(self, text_input):
-#        super().__init__(text_input)
+    def __init__(self, text_input):
+        super().__init__(text_input)
+
+        self.published = 0
 
     def save_new(self):
         self.db_new_entry()
@@ -400,14 +402,14 @@ class NewPage(Page):
                          (ref, type, title, author,
                           date_str, datetime_norm, date_norm,
                           time_norm, body_html, body_md5sum,
-                          meta_json, body_md, data1, exifs_json)
+                          meta_json, body_md, data1, pub, exifs_json)
                         VALUES
                           (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
                       ( self.ref, self.type, self.title, self.author,
                         self.date_str, self.datetime_norm, self.date_norm,
                         self.time_norm, self.body_html, self.body_md5sum,
-                        self.meta_json, self.body_md, self.data1,
-                        img_exifs_json ) )
+                        self.meta_json, self.body_md, self.data1, self.published,
+                        self.img_exifs_json ) )
         g.db.commit()
 
 
