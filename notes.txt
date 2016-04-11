@@ -1,0 +1,3 @@
+
+
+- make next by date link [ > ] not clickable, if last
