@@ -29,8 +29,10 @@ interface = Blueprint('interface', __name__)
 #    if not session.get('logged_in'):
 #        abort(401)
 
-@interface.route('/login', methods=['GET', 'POST'])
+@interface.route('/', methods=['GET', 'POST'])
 def login():
+    if session.get('logged_in'):
+        return redirect(url_for('interface.overview'))
     error = None
     if request.method == 'POST':
         passwd_str = request.form['password']
@@ -59,10 +61,20 @@ def overview():
     # create link hrefs
     hrefs = {}
     for row in rows:
-        hrefs.update({ row['id']: os.path.join(row['date_norm'], row['ref']) })
+        if row['type'] == 'article':
+            href = os.path.join('/articles', row['date_norm'], row['ref'])
+        elif row['type'] == 'special':
+            href = os.path.join('/special', row['ref'])
+        elif row['type'] == 'note':
+            href = os.path.join('/notes', row['ref'])
+        else:
+            href = "NOT_DEFINED"
+        hrefs.update({ row['id']: href })
 
-    return render_template( 'overview.html', entries=rows, \
-                            title="Overview", hrefs=hrefs )
+    return render_template( 'overview.html',
+                            entries=rows,
+                            title="Overview",
+                            hrefs=hrefs )
 
 @interface.route('/edit', methods=['GET', 'POST'])
 def edit():

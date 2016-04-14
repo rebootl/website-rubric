@@ -67,7 +67,7 @@ def get_entry_by_ref(ref, type, published=True):
 
     return row
 
-def get_page_nav(curr_type, curr_datetime_norm):
+def create_page_nav(curr_type, curr_datetime_norm):
     '''create previous/next navigation for posts (using same type)'''
 
     q_begin = '''SELECT date_norm, ref
@@ -120,30 +120,46 @@ def extract_tags(meta_json):
     else:
         return None
 
-def show_page_by_type_ref(type, ref):
-    '''show an entry by type, ref
-currently used for types: special and note'''
-    row = get_entry_by_ref(ref, type)
+def show_post(row, page_nav):
+    '''show post
+currently used for entry types:
+- article
+- special
+- note
+'''
 
     # set tags
+    # --> could be changed to set _all_ meta information instead
     entry = { 'db': row }
     entry['tags'] = extract_tags(row['meta_json'])
 
-    page_nav = { 'prev_href': None,
-                 'next_href': None }
-
-    return render_template( 'article.html',
+    # title and img_exifs_json are separate because they are used
+    # in parent template
+    # --> is this really necessary ??
+    return render_template( 'post.html',
                             title = entry['db']['title'],
                             entry = entry,
                             page_nav = page_nav,
                             img_exifs_json = entry['db']['exifs_json'] )
+
+def show_post_by_type_ref(type, ref):
+    '''helper to show an entry by type, ref
+currently used for types:
+- special
+- note
+'''
+    row = get_entry_by_ref(ref, type)
+
+    page_nav = { 'prev_href': None,
+                 'next_href': None }
+
+    return show_post(row, page_nav)
 
 @pages.route('/')
 def home():
     '''the home page'''
 
     # articles
-
     # get a list of articles
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute( '''SELECT id, ref, title, date_norm, meta_json
@@ -192,28 +208,6 @@ def home():
         d = { 'db': row }
         notes.append(d)
 
-    # imagepages
-
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT id, ref, title, date_norm, meta_json, data1
-#                           FROM entries
-#                           WHERE type = 'imagepage'
-#                           AND pub = 1
-#                           ORDER BY datetime_norm DESC''' )
-#    rows = cur.fetchall()
-#
-#    imagepages = []
-#    for row in rows:
-#        d = { 'db': row }
-#
-#        # set imagepage thumbs
-#        thumb_filename = os.path.splitext(row['data1'])[0] + '_thumb.png'
-#        d['thumb_src'] = os.path.join('/media', thumb_filename)
-#
-#        # set link href
-#        d['href'] = os.path.join(row['date_norm'], row['ref'])
-#        imagepages.append(d)
-
     return render_template( 'home.html',
                             title = None,
                             articles = articles,
@@ -226,12 +220,8 @@ def article(article_path):
 
     row = get_entry_by_date_ref_path(article_path, 'article')
 
-    # set tags
-    entry = { 'db': row }
-    entry['tags'] = extract_tags(row['meta_json'])
-
     # get previous/next navigation
-    page_nav = get_page_nav(row['type'], row['datetime_norm'])
+    page_nav = create_page_nav(row['type'], row['datetime_norm'])
 
 #    # foto exif information
 #    if row['exifs_json'] == "":
@@ -239,81 +229,16 @@ def article(article_path):
 #
 # --> jinja evaluates "" as not defined, as far as I can see...
 
-    return render_template( 'article.html',
-                            title = entry['db']['title'],
-                            entry = entry,
-                            page_nav = page_nav,
-                            img_exifs_json = entry['db']['exifs_json'] )
-
-#@pages.route('/index/')
-#def index():
-#    # shows a list of posts (articles and imagepages),
-#    # grouped by date
-#    cur = g.db.execute('''SELECT type, ref, title, date_norm, data1 
-#                          FROM entries
-#                          WHERE ( type = 'article' OR type = 'imagepage' )
-#                          AND pub = 1
-#                          ORDER BY datetime_norm DESC, title ASC''')
-#
-#    entries = [ dict( type = row[0],
-#                      ref = row[1],
-#                      title = row[2],
-#                      date = row[3],
-#                      data = row[4] ) for row in cur.fetchall() ]
-#
-#    # generate items
-#    date_items = []
-#
-#    last_date = ""
-#    for entry in entries:
-#        # set imagepage thumbs
-#        if entry['type'] == "imagepage":
-#            thumb_filename = os.path.splitext(entry['data'])[0] + '_thumb.png'
-#            entry['thumb_src'] = os.path.join('/media', thumb_filename)
-#
-#        # set link href
-#        entry['href'] = os.path.join(entry['date'], entry['ref'])
-#
-#        # construct list
-#        date = entry['date']
-#        if date != last_date:
-#            date_item = { 'date': date, 'entries': [ entry ] }
-#            date_items.append(date_item)
-#        else:
-#            date_items[-1]['entries'].append(entry)
-#        last_date = date
-#
-#    title = "Index"
-#    return render_template( 'entries_index.html',
-#                            title=title,
-#                            date_items=date_items )
+    return show_post(row, page_nav)
 
 @pages.route('/special/<ref>/')
 def special(ref):
     '''special page'''
 
-    return show_page_by_type_ref('special', ref)
+    return show_post_by_type_ref('special', ref)
 
 @pages.route('/notes/<ref>/')
 def show_note(ref):
     '''note page'''
 
-    return show_page_by_type_ref('note', ref)
-
-#@pages.route('/post/<path:post_path>/')
-#def show_post(post_path):
-#
-#    post_date, post_ref = os.path.split(post_path)
-#
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( QUERY_POST_SELECT_FROM + \
-#                        '''WHERE date_norm = ?
-#                           AND ref = ?
-#                           AND pub = 1''', (post_date, post_ref))
-#    row = cur.fetchone()
-#
-#    # (catch not found !!!)
-#    if row is not None:
-#        return render_post(post_ref, row)
-#    else:
-#        abort(404)
+    return show_post_by_type_ref('note', ref)

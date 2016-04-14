@@ -33,7 +33,7 @@ from rubric_dyn.views.pages import pages
 app.register_blueprint(pages)
 
 from rubric_dyn.views.interface import interface
-app.register_blueprint(interface)
+app.register_blueprint(interface, url_prefix='/interface')
 
 # media folder (static)
 
