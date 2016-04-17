@@ -17,3 +17,24 @@ create table entries (
   pub int default 1,
   exifs_json text
 );
+
+drop table if exists galleries;
+create table galleries (
+  id integer primary key autoincrement,
+  ref text not null,
+  title text not null,
+  desc text not null,
+  datetime_norm text not null,
+  pub int default 1
+);
+
+drop table if exists images;
+create table images (
+  id integer primary key autoincrement,
+  ref text not null,
+  caption text,
+  datetime_norm text,
+  exif_json text,
+  gallery_id int,
+  pub int default 1
+);

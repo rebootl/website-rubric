@@ -1,16 +1,20 @@
-'''common functions'''
-
-import subprocess
+'''common "frontend" functions'''
 import os
-from PIL import Image, ImageOps
-from datetime import datetime
+import subprocess
 import re
 import hashlib
+from PIL import Image, ImageOps
+from PIL import ImageFile
+# (prevent OSError: image file is truncated)
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+from datetime import datetime
 
 import config
+# --> shouldn't flask current_app config be used here ???
 
 def pandoc_pipe(content, opts):
-    '''Create a pandoc pipe reading from a variable and returning the output.'''
+    '''create a pandoc pipe reading from a variable and returning the output'''
 
     pandoc_command = [ 'pandoc' ] + opts
 
@@ -23,11 +27,9 @@ def pandoc_pipe(content, opts):
 
     return output
 
-
 def copy_file(in_path, out_dir):
-    '''Call copy w/o preset directories.
-(Not recursive.)
---> shutil.copy could be used for this.'''
+    '''call copy w/o preset directories
+(not recursive)'''
     if not os.path.isfile(in_path):
         print("Warning: File not found:", in_path)
         return
@@ -36,12 +38,12 @@ def copy_file(in_path, out_dir):
         os.makedirs(out_dir)
 
     # using cp -u
+    # --> shutil.copy could be used for this
     cp_command = ['cp', '-u', in_path, out_dir]
-
     exitcode = subprocess.call(cp_command)
 
-
 def make_thumb(img_in_path_abs, out_dir):
+    '''generate thumbnail for image'''
     in_filename = os.path.basename(img_in_path_abs)
     out_filename = os.path.splitext(in_filename)[0] + "_thumb.png"
 
@@ -55,6 +57,22 @@ def make_thumb(img_in_path_abs, out_dir):
     thumb = ImageOps.fit(image, (256, 256), Image.ANTIALIAS)
     thumb.save(out_thumbpath_abs, "PNG")
 
+def make_thumb_samename(img_in_path_abs, out_dir):
+    '''generate thumbnail for image using the same name
+(out_dir has to be a different directory)
+'''
+    in_filename = os.path.basename(img_in_path_abs)
+    out_filepath_abs = os.path.join(out_dir, in_filename)
+
+    # leave if already there
+    if os.path.isfile(out_filepath_abs):
+        return
+
+    image = Image.open(img_in_path_abs)
+    thumb = ImageOps.fit(image, (256, 256), Image.ANTIALIAS)
+    thumb.save(out_filepath_abs)
+
+# deprecated (used in old importer)
 def date_obj(str):
     try:
         date_obj = datetime.strptime(
@@ -82,11 +100,14 @@ def url_encode_str(string):
     return alnum_dashed.lower()
 
 def get_md5sum(str):
+    '''generate md5sum from string'''
     return hashlib.md5(str.encode()).hexdigest()
 
 def date_norm( date_str,
                datetime_fmt=config.DATETIME_FORMAT,
                date_fmt=config.DATE_FORMAT ):
+    '''return normed date, time and datetime strings
+from a date string that has format defined in config'''
     try:
         date_obj = datetime.strptime( date_str,
                                       datetime_fmt )
@@ -105,3 +126,10 @@ def date_norm( date_str,
             time_norm = "NOT SET"
             datetime_norm = "ERRONEOUS_DATE"
     return date_norm, time_norm, datetime_norm
+
+def datetime_norm(datetime_str, datetime_fmt=config.DATETIME_FORMAT):
+    try:
+        date_obj = datetime.strptime(datetime_str, datetime_fmt)
+        return date_obj.strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return False

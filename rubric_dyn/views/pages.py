@@ -1,3 +1,4 @@
+'''regular website pages'''
 import os
 import sqlite3
 import json

@@ -1,3 +1,4 @@
+'''"backend" interface'''
 import os
 import sqlite3
 import json
@@ -5,32 +6,92 @@ import datetime
 import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app, make_response
-from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str
-from rubric_dyn.ExifNice import ExifNiceStr
+from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
+    make_thumb_samename, datetime_norm
+from rubric_dyn.interface_processing import process_edit, process_meta_json, \
+    create_exifs_json
+from rubric_dyn.Page import EditPage, NewPage
+from rubric_dyn.ExifNice import ExifNice
 
-# (example from tutorial)
-#simple_page = Blueprint('simple_page', __name__,
-#                        template_folder='templates')
-#
-#@simple_page.route('/', defaults={'page': 'index'})
-#@simple_page.route('/<page>')
-#def show(page):
-#    try:
-#        return render_template('pages/%s.html' % page)
-#    except TemplateNotFound:
-#        abort(404)
+interface = Blueprint('interface', __name__,
+                      template_folder='../templates/interface')
 
-interface = Blueprint('interface', __name__)
+def update_pub(id, pub):
+    '''update publish state in database'''
+    g.db.execute('''UPDATE entries
+                    SET pub = ?
+                    WHERE id = ?''', (pub, id))
+    g.db.commit()
 
-# restrict all views example
-# --> login needs to be adapted for this so that login is possible
-#@interface.before_request
-#def restrict_access():
-#    if not session.get('logged_in'):
-#        abort(401)
+def render_preview(id, text_input):
+    '''process text input into preview and reload the editor page'''
+
+    meta, body_html, img_exifs_json = process_edit(text_input)
+
+    # set imagepage specifics
+    # --> DEPRECATED TYPE
+    #if meta['type'] == "imagepage":
+    #    img_src = os.path.join("/media", meta['image'])
+    #else:
+    #    img_src = ""
+
+    date_normed, \
+    time_normed, \
+    datetime_normed = date_norm( meta['date'],
+                                 current_app.config['DATETIME_FORMAT'],
+                                 current_app.config['DATE_FORMAT'] )
+
+    if img_exifs_json == "":
+        img_exifs_json = False
+
+    if 'tags' in meta.keys():
+        tags = meta['tags']
+    else:
+        tags = None
+
+    # prepare stuff for post.html template
+    db = { 'title': meta['title'],
+           'date_norm': date_normed,
+           'body_html': body_html }
+    entry = { 'db': db,
+              'tags': tags }
+
+    # render stuff
+    return render_template( 'edit.html',
+                            preview = True,
+                            id = id,
+                            text = text_input,
+                            type = meta['type'],
+                            entry = entry,
+                            img_exifs_json = img_exifs_json )
+
+def load_to_edit(id):
+    '''load editor page for id'''
+
+    # get data for the page to edit
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT meta_json, body_md
+                          FROM entries
+                          WHERE id = ?
+                          LIMIT 1''', (id,))
+    meta_json, body_md = cur.fetchone()
+
+    # --> catch not found
+
+    # assemble body
+    text = '%%%'.join((meta_json, body_md))
+
+    return render_template( 'edit.html', preview=False, id=id, \
+                            text=text )
+
+def load_to_edit_new(type):
+    '''load editor page (new)'''
+    return render_template( 'edit.html', preview=False, id="new", \
+                            new=True, type=type )
 
 @interface.route('/', methods=['GET', 'POST'])
 def login():
+    '''login page'''
     if session.get('logged_in'):
         return redirect(url_for('interface.overview'))
     error = None
@@ -48,6 +109,11 @@ def login():
 
 @interface.route('/overview', methods=['GET', 'POST'])
 def overview():
+    '''interface overview
+shows:
+- a list of all pages
+- new page creation (done in template)
+'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -71,16 +137,26 @@ def overview():
             href = "NOT_DEFINED"
         hrefs.update({ row['id']: href })
 
+    # images
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm, gallery_id
+                          FROM images
+                          ORDER BY datetime_norm DESC''')
+    img_rows = cur.fetchall()
+
     return render_template( 'overview.html',
-                            entries=rows,
-                            title="Overview",
-                            hrefs=hrefs )
+                            entries = rows,
+                            title = "Overview",
+                            hrefs = hrefs,
+                            images = img_rows )
 
 @interface.route('/edit', methods=['GET', 'POST'])
 def edit():
+    '''edit a page entry'''
     if not session.get('logged_in'):
         abort(401)
 
+    # button pressed on edit page (preview / save / cancel)
     if request.method == 'POST':
         action = request.form['actn']
         if action == "cancel":
@@ -89,7 +165,6 @@ def edit():
             id = request.form['id']
             text_input = request.form['text-input']
             return render_preview(id, text_input)
-            #return text_input
         elif action == "save":
             id = request.form['id']
             if id == "new":
@@ -106,14 +181,16 @@ def edit():
                 return redirect(url_for('interface.overview'))
         else:
             abort(404)
+
+    # loading from overview
     else:
         id = request.args.get('id')
 
         if id == "new":
             # create new
+            # --> is this currently ever used/reached ???
             type = request.args.get('type')
             return load_to_edit_new(type)
-            #abort(404)
 
         elif id == None:
             # --> abort for now
@@ -124,6 +201,7 @@ def edit():
 
 @interface.route('/new')
 def new():
+    '''create new page using editor'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -133,32 +211,37 @@ def new():
 
 @interface.route('/pub')
 def pub():
+    '''publish entry'''
     if not session.get('logged_in'):
         abort(401)
 
     id = request.args.get('id')
-    # --> change state
-    #flash('published {} id {}'.format(publ, id))
+
+    # change state
     update_pub(id, 1)
+
     flash('Published ID {}'.format(id))
 
     return redirect(url_for('interface.overview'))
 
 @interface.route('/unpub')
 def unpub():
+    '''unpublish entry'''
     if not session.get('logged_in'):
         abort(401)
 
     id = request.args.get('id')
-    # --> change state
-    #flash('published {} id {}'.format(publ, id))
+
+    # change state
     update_pub(id, 0)
+
     flash('Unublished ID {}'.format(id))
 
     return redirect(url_for('interface.overview'))
 
 @interface.route('/download')
 def download_text():
+    '''download entry text (markdown)'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -190,6 +273,9 @@ def download_text():
 
 @interface.route('/recreate_exifs')
 def recreate_exifs():
+    '''"hidden url" recreate all exif information
+this was used to create exif information for files
+of already existing entries'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -211,234 +297,129 @@ def recreate_exifs():
     flash('Updated EXIF data successfully.')
     return redirect(url_for('interface.overview'))
 
-    # (debug)
-    #text = ""
-    #for row in rows:
-    #    text += "id: " + str(row['id']) + "\n"
-
-    #return "FOO"
-
-def update_pub(id, pub):
-    g.db.execute('''UPDATE entries
-                    SET pub = ?
-                    WHERE id = ?''', (pub, id))
+def db_insert_image(img_ref, datetime_norm, exif_json):
+    '''insert image into db'''
+    g.db.execute( '''INSERT INTO images
+                     (ref, datetime_norm, exif_json)
+                     VALUES (?,?,?)''',
+                  (img_ref, datetime_norm, exif_json) )
     g.db.commit()
 
-def render_preview(id, text_input):
+def db_update_image(id, caption, datetime_norm, gallery_id):
+    '''update image informations in db'''
+    g.db.execute( '''UPDATE images
+                     SET caption = ?, datetime_norm = ?, gallery_id = ?
+                     WHERE id = ?''',
+                  (caption, datetime_norm, gallery_id, id) )
+    g.db.commit()
 
-    meta, body_html, img_exifs_json = process_edit(text_input)
+@interface.route('/update_images')
+def update_images():
+    '''"hidden url" update image in database from media directory,
+create thumbnails under media/thumbs
+'''
+    if not session.get('logged_in'):
+        abort(401)
 
-    # set imagepage specifics
-    if meta['type'] == "imagepage":
-        img_src = os.path.join("/media", meta['image'])
-    else:
-        img_src = ""
+    media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
 
-    date_normed, \
-    time_normed, \
-    datetime_normed = date_norm( meta['date'],
-                                 current_app.config['DATETIME_FORMAT'],
-                                 current_app.config['DATE_FORMAT'] )
+    # get content of the media dir
+    media_files = os.listdir(media_abspath)
 
-    if img_exifs_json == "":
-        img_exifs_json = False
+    # filter out images
+    image_files = []
+    for file in media_files:
+        file_ext = os.path.splitext(os.path.join(media_abspath, file))[1]
+        if file_ext in current_app.config['IMG_EXTS']:
+            image_files.append(file)
 
-    if 'tags' in meta.keys():
-        tags = meta['tags']
-    else:
-        tags = None
+    # get image refs from db
+    cur = g.db.execute('''SELECT ref
+                          FROM images''')
+    rows = cur.fetchall()
+    refs = [ ref[0] for ref in rows ]
 
-    # render stuff
-    return render_template( 'edit.html',
-                            preview = True,
-                            id = id,
-                            text = text_input,
-                            type = meta['type'],
-                            title = meta['title'],
-                            date = date_normed,
-                            body_html = body_html,
-                            img_src = img_src,
-                            img_exifs_json = img_exifs_json,
-                            tags = tags )
+    # insert in db if not exists
+    for image_file in image_files:
+        if image_file not in refs:
+            # extract exif into json
+            if os.path.splitext(image_file)[1] in current_app.config['JPEG_EXTS']:
+                img_exif = ExifNice(os.path.join(media_abspath, image_file))
+                if img_exif.has_exif:
+                    exif_json = img_exif.get_json()
+                    datetime_norm = date_norm(img_exif.datetime,
+                                              "%Y:%m:%d %H:%M:%S")[2]
+                else:
+                    exif_json = ""
+                    datetime_norm = ""
+            else:
+                exif_json = ""
+                datetime_norm = ""
 
-def process_edit(text_input, return_md=False):
+            # insert in db
+            db_insert_image(image_file, datetime_norm, exif_json)
+            # (--> flash message)
 
-    # escape shit ?
+    # create thumbnail if not exists
+    # get thumbs
+    thumbs = os.listdir(os.path.join(media_abspath, 'thumbs'))
 
-    # split text in json and markdown block
-    meta_json, body_md = text_input.split('%%%', 1)
+    for file in image_files:
+        make_thumb_samename( os.path.join(media_abspath, file),
+                             os.path.join(media_abspath, 'thumbs') )
 
-    meta = process_meta_json(meta_json)
+    #return str(image_files)
+    return str(thumbs)
 
-    # process text through pandoc
-    body_html = pandoc_pipe( body_md,
-                             [ '--to=html5',
-                               '--filter=rubric_dyn/filter_img_path.py' ] )
+@interface.route('/edit_image', methods=[ 'GET', 'POST' ])
+def edit_image():
 
-    img_exifs_json = create_exifs_json(meta['files'])
+    if not session.get('logged_in'):
+        abort(401)
 
-    if not return_md:
-        return meta, body_html, img_exifs_json
-    else:
-        return meta, meta_json, img_exifs_json, body_html, body_md
+    # button pressed on edit page (preview / save / cancel)
+    if request.method == 'POST':
+        action = request.form['actn']
+        if action == "cancel":
+            return redirect(url_for('interface.overview'))
+        elif action == "save":
+            # get stuff
+            id = request.form['id']
+            caption = request.form['caption']
+            datetime_str = request.form['datetime']
+            datetime_normed = datetime_norm(datetime_str)
+            if not datetime_normed:
+                datetime_normed = None
+                flash("Warning: bad datetime format..., set to None.")
+            # --> verify
+            gal_id = request.form['gal-id']
+            try:
+                int(gal_id)
+            except ValueError:
+                gal_id = None
+                flash("Warning: gallery_id must be an integer, set to None.")
+            # save stuff
+            db_update_image(id, caption, datetime_normed, gal_id)
+            flash("Updated image meta information: {}".format(id))
+            return redirect(url_for('interface.overview'))
 
-def create_exifs_json(files):
-    # create image info (EXIF data)
-    img_exifs = {}
-    for file in files:
-        if os.path.splitext(file)[1] in current_app.config['JPEG_EXTS']:
-            img_filepath = os.path.join( current_app.config['RUN_PATH'],
-                                         current_app.config['MEDIA_FOLDER'],
-                                         file )
-            exif = ExifNiceStr(img_filepath)
-            if exif.display_str:
-                image_exif = { os.path.join( '/',
-                                             current_app.config['MEDIA_FOLDER'],
-                                             file ) : exif.display_str }
-                img_exifs.update(image_exif)
-    if img_exifs:
-        return json.dumps(img_exifs)
-    else:
-        return ""
+    id = request.args.get('id')
 
-def process_meta_json(meta_json):
-    try:
-        meta = json.loads(meta_json)
-    except json.decoder.JSONDecodeError:
-        flash("Warning: Error in JSON data, using defaults...")
-        meta = {}
-
-    # set defaults
-    for key, value in current_app.config['META_DEFAULTS'].items():
-            if key not in meta.keys():
-                meta[key] = value
-
-    if type == "imagepage":
-        if meta['image'] == "" or meta['image'] == None:
-            meta['image'] = "NO IMAGE SET"
-
-    return meta
-
-def load_to_edit(id):
-
-    # get data for the page to edit
+    # image
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT meta_json, body_md
-                          FROM entries
-                          WHERE id = ?
-                          LIMIT 1''', (id,))
-    meta_json, body_md = cur.fetchone()
+    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
+                           exif_json, gallery_id
+                          FROM images
+                          WHERE id = ?''', (id,))
+    row = cur.fetchone()
 
-    # --> catch not found
+    try:
+        exif = json.loads(row['exif_json'])
+    except json.decoder.JSONDecodeError:
+        exif = None
 
-    # assemble body
-    text = '%%%'.join((meta_json, body_md))
+    #return str(row[2])
 
-    return render_template( 'edit.html', preview=False, id=id, \
-                            text=text, title="Edit" )
-
-def load_to_edit_new(type):
-    return render_template( 'edit.html', preview=False, id="new", \
-                            title="Edit", new=True, type=type )
-
-class Page:
-
-    def __init__(self, text_input):
-        self.text_input = text_input
-
-        self.meta, \
-        self.meta_json, \
-        self.img_exifs_json, \
-        self.body_html, \
-        self.body_md = process_edit(self.text_input, True)
-
-        self.title = self.meta['title']
-        self.author = self.meta['author']
-
-        self.body_md5sum = get_md5sum(self.body_md)
-
-        self.date_str = self.meta['date']
-        self.date_norm, \
-        self.time_norm, \
-        self.datetime_norm = date_norm( self.date_str,
-                                        current_app.config['DATETIME_FORMAT'],
-                                        current_app.config['DATE_FORMAT'] )
-
-        self.ref = url_encode_str(self.title)
-
-        self.type = self.meta['type']
-        if self.type == 'imagepage':
-            self.data1 = self.meta['image']
-        else:
-            self.data1 = ""
-
-#    def save(self):
-#        raise NotImplementedError
-
-class EditPage(Page):
-
-    def __init__(self, id, text_input):
-        self.id = id
-        super().__init__(text_input)
-
-    def save_edit(self):
-        self.db_update_entry()
-
-    def db_update_entry(self):
-        g.db.execute( '''UPDATE entries
-                         SET ref = ?, type = ?, title = ?, author = ?,
-                          date_str = ?, datetime_norm = ?, date_norm = ?,
-                          time_norm = ?, body_html = ?, body_md5sum = ?,
-                          meta_json = ?, body_md = ?, data1 = ?,
-                          exifs_json = ?
-                         WHERE id = ?''',
-                      ( self.ref, self.type, self.title, self.author, \
-                        self.date_str, self.datetime_norm, self.date_norm, \
-                        self.time_norm, self.body_html, self.body_md5sum, \
-                        self.meta_json, self.body_md, self.data1, \
-                        self.img_exifs_json, self.id ) )
-        g.db.commit()
-
-class NewPage(Page):
-
-    def __init__(self, text_input):
-        super().__init__(text_input)
-
-        self.published = 0
-
-    def save_new(self):
-        self.db_new_entry()
-
-    def db_new_entry(self):
-        g.db.execute( '''INSERT INTO entries
-                         (ref, type, title, author,
-                          date_str, datetime_norm, date_norm,
-                          time_norm, body_html, body_md5sum,
-                          meta_json, body_md, data1, pub, exifs_json)
-                        VALUES
-                          (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-                      ( self.ref, self.type, self.title, self.author,
-                        self.date_str, self.datetime_norm, self.date_norm,
-                        self.time_norm, self.body_html, self.body_md5sum,
-                        self.meta_json, self.body_md, self.data1, self.published,
-                        self.img_exifs_json ) )
-        g.db.commit()
-
-
-# (examples from tutorial)
-#
-#@app.route('/add', methods=['POST'])
-#def add_entry():
-#    if not session.get('logged_in'):
-#        abort(401)
-#    g.db.execute('insert into entries (title, text) values (?, ?)',
-#                 [request.form['title'], request.form['text']])
-#    g.db.commit()
-#    flash('New entry was successfully posted')
-#    return redirect(url_for('show_entries'))
-#
-#@app.route('/logout')
-#def logout():
-#    session.pop('logged_in', None)
-#    flash('You were logged out')
-#    return redirect(url_for('show_entries'))
+    return render_template( 'edit_image.html',
+                             image = row,
+                             image_exif = exif )
