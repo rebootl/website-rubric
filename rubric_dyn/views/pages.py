@@ -4,6 +4,7 @@ import sqlite3
 import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
+
 from rubric_dyn.common import pandoc_pipe
 
 pages = Blueprint('pages', __name__)

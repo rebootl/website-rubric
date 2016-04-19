@@ -25,7 +25,7 @@ create table galleries (
   title text not null,
   desc text,
   tags text,
-  datetime_norm text,
+  date_norm text,
   pub int default 0
 );
 

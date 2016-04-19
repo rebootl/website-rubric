@@ -1,7 +1,5 @@
-#!/usr/bin/python
-#
-#
-
+'''jpeg exif information object
+uses one instance per image'''
 import os
 import sys
 import json

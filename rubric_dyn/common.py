@@ -103,6 +103,7 @@ def get_md5sum(str):
     '''generate md5sum from string'''
     return hashlib.md5(str.encode()).hexdigest()
 
+# --> deprecate in favor of single functions !!
 def date_norm( date_str,
                datetime_fmt=config.DATETIME_FORMAT,
                date_fmt=config.DATE_FORMAT ):
@@ -126,6 +127,13 @@ from a date string that has format defined in config'''
             time_norm = "NOT SET"
             datetime_norm = "ERRONEOUS_DATE"
     return date_norm, time_norm, datetime_norm
+
+def date_norm2(date_str, date_fmt=config.DATETIME_FORMAT):
+    try:
+        date_obj = datetime.strptime(date_str, date_fmt)
+        return date_obj.strftime("%Y-%m-%d")
+    except ValueError:
+        return False
 
 def datetime_norm(datetime_str, datetime_fmt=config.DATETIME_FORMAT):
     try:

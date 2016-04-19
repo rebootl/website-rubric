@@ -6,34 +6,24 @@ import datetime
 import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app, make_response
+
 from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
-    make_thumb_samename, datetimesec_norm
-from rubric_dyn.interface_processing import process_edit, process_meta_json, \
-    create_exifs_json
+    make_thumb_samename, datetimesec_norm, date_norm2
+from rubric_dyn.interface_db import update_pub, db_insert_image, db_update_image
+from rubric_dyn.interface_helper import create_exifs_json, process_meta_json, \
+    process_edit
 from rubric_dyn.Page import EditPage, NewPage
 from rubric_dyn.ExifNice import ExifNice
 
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
 
-def update_pub(id, pub):
-    '''update publish state in database'''
-    g.db.execute('''UPDATE entries
-                    SET pub = ?
-                    WHERE id = ?''', (pub, id))
-    g.db.commit()
+### functions returning a "view"
 
 def render_preview(id, text_input):
     '''process text input into preview and reload the editor page'''
 
     meta, body_html, img_exifs_json = process_edit(text_input)
-
-    # set imagepage specifics
-    # --> DEPRECATED TYPE
-    #if meta['type'] == "imagepage":
-    #    img_src = os.path.join("/media", meta['image'])
-    #else:
-    #    img_src = ""
 
     date_normed, \
     time_normed, \
@@ -88,6 +78,8 @@ def load_to_edit_new(type):
     '''load editor page (new)'''
     return render_template( 'edit.html', preview=False, id="new", \
                             new=True, type=type )
+
+### routes
 
 @interface.route('/', methods=['GET', 'POST'])
 def login():
@@ -144,6 +136,8 @@ shows:
                           ORDER BY datetime_norm DESC''')
     img_rows = cur.fetchall()
 
+    # --> catch not found ??
+
     return render_template( 'overview.html',
                             entries = rows,
                             title = "Overview",
@@ -167,18 +161,17 @@ def edit():
             return render_preview(id, text_input)
         elif action == "save":
             id = request.form['id']
+            text_input = request.form['text-input']
             if id == "new":
-                text_input = request.form['text-input']
                 page_inst = NewPage(text_input)
                 page_inst.save_new()
                 flash("New Page saved successfully!")
-                return redirect(url_for('interface.overview'))
             else:
-                text_input = request.form['text-input']
+                #text_input = request.form['text-input']
                 page_inst = EditPage(id, text_input)
                 page_inst.save_edit()
                 flash("Page ID {} saved successfully!".format(id))
-                return redirect(url_for('interface.overview'))
+            return redirect(url_for('interface.overview'))
         else:
             abort(404)
 
@@ -297,22 +290,6 @@ of already existing entries'''
     flash('Updated EXIF data successfully.')
     return redirect(url_for('interface.overview'))
 
-def db_insert_image(img_ref, datetime_norm, exif_json):
-    '''insert image into db'''
-    g.db.execute( '''INSERT INTO images
-                     (ref, datetime_norm, exif_json)
-                     VALUES (?,?,?)''',
-                  (img_ref, datetime_norm, exif_json) )
-    g.db.commit()
-
-def db_update_image(id, caption, datetime_norm, gallery_id):
-    '''update image informations in db'''
-    g.db.execute( '''UPDATE images
-                     SET caption = ?, datetime_norm = ?, gallery_id = ?
-                     WHERE id = ?''',
-                  (caption, datetime_norm, gallery_id, id) )
-    g.db.commit()
-
 @interface.route('/update_images')
 def update_images():
     '''"hidden url" update image in database from media directory,
@@ -402,6 +379,8 @@ def edit_image():
             db_update_image(id, caption, datetime_normed, gal_id)
             flash("Updated image meta information: {}".format(id))
             return redirect(url_for('interface.overview', _anchor='image-'+id))
+        else:
+            abort(404)
 
     id = request.args.get('id')
 
@@ -423,3 +402,80 @@ def edit_image():
     return render_template( 'edit_image.html',
                              image = row,
                              image_exif = exif )
+
+def db_load_gallery(id):
+    '''load gallery stuff from db'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, title, desc, date_norm,
+                           tags
+                          FROM galleries
+                          WHERE id = ?''', (id,))
+    row = cur.fetchone()
+
+    # catch not found
+    if row == None:
+        abort(404)
+
+    return row
+
+@interface.route('/edit_gallery', methods=[ 'GET', 'POST' ])
+def edit_gallery():
+
+    if not session.get('logged_in'):
+        abort(401)
+
+    # --> POST
+    if request.method == 'POST':
+        action = request.form['actn']
+        id = request.form['id']
+        if action == "cancel":
+            return redirect(url_for('interface.overview'))
+        elif action == "save":
+            # get stuff
+            #caption = request.form['caption']
+            title = request.form['title']
+            date = request.form['date']
+            desc = request.form['desc']
+            tags = request.form['tags']
+            # --> evtl. process tags ==> maybe not... ??
+            date_normed = date_norm2(date, "%Y-%m-%d")
+            # (debug)
+            #return str(action)
+            if not date_normed:
+                date_normed = None
+                flash("Warning: bad date format..., set to None.")
+            if id == "new":
+                # --> db_insert_gallery
+                return redirect(url_for('interface.overview'))
+            else:
+                # --> db_update_gallery
+                return redirect(url_for('interface.overview'))
+        else:
+            abort(404)
+
+    id = request.args.get('id')
+
+    gallery = { 'id': id }
+
+    # --> jeez, improve this:
+    # ??
+    #  if id == None
+    #  elif not id == "new"
+    # ??
+    if id == "new":
+        pass
+
+    elif id == None:
+        # --> abort for now
+        abort(404)
+
+    else:
+        # load stuff
+        row = db_load_gallery(id)
+
+        gallery.update( { 'title': row['title'],
+                          'date_norm': row['date_norm'],
+                          'desc': row['desc'],
+                          'tags': row['tags'] } )
+
+    return render_template('edit_gallery.html', gallery=gallery)

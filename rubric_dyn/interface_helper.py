@@ -1,4 +1,4 @@
-'''common processing functions'''
+'''interface helper functions (not returning a view)'''
 import os
 import json
 from flask import current_app, flash
