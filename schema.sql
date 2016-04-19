@@ -14,7 +14,7 @@ create table entries (
   meta_json text not null,
   body_md text not null,
   data1 text,
-  pub int default 1,
+  pub int default 0,
   exifs_json text
 );
 
@@ -23,9 +23,10 @@ create table galleries (
   id integer primary key autoincrement,
   ref text not null,
   title text not null,
-  desc text not null,
-  datetime_norm text not null,
-  pub int default 1
+  desc text,
+  tags text,
+  datetime_norm text,
+  pub int default 0
 );
 
 drop table if exists images;
@@ -35,6 +36,5 @@ create table images (
   caption text,
   datetime_norm text,
   exif_json text,
-  gallery_id int,
-  pub int default 1
+  gallery_id int
 );

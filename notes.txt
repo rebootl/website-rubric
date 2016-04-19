@@ -1,3 +1,14 @@
 
 
 - make next by date link [ > ] not clickable, if last
+    ==> DONE
+
+
+
+
+
+- remove pub for images (db)
+    ==> DONE
+
+- add seconds to images datetime_norm
+    ==> DONE

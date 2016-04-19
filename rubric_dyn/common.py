@@ -133,3 +133,10 @@ def datetime_norm(datetime_str, datetime_fmt=config.DATETIME_FORMAT):
         return date_obj.strftime("%Y-%m-%d %H:%M")
     except ValueError:
         return False
+
+def datetimesec_norm(datetime_str, datetime_fmt):
+    try:
+        date_obj = datetime.strptime(datetime_str, datetime_fmt)
+        return date_obj.strftime("%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return False

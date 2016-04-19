@@ -7,7 +7,7 @@ import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app, make_response
 from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
-    make_thumb_samename, datetime_norm
+    make_thumb_samename, datetimesec_norm
 from rubric_dyn.interface_processing import process_edit, process_meta_json, \
     create_exifs_json
 from rubric_dyn.Page import EditPage, NewPage
@@ -347,8 +347,8 @@ create thumbnails under media/thumbs
                 img_exif = ExifNice(os.path.join(media_abspath, image_file))
                 if img_exif.has_exif:
                     exif_json = img_exif.get_json()
-                    datetime_norm = date_norm(img_exif.datetime,
-                                              "%Y:%m:%d %H:%M:%S")[2]
+                    datetime_norm = datetimesec_norm( img_exif.datetime,
+                                                      "%Y:%m:%d %H:%M:%S" )
                 else:
                     exif_json = ""
                     datetime_norm = ""
@@ -369,7 +369,7 @@ create thumbnails under media/thumbs
                              os.path.join(media_abspath, 'thumbs') )
 
     #return str(image_files)
-    return str(thumbs)
+    return redirect(url_for('interface.overview'))
 
 @interface.route('/edit_image', methods=[ 'GET', 'POST' ])
 def edit_image():
@@ -380,14 +380,14 @@ def edit_image():
     # button pressed on edit page (preview / save / cancel)
     if request.method == 'POST':
         action = request.form['actn']
+        id = request.form['id']
         if action == "cancel":
-            return redirect(url_for('interface.overview'))
+            return redirect(url_for('interface.overview', _anchor='image-'+id))
         elif action == "save":
             # get stuff
-            id = request.form['id']
             caption = request.form['caption']
             datetime_str = request.form['datetime']
-            datetime_normed = datetime_norm(datetime_str)
+            datetime_normed = datetimesec_norm(datetime_str, "%Y-%m-%d %H:%M:%S")
             if not datetime_normed:
                 datetime_normed = None
                 flash("Warning: bad datetime format..., set to None.")
@@ -401,7 +401,7 @@ def edit_image():
             # save stuff
             db_update_image(id, caption, datetime_normed, gal_id)
             flash("Updated image meta information: {}".format(id))
-            return redirect(url_for('interface.overview'))
+            return redirect(url_for('interface.overview', _anchor='image-'+id))
 
     id = request.args.get('id')
 
