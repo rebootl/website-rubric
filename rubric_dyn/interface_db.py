@@ -11,7 +11,7 @@ def update_pub(id, pub):
 def db_insert_image(img_ref, datetime_norm, exif_json):
     '''insert image into db'''
     g.db.execute( '''INSERT INTO images
-                     (ref, datetime_norm, exif_json)
+                      (ref, datetime_norm, exif_json)
                      VALUES (?,?,?)''',
                   (img_ref, datetime_norm, exif_json) )
     g.db.commit()

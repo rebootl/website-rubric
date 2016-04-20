@@ -129,6 +129,13 @@ shows:
             href = "NOT_DEFINED"
         hrefs.update({ row['id']: href })
 
+    # galleries
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, title, desc, date_norm,
+                           tags, pub
+                          FROM galleries''')
+    gal_rows = cur.fetchall()
+
     # images
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT id, ref, caption, datetime_norm, gallery_id
@@ -142,7 +149,8 @@ shows:
                             entries = rows,
                             title = "Overview",
                             hrefs = hrefs,
-                            images = img_rows )
+                            images = img_rows,
+                            galleries = gal_rows )
 
 @interface.route('/edit', methods=['GET', 'POST'])
 def edit():
@@ -418,6 +426,23 @@ def db_load_gallery(id):
 
     return row
 
+def db_insert_gallery(ref, title, date_norm, desc, tags):
+    '''create new gallery in db'''
+    g.db.execute( '''INSERT INTO galleries
+                      (ref, title, date_norm, desc, tags)
+                     VALUES (?,?,?,?,?)''',
+                  (ref, title, date_norm, desc, tags) )
+    g.db.commit()
+
+def db_update_gallery(id, ref, title, date_norm, desc, tags):
+    '''update gallery entry in db'''
+    g.db.execute( '''UPDATE galleries
+                     SET ref = ?, title = ?, date_norm = ?, desc = ?, 
+                      tags = ?
+                     WHERE id = ?''',
+                  (ref, title, date_norm, desc, tags, id) )
+    g.db.commit()
+
 @interface.route('/edit_gallery', methods=[ 'GET', 'POST' ])
 def edit_gallery():
 
@@ -438,17 +463,25 @@ def edit_gallery():
             desc = request.form['desc']
             tags = request.form['tags']
             # --> evtl. process tags ==> maybe not... ??
+            # process
+            # --> is ref really needed here ???
+            ref = url_encode_str(title)
             date_normed = date_norm2(date, "%Y-%m-%d")
             # (debug)
             #return str(action)
             if not date_normed:
                 date_normed = None
                 flash("Warning: bad date format..., set to None.")
+            if not title or title == "":
+                flash("Warning: title must be set, returning.")
+                return redirect(url_for('interface.edit_gallery', id=id))
             if id == "new":
-                # --> db_insert_gallery
+                db_insert_gallery(ref, title, date_normed, desc, tags)
+                flash("Created new gallery {}.".format(title))
                 return redirect(url_for('interface.overview'))
             else:
-                # --> db_update_gallery
+                db_update_gallery(id, ref, title, date_norm, desc, tags)
+                flash("Updated Gallery information, id: {}".format(id))
                 return redirect(url_for('interface.overview'))
         else:
             abort(404)
@@ -473,6 +506,8 @@ def edit_gallery():
         # load stuff
         row = db_load_gallery(id)
 
+        # --> why ? just load id from db and set to row... ?!?
+        # ==> it was because of tags probably...
         gallery.update( { 'title': row['title'],
                           'date_norm': row['date_norm'],
                           'desc': row['desc'],
