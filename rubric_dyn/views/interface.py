@@ -9,7 +9,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 
 from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
     make_thumb_samename, datetimesec_norm, date_norm2
-from rubric_dyn.interface_db import update_pub, db_insert_image, db_update_image
+from rubric_dyn.interface_db import update_pub, db_insert_image, db_update_image, \
+    db_load_gallery, db_insert_gallery, db_update_gallery, db_pub_gallery
 from rubric_dyn.interface_helper import create_exifs_json, process_meta_json, \
     process_edit
 from rubric_dyn.Page import EditPage, NewPage
@@ -131,7 +132,7 @@ shows:
 
     # galleries
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, title, desc, date_norm,
+    cur = g.db.execute('''SELECT id, ref, title, desc, date_norm,
                            tags, pub
                           FROM galleries''')
     gal_rows = cur.fetchall()
@@ -298,6 +299,39 @@ of already existing entries'''
     flash('Updated EXIF data successfully.')
     return redirect(url_for('interface.overview'))
 
+@interface.route('/update_galleries')
+def update_galleries():
+    '''"hidden url" update galleries from directory: media/galleries,
+also inserts images into db and creates thumbnails'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    # get content of the gallery dir
+    gallery_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media/galleries')
+    gallery_files = os.listdir(gallery_abspath)
+
+    # filter
+    gallery_dirs = []
+    for file in gallery_files:
+        file_abspath = os.path.join(gallery_abspath, file)
+        if os.path.isdir(file_abspath):
+            gallery_dirs.append(file)
+
+    # get gallery refs from db
+    cur = g.db.execute('''SELECT ref
+                          FROM galleries''')
+    rows = cur.fetchall()
+    gallery_refs = [ ref[0] for ref in rows ]
+
+    # create a gallery for each dir if not exists
+    for gallery_dir in gallery_dirs:
+        if gallery_dir in gallery_refs:
+            continue
+        date_norm = datetime.date.today().strftime("%Y-%m-%d")
+        db_insert_gallery(gallery_dir, "", date_norm, "", "")
+
+    return str(gallery_refs)
+
 @interface.route('/update_images')
 def update_images():
     '''"hidden url" update image in database from media directory,
@@ -411,37 +445,30 @@ def edit_image():
                              image = row,
                              image_exif = exif )
 
-def db_load_gallery(id):
-    '''load gallery stuff from db'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, title, desc, date_norm,
-                           tags
-                          FROM galleries
-                          WHERE id = ?''', (id,))
-    row = cur.fetchone()
+@interface.route('/pub_gallery')
+def pub_gallery():
+    '''publish/unpublish gallery'''
+    if not session.get('logged_in'):
+        abort(401)
 
-    # catch not found
-    if row == None:
+    id = request.args.get('id')
+    pub = request.args.get('pub')
+
+    if id == None:
         abort(404)
 
-    return row
+    # change state
+    if pub == "1":
+        db_pub_gallery(id, '1')
+        flash('Published Gallery ID {}'.format(id))
+    elif pub == "0":
+        db_pub_gallery(id, '0')
+        flash('Unpublished Gallery ID {}'.format(id))
+    else:
+        abort(404)
 
-def db_insert_gallery(ref, title, date_norm, desc, tags):
-    '''create new gallery in db'''
-    g.db.execute( '''INSERT INTO galleries
-                      (ref, title, date_norm, desc, tags)
-                     VALUES (?,?,?,?,?)''',
-                  (ref, title, date_norm, desc, tags) )
-    g.db.commit()
+    return redirect(url_for('interface.overview'))
 
-def db_update_gallery(id, ref, title, date_norm, desc, tags):
-    '''update gallery entry in db'''
-    g.db.execute( '''UPDATE galleries
-                     SET ref = ?, title = ?, date_norm = ?, desc = ?, 
-                      tags = ?
-                     WHERE id = ?''',
-                  (ref, title, date_norm, desc, tags, id) )
-    g.db.commit()
 
 @interface.route('/edit_gallery', methods=[ 'GET', 'POST' ])
 def edit_gallery():
@@ -449,7 +476,7 @@ def edit_gallery():
     if not session.get('logged_in'):
         abort(401)
 
-    # --> POST
+    # POST
     if request.method == 'POST':
         action = request.form['actn']
         id = request.form['id']
@@ -480,7 +507,7 @@ def edit_gallery():
                 flash("Created new gallery {}.".format(title))
                 return redirect(url_for('interface.overview'))
             else:
-                db_update_gallery(id, ref, title, date_norm, desc, tags)
+                db_update_gallery(id, ref, title, date_normed, desc, tags)
                 flash("Updated Gallery information, id: {}".format(id))
                 return redirect(url_for('interface.overview'))
         else:
@@ -488,29 +515,21 @@ def edit_gallery():
 
     id = request.args.get('id')
 
-    gallery = { 'id': id }
-
-    # --> jeez, improve this:
-    # ??
-    #  if id == None
-    #  elif not id == "new"
-    # ??
-    if id == "new":
-        pass
-
-    elif id == None:
+    if id == None:
         # --> abort for now
         abort(404)
 
-    else:
+    gallery = { 'id': id }
+
+    if id != "new":
         # load stuff
         row = db_load_gallery(id)
 
         # --> why ? just load id from db and set to row... ?!?
         # ==> it was because of tags probably...
-        gallery.update( { 'title': row['title'],
-                          'date_norm': row['date_norm'],
-                          'desc': row['desc'],
-                          'tags': row['tags'] } )
+        #gallery.update( { 'title': row['title'],
+        #                  'date_norm': row['date_norm'],
+        #                  'desc': row['desc'],
+        #                  'tags': row['tags'] } )
 
-    return render_template('edit_gallery.html', gallery=gallery)
+    return render_template('edit_gallery.html', gallery=row)
