@@ -139,7 +139,8 @@ shows:
 
     # images
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm, gallery_id
+    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
+                           gallery_id, thumb_ref
                           FROM images
                           ORDER BY datetime_norm DESC''')
     img_rows = cur.fetchall()
@@ -306,14 +307,18 @@ also inserts images into db and creates thumbnails'''
     if not session.get('logged_in'):
         abort(401)
 
+    # absolute paths
+    media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
+    galleries_abspath = os.path.join(media_abspath, 'galleries')
+    thumbs_abspath = os.path.join(media_abspath, 'thumbs')
+
     # get content of the gallery dir
-    gallery_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media/galleries')
-    gallery_files = os.listdir(gallery_abspath)
+    galleries_files = os.listdir(galleries_abspath)
 
     # filter
     gallery_dirs = []
-    for file in gallery_files:
-        file_abspath = os.path.join(gallery_abspath, file)
+    for file in galleries_files:
+        file_abspath = os.path.join(galleries_abspath, file)
         if os.path.isdir(file_abspath):
             gallery_dirs.append(file)
 
@@ -330,11 +335,69 @@ also inserts images into db and creates thumbnails'''
         date_norm = datetime.date.today().strftime("%Y-%m-%d")
         db_insert_gallery(gallery_dir, "", date_norm, "", "")
 
-    return str(gallery_refs)
+    # update images in galleries
+    for gallery_dir in gallery_dirs:
+        # get id
+        cur = g.db.execute('''SELECT id
+                              FROM galleries
+                              WHERE ref = ?''', (gallery_dir,))
+        gallery_id = cur.fetchone()[0]
+        # get image refs
+        cur = g.db.execute('''SELECT ref
+                              FROM images
+                              WHERE gallery_id = ?''', (gallery_id,))
+        rows = cur.fetchall()
+        img_refs = [ ref[0] for ref in rows ]
+        # get directory content
+        dir_abs = os.path.join(galleries_abspath, gallery_dir)
+        files = os.listdir(dir_abs)
+        # filter images
+        image_files = []
+        for file in files:
+            file_ext = os.path.splitext(file)[1]
+            if file_ext in current_app.config['IMG_EXTS']:
+                image_files.append(file)
+
+        # insert in db if not exists
+        for image_file in image_files:
+            ref = os.path.join('galleries', gallery_dir, image_file)
+            if ref not in img_refs:
+                image_file_abspath = os.path.join( galleries_abspath,
+                                                   gallery_dir,
+                                                   image_file )
+                # extract exif into json
+                if os.path.splitext(image_file)[1] in current_app.config['JPEG_EXTS']:
+                    img_exif = ExifNice(image_file_abspath)
+                    if img_exif.has_exif:
+                        exif_json = img_exif.get_json()
+                        datetime_norm = datetimesec_norm( img_exif.datetime,
+                                                          "%Y:%m:%d %H:%M:%S" )
+                    else:
+                        exif_json = ""
+                        datetime_norm = ""
+                else:
+                    exif_json = ""
+                    datetime_norm = ""
+                # add thumb ref
+                thumb_ref = os.path.join('thumbs', image_file)
+
+                # insert in db
+                db_insert_image( ref,
+                                 thumb_ref,
+                                 datetime_norm,
+                                 exif_json,
+                                 gallery_id )
+                # (--> flash message)
+
+                # create thumbnail if not exists
+                # (existence checked in function --> maybe better check here ?)
+                make_thumb_samename(image_file_abspath, thumbs_abspath)
+
+    return redirect(url_for('interface.overview'))
 
 @interface.route('/update_images')
 def update_images():
-    '''"hidden url" update image in database from media directory,
+    '''DEPRECATED USE update_galleries INSTEAD --- "hidden url" update image in database from media directory,
 create thumbnails under media/thumbs
 '''
     if not session.get('logged_in'):
@@ -348,6 +411,7 @@ create thumbnails under media/thumbs
     # filter out images
     image_files = []
     for file in media_files:
+        # --> join not needed, think
         file_ext = os.path.splitext(os.path.join(media_abspath, file))[1]
         if file_ext in current_app.config['IMG_EXTS']:
             image_files.append(file)
@@ -376,11 +440,11 @@ create thumbnails under media/thumbs
                 datetime_norm = ""
 
             # insert in db
-            db_insert_image(image_file, datetime_norm, exif_json)
+            #db_insert_image(image_file, datetime_norm, exif_json)
             # (--> flash message)
 
     # create thumbnail if not exists
-    # get thumbs
+    # get thumbs --> ??? not used...
     thumbs = os.listdir(os.path.join(media_abspath, 'thumbs'))
 
     for file in image_files:
@@ -400,8 +464,11 @@ def edit_image():
     if request.method == 'POST':
         action = request.form['actn']
         id = request.form['id']
+        gal_id = request.form['gal-id']
         if action == "cancel":
-            return redirect(url_for('interface.overview', _anchor='image-'+id))
+            return redirect(url_for( 'interface.edit_gallery',
+                                     id = gal_id,
+                                     _anchor = 'image-'+id ))
         elif action == "save":
             # get stuff
             caption = request.form['caption']
@@ -411,16 +478,17 @@ def edit_image():
                 datetime_normed = None
                 flash("Warning: bad datetime format..., set to None.")
             # --> verify
-            gal_id = request.form['gal-id']
-            try:
-                int(gal_id)
-            except ValueError:
-                gal_id = None
-                flash("Warning: gallery_id must be an integer, set to None.")
+            #try:
+            #    int(gal_id)
+            #except ValueError:
+            #    gal_id = None
+            #    flash("Warning: gallery_id must be an integer, set to None.")
             # save stuff
-            db_update_image(id, caption, datetime_normed, gal_id)
+            db_update_image(id, caption, datetime_normed)
             flash("Updated image meta information: {}".format(id))
-            return redirect(url_for('interface.overview', _anchor='image-'+id))
+            return redirect(url_for( 'interface.edit_gallery',
+                                     id = gal_id,
+                                     _anchor = 'image-'+id ))
         else:
             abort(404)
 
@@ -433,6 +501,9 @@ def edit_image():
                           FROM images
                           WHERE id = ?''', (id,))
     row = cur.fetchone()
+
+    if row == None:
+        abort(404)
 
     try:
         exif = json.loads(row['exif_json'])
@@ -492,7 +563,6 @@ def edit_gallery():
             # --> evtl. process tags ==> maybe not... ??
             # process
             # --> is ref really needed here ???
-            ref = url_encode_str(title)
             date_normed = date_norm2(date, "%Y-%m-%d")
             # (debug)
             #return str(action)
@@ -503,11 +573,12 @@ def edit_gallery():
                 flash("Warning: title must be set, returning.")
                 return redirect(url_for('interface.edit_gallery', id=id))
             if id == "new":
+                ref = url_encode_str(title)
                 db_insert_gallery(ref, title, date_normed, desc, tags)
                 flash("Created new gallery {}.".format(title))
                 return redirect(url_for('interface.overview'))
             else:
-                db_update_gallery(id, ref, title, date_normed, desc, tags)
+                db_update_gallery(id, title, date_normed, desc, tags)
                 flash("Updated Gallery information, id: {}".format(id))
                 return redirect(url_for('interface.overview'))
         else:
@@ -519,7 +590,7 @@ def edit_gallery():
         # --> abort for now
         abort(404)
 
-    gallery = { 'id': id }
+    #gallery = { 'id': id }
 
     if id != "new":
         # load stuff
@@ -531,5 +602,25 @@ def edit_gallery():
         #                  'date_norm': row['date_norm'],
         #                  'desc': row['desc'],
         #                  'tags': row['tags'] } )
+    else:
+        row = { 'id': id }
 
-    return render_template('edit_gallery.html', gallery=row)
+    # get images
+    images = db_load_images(id)
+
+    #return str(images)
+
+    return render_template( 'edit_gallery.html',
+                            gallery = row,
+                            images = images )
+
+def db_load_images(gallery_id):
+    '''load images for given gallery (id)'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
+                           exif_json, gallery_id, thumb_ref
+                          FROM images
+                          WHERE gallery_id = ?
+                          ORDER BY datetime_norm ASC''', (gallery_id,))
+    rows = cur.fetchall()
+    return rows

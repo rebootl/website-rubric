@@ -12,3 +12,16 @@
 
 - add seconds to images datetime_norm
     ==> DONE
+
+- make subdirs for images/galleries and import from there
+  (create galleries from subdirs)
+    ==> DONE
+
+- add list of images in media dir on overview
+  and make gallery_id writable again,
+  so manual gallery creation and automatic (by directory) is possible
+
+- cleanup db functions
+
+- cleanup json/ page meta data !!
+  (incl. db schema)

@@ -33,8 +33,10 @@ drop table if exists images;
 create table images (
   id integer primary key autoincrement,
   ref text not null,
+  thumb_ref text not null,
   caption text,
   datetime_norm text,
   exif_json text,
-  gallery_id int
+  gallery_id int,
+  pub ind default 1
 );
