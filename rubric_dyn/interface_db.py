@@ -68,3 +68,13 @@ def db_pub_gallery(id, pub):
                     SET pub = ?
                     WHERE id = ?''', (pub, id))
     g.db.commit()
+
+def db_load_images(gallery_id):
+    '''load images for given gallery (id)'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
+                           exif_json, gallery_id, thumb_ref
+                          FROM images
+                          WHERE gallery_id = ?
+                          ORDER BY datetime_norm ASC''', (gallery_id,))
+    return cur.fetchall()

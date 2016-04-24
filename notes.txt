@@ -25,3 +25,5 @@
 
 - cleanup json/ page meta data !!
   (incl. db schema)
+
+- include image publish state

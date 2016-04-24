@@ -10,7 +10,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
     make_thumb_samename, datetimesec_norm, date_norm2
 from rubric_dyn.interface_db import update_pub, db_insert_image, db_update_image, \
-    db_load_gallery, db_insert_gallery, db_update_gallery, db_pub_gallery
+    db_load_gallery, db_insert_gallery, db_update_gallery, db_pub_gallery, \
+    db_load_images
 from rubric_dyn.interface_helper import create_exifs_json, process_meta_json, \
     process_edit
 from rubric_dyn.Page import EditPage, NewPage
@@ -134,16 +135,17 @@ shows:
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT id, ref, title, desc, date_norm,
                            tags, pub
-                          FROM galleries''')
+                          FROM galleries
+                          ORDER BY date_norm DESC''')
     gal_rows = cur.fetchall()
 
     # images
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
-                           gallery_id, thumb_ref
-                          FROM images
-                          ORDER BY datetime_norm DESC''')
-    img_rows = cur.fetchall()
+    #g.db.row_factory = sqlite3.Row
+    #cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
+    #                       gallery_id, thumb_ref
+    #                      FROM images
+    #                      ORDER BY datetime_norm DESC''')
+    #img_rows = cur.fetchall()
 
     # --> catch not found ??
 
@@ -151,7 +153,7 @@ shows:
                             entries = rows,
                             title = "Overview",
                             hrefs = hrefs,
-                            images = img_rows,
+                            #images = img_rows,
                             galleries = gal_rows )
 
 @interface.route('/edit', methods=['GET', 'POST'])
@@ -614,13 +616,3 @@ def edit_gallery():
                             gallery = row,
                             images = images )
 
-def db_load_images(gallery_id):
-    '''load images for given gallery (id)'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
-                           exif_json, gallery_id, thumb_ref
-                          FROM images
-                          WHERE gallery_id = ?
-                          ORDER BY datetime_norm ASC''', (gallery_id,))
-    rows = cur.fetchall()
-    return rows
