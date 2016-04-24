@@ -2,7 +2,7 @@
 (including database methods update and new)'''
 
 from flask import current_app, g
-from rubric_dyn.interface_helper import process_edit
+from rubric_dyn.helper_interface import process_edit
 from rubric_dyn.common import get_md5sum, date_norm, url_encode_str
 
 class Page:

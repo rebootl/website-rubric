@@ -5,6 +5,42 @@ from flask import current_app, flash
 from rubric_dyn.common import pandoc_pipe
 from rubric_dyn.ExifNice import ExifNiceStr
 
+def process_image(image_file, image_dir, ref):
+    '''process image data
+- exif information
+- insert image in db
+- create thumbnail
+'''
+    image_file_abspath = os.path.join(image_dir, image_file)
+
+    # extract exif into json
+    if os.path.splitext(image_file)[1] in current_app.config['JPEG_EXTS']:
+        img_exif = ExifNice(image_file_abspath)
+        if img_exif.has_exif:
+            exif_json = img_exif.get_json()
+            datetime_norm = datetimesec_norm( img_exif.datetime,
+                                              "%Y:%m:%d %H:%M:%S" )
+        else:
+            exif_json = ""
+            datetime_norm = ""
+    else:
+        exif_json = ""
+        datetime_norm = ""
+
+    # add thumb ref
+    thumb_ref = os.path.join('thumbs', image_file)
+
+    # insert in db
+    db_insert_image( ref,
+                     thumb_ref,
+                     datetime_norm,
+                     exif_json,
+                     gallery_id )
+
+    # create thumbnail if not exists
+    # (existence is checked in function --> maybe better check here ?)
+    make_thumb_samename(image_file_abspath, thumbs_abspath)
+
 def create_exifs_json(files):
     '''create image info from EXIF data as json dump'''
     img_exifs = {}

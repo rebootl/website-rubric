@@ -6,121 +6,12 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
 from rubric_dyn.common import pandoc_pipe
+from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref
+from rubric_dyn.helper_pages import create_page_nav, extract_tags
 
 pages = Blueprint('pages', __name__)
 
-
-#def get_entry_by_id(id):
-#    '''return entry data from database'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT type, ref, title, date_norm,
-#                            datetime_norm, body_html, data1, exifs_json,
-#                            meta_json
-#                           FROM entries
-#                           WHERE id = ?''', (id,))
-#    return cur.fetchone()
-
-def get_entry_by_date_ref_path(date_ref_path, type, published=True):
-    '''return entry data from db, by <date>/<ref> path'''
-
-    date, ref = os.path.split(date_ref_path)
-
-    if published == True:
-        pub = 1
-    else:
-        pub = 0
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT type, ref, title, date_norm,
-                            datetime_norm, body_html, data1, exifs_json,
-                            meta_json
-                           FROM entries
-                           WHERE date_norm = ?
-                           AND ref = ?
-                           AND type = ?
-                           AND pub = ?''', (date, ref, type, pub))
-    row = cur.fetchone()
-    # (catch not found !!!)
-    if row is None:
-        abort(404)
-
-    return row
-
-def get_entry_by_ref(ref, type, published=True):
-    '''return entry data from db, by ref'''
-
-    if published == True:
-        pub = 1
-    else:
-        pub = 0
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT type, ref, title, date_norm,
-                            datetime_norm, body_html, data1, exifs_json,
-                            meta_json
-                           FROM entries
-                           WHERE ref = ?
-                           AND type = ?
-                           AND pub = ?''', (ref, type, pub))
-    row = cur.fetchone()
-    # (catch not found !!!)
-    if row is None:
-        abort(404)
-
-    return row
-
-def create_page_nav(curr_type, curr_datetime_norm):
-    '''create previous/next navigation for posts (using same type)'''
-
-    q_begin = '''SELECT date_norm, ref
-                 FROM entries
-                 WHERE date_norm IS NOT 'ERRONEOUS_DATE'
-                 AND ( type = ? )
-                 AND pub = 1
-                 '''
-
-    # get previous page
-    # and create new page_nav list
-    cur = g.db.execute( q_begin + \
-                        '''AND datetime_norm < ?
-                           ORDER BY datetime_norm DESC LIMIT 1''',
-                           (curr_type, curr_datetime_norm) )
-    prev_result = cur.fetchone()
-
-    if curr_type == 'article':
-        type_subpath = "/articles"
-
-    if prev_result is not None:
-        prev_date = prev_result[0]
-        prev_ref = prev_result[1]
-        page_nav = { 'prev_href': os.path.join(type_subpath, prev_date, prev_ref) }
-    else:
-        page_nav = { 'prev_href': None }
-
-    # get next page
-    # and fill in page_nav list
-    cur = g.db.execute( q_begin + \
-                        '''AND datetime_norm > ?
-                           ORDER BY datetime_norm ASC LIMIT 1''',
-                           (curr_type, curr_datetime_norm) )
-    next_result = cur.fetchone()
-
-    if next_result is not None:
-        next_date = next_result[0]
-        next_ref = next_result[1]
-        page_nav['next_href'] = os.path.join(type_subpath, next_date, next_ref)
-    else:
-        page_nav['next_href'] = None
-
-    return page_nav
-
-def extract_tags(meta_json):
-    '''extract tags from json'''
-    meta = json.loads(meta_json)
-    if 'tags' in meta.keys():
-        return meta['tags']
-    else:
-        return None
+### functions returning a view
 
 def show_post(row, page_nav):
     '''show post
@@ -129,7 +20,6 @@ currently used for entry types:
 - special
 - note
 '''
-
     # set tags
     # --> could be changed to set _all_ meta information instead
     entry = { 'db': row }
@@ -144,6 +34,7 @@ currently used for entry types:
                             page_nav = page_nav,
                             img_exifs_json = entry['db']['exifs_json'] )
 
+# --> simplify ??
 def show_post_by_type_ref(type, ref):
     '''helper to show an entry by type, ref
 currently used for types:
@@ -156,6 +47,8 @@ currently used for types:
                  'next_href': None }
 
     return show_post(row, page_nav)
+
+### routes
 
 @pages.route('/')
 def home():
@@ -171,6 +64,7 @@ def home():
                            ORDER BY datetime_norm DESC''' )
     rows = cur.fetchall()
 
+    # --> streamline shit
     # prepare data for template (tags)
     #
     # [ { 'row': row,

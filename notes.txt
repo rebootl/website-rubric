@@ -1,11 +1,6 @@
 
-
 - make next by date link [ > ] not clickable, if last
     ==> DONE
-
-
-
-
 
 - remove pub for images (db)
     ==> DONE
@@ -24,6 +19,19 @@
 - cleanup db functions
 
 - cleanup json/ page meta data !!
+  streamline template variables (e.g. .db... !!
   (incl. db schema)
 
+- new export/import (to/from one server directory)
+
 - include image publish state
+
+- rework exif for pages
+
+---
+
+1) export pages to one directory (new exporter)
+
+2) streamline variables/database
+
+3) reimport pages

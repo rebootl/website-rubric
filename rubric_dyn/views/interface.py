@@ -9,11 +9,11 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 
 from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
     make_thumb_samename, datetimesec_norm, date_norm2
-from rubric_dyn.interface_db import update_pub, db_insert_image, db_update_image, \
-    db_load_gallery, db_insert_gallery, db_update_gallery, db_pub_gallery, \
-    db_load_images
-from rubric_dyn.interface_helper import create_exifs_json, process_meta_json, \
-    process_edit
+from rubric_dyn.db_read import db_load_gallery, db_load_images
+from rubric_dyn.db_write import update_pub, db_insert_image, db_update_image, \
+    db_insert_gallery, db_update_gallery, db_pub_gallery
+from rubric_dyn.helper_interface import create_exifs_json, process_meta_json, \
+    process_edit, process_image
 from rubric_dyn.Page import EditPage, NewPage
 from rubric_dyn.ExifNice import ExifNice
 
@@ -41,7 +41,8 @@ def render_preview(id, text_input):
     else:
         tags = None
 
-    # prepare stuff for post.html template
+    # prepare stuff for post.html template ??
+    # --> streamline
     db = { 'title': meta['title'],
            'date_norm': date_normed,
            'body_html': body_html }
@@ -147,7 +148,7 @@ shows:
     #                      ORDER BY datetime_norm DESC''')
     #img_rows = cur.fetchall()
 
-    # --> catch not found ??
+    # --> catch not found ?? ==> what for ?
 
     return render_template( 'overview.html',
                             entries = rows,
@@ -179,7 +180,6 @@ def edit():
                 page_inst.save_new()
                 flash("New Page saved successfully!")
             else:
-                #text_input = request.form['text-input']
                 page_inst = EditPage(id, text_input)
                 page_inst.save_edit()
                 flash("Page ID {} saved successfully!".format(id))
@@ -193,7 +193,7 @@ def edit():
 
         if id == "new":
             # create new
-            # --> is this currently ever used/reached ???
+            # --> is this currently ever used/reached ??? ==> yes, why not ?
             type = request.args.get('type')
             return load_to_edit_new(type)
 
@@ -364,42 +364,18 @@ also inserts images into db and creates thumbnails'''
         for image_file in image_files:
             ref = os.path.join('galleries', gallery_dir, image_file)
             if ref not in img_refs:
-                image_file_abspath = os.path.join( galleries_abspath,
-                                                   gallery_dir,
-                                                   image_file )
-                # extract exif into json
-                if os.path.splitext(image_file)[1] in current_app.config['JPEG_EXTS']:
-                    img_exif = ExifNice(image_file_abspath)
-                    if img_exif.has_exif:
-                        exif_json = img_exif.get_json()
-                        datetime_norm = datetimesec_norm( img_exif.datetime,
-                                                          "%Y:%m:%d %H:%M:%S" )
-                    else:
-                        exif_json = ""
-                        datetime_norm = ""
-                else:
-                    exif_json = ""
-                    datetime_norm = ""
-                # add thumb ref
-                thumb_ref = os.path.join('thumbs', image_file)
-
-                # insert in db
-                db_insert_image( ref,
-                                 thumb_ref,
-                                 datetime_norm,
-                                 exif_json,
-                                 gallery_id )
-                # (--> flash message)
-
-                # create thumbnail if not exists
-                # (existence checked in function --> maybe better check here ?)
-                make_thumb_samename(image_file_abspath, thumbs_abspath)
+                image_dir = os.path.join(galleries_abspath, gallery_dir)
+                process_image(image_file, image_dir, ref)
+                # (--> evtl. flash message)
 
     return redirect(url_for('interface.overview'))
 
 @interface.route('/update_images')
 def update_images():
-    '''DEPRECATED USE update_galleries INSTEAD --- "hidden url" update image in database from media directory,
+    '''DEPRECATED USE update_galleries INSTEAD --> evtl. make both usable
+(using process_image)
+---
+"hidden url" update image in database from media directory,
 create thumbnails under media/thumbs
 '''
     if not session.get('logged_in'):
@@ -512,8 +488,6 @@ def edit_image():
     except json.decoder.JSONDecodeError:
         exif = None
 
-    #return str(row[2])
-
     return render_template( 'edit_image.html',
                              image = row,
                              image_exif = exif )
@@ -589,28 +563,16 @@ def edit_gallery():
     id = request.args.get('id')
 
     if id == None:
-        # --> abort for now
         abort(404)
-
-    #gallery = { 'id': id }
 
     if id != "new":
         # load stuff
         row = db_load_gallery(id)
-
-        # --> why ? just load id from db and set to row... ?!?
-        # ==> it was because of tags probably...
-        #gallery.update( { 'title': row['title'],
-        #                  'date_norm': row['date_norm'],
-        #                  'desc': row['desc'],
-        #                  'tags': row['tags'] } )
     else:
         row = { 'id': id }
 
     # get images
     images = db_load_images(id)
-
-    #return str(images)
 
     return render_template( 'edit_gallery.html',
                             gallery = row,
