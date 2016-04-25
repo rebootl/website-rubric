@@ -17,6 +17,7 @@
   so manual gallery creation and automatic (by directory) is possible
 
 - cleanup db functions
+    ==> files done
 
 - cleanup json/ page meta data !!
   streamline template variables (e.g. .db... !!
@@ -28,6 +29,9 @@
 
 - rework exif for pages
 
+1. simplify tags (csv)
+2. simplify template variables
+3. below stuff
 ---
 
 1) export pages to one directory (new exporter)

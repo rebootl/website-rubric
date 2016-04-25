@@ -15,7 +15,8 @@ create table entries (
   body_md text not null,
   data1 text,
   pub int default 0,
-  exifs_json text
+  exifs_json text,
+  tags_csv text
 );
 
 drop table if exists galleries;

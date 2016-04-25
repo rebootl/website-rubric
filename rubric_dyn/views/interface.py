@@ -11,10 +11,11 @@ from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str
     make_thumb_samename, datetimesec_norm, date_norm2
 from rubric_dyn.db_read import db_load_gallery, db_load_images
 from rubric_dyn.db_write import update_pub, db_insert_image, db_update_image, \
-    db_insert_gallery, db_update_gallery, db_pub_gallery
+    db_insert_gallery, db_update_gallery, db_pub_gallery, \
+    db_new_entry, db_update_entry
 from rubric_dyn.helper_interface import create_exifs_json, process_meta_json, \
-    process_edit, process_image
-from rubric_dyn.Page import EditPage, NewPage
+    process_edit, process_image, process_input
+#from rubric_dyn.Page import EditPage, NewPage
 from rubric_dyn.ExifNice import ExifNice
 
 interface = Blueprint('interface', __name__,
@@ -27,22 +28,25 @@ def render_preview(id, text_input):
 
     meta, body_html, img_exifs_json = process_edit(text_input)
 
+    # --> simplify
     date_normed, \
     time_normed, \
     datetime_normed = date_norm( meta['date'],
                                  current_app.config['DATETIME_FORMAT'],
                                  current_app.config['DATE_FORMAT'] )
 
+    # --> needed ?
     if img_exifs_json == "":
         img_exifs_json = False
 
+    # --> simplify !!
     if 'tags' in meta.keys():
         tags = meta['tags']
     else:
         tags = None
 
     # prepare stuff for post.html template ??
-    # --> streamline
+    # --> simplify / streamline
     db = { 'title': meta['title'],
            'date_norm': date_normed,
            'body_html': body_html }
@@ -63,19 +67,21 @@ def load_to_edit(id):
 
     # get data for the page to edit
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT meta_json, body_md
+    cur = g.db.execute('''SELECT ref, title, author, date_norm, time_norm,
+                           tags, type, body_md
                           FROM entries
                           WHERE id = ?
                           LIMIT 1''', (id,))
-    meta_json, body_md = cur.fetchone()
+    #meta_json, body_md = cur.fetchone()
+    page = cur.fetchone()
 
     # --> catch not found
 
     # assemble body
-    text = '%%%'.join((meta_json, body_md))
+    #text = '%%%'.join((meta_json, body_md))
 
     return render_template( 'edit.html', preview=False, id=id, \
-                            text=text )
+                            page=page )
 
 def load_to_edit_new(type):
     '''load editor page (new)'''
@@ -168,20 +174,41 @@ def edit():
         action = request.form['actn']
         if action == "cancel":
             return redirect(url_for('interface.overview'))
-        elif action == "preview":
-            id = request.form['id']
-            text_input = request.form['text-input']
+
+        id = request.form['id']
+
+        # meta
+        type = request.form['type']
+        title = request.form['title']
+        author = request.fomr['author']
+        date_str = request.form['date']
+        time_str = request.form['time']
+        tags = request.form['tags']
+
+        text_input = request.form['text-input']
+
+        ref, \
+        date_normed, \
+        time_normed, \
+        body_html, \
+        img_exifs_json = process_input(title, date_str, time_str, body_md)
+
+        if action == "preview":
             return render_preview(id, text_input)
         elif action == "save":
-            id = request.form['id']
-            text_input = request.form['text-input']
             if id == "new":
-                page_inst = NewPage(text_input)
-                page_inst.save_new()
+                #page_inst = NewPage(text_input)
+                #page_inst.save_new()
+                db_new_entry( ref, type, title, author, date_normed,
+                              time_normed, tags, body_md, body_html,
+                              img_exifs_json )
                 flash("New Page saved successfully!")
             else:
-                page_inst = EditPage(id, text_input)
-                page_inst.save_edit()
+                #page_inst = EditPage(id, text_input)
+                #page_inst.save_edit()
+                db_update_entry( id, ref, type, title, author, date_normed,
+                                 time_normed, tags, body_md, body_html,    
+                                 img_exifs_json )
                 flash("Page ID {} saved successfully!".format(id))
             return redirect(url_for('interface.overview'))
         else:
