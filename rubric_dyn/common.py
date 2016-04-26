@@ -154,4 +154,4 @@ def time_norm(time_str, time_fmt="%H:%M"):
         date_obj = datetime.strptime(time_str, time_fmt)
         return date_obj.strftime("%H:%M")
     except ValueError:
-        return None
+        return False

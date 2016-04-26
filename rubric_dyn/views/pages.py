@@ -20,19 +20,21 @@ currently used for entry types:
 - special
 - note
 '''
+    # --> make this one function with belows ?
+
     # set tags
     # --> could be changed to set _all_ meta information instead
-    entry = { 'db': row }
-    entry['tags'] = extract_tags(row['meta_json'])
+    #entry = { 'db': row }
+    #entry['tags'] = extract_tags(row['meta_json'])
 
     # title and img_exifs_json are separate because they are used
     # in parent template
     # --> is this really necessary ??
     return render_template( 'post.html',
-                            title = entry['db']['title'],
-                            entry = entry,
+                            title = row['title'],
+                            page = row,
                             page_nav = page_nav,
-                            img_exifs_json = entry['db']['exifs_json'] )
+                            img_exifs_json = row['exifs_json'] )
 
 # --> simplify ??
 def show_post_by_type_ref(type, ref):

@@ -2,7 +2,8 @@
 import os
 import json
 from flask import current_app, flash
-from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm
+from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
+    url_encode_str
 from rubric_dyn.ExifNice import ExifNiceStr
 
 def process_image(image_file, image_dir, ref):
@@ -116,12 +117,12 @@ def process_input(title, date_str, time_str, body_md):
     # process date and time
     date_normed = date_norm2(date_str, "%Y-%m-%d")
     if not date_normed:
-        date_normed = None
-        flash("Warning: bad date format..., set to None.")
+        date_normed = "NOT_SET"
+        flash("Warning: bad date format..., setting to 'NOT_SET'.")
     time_normed = time_norm(time_str, "%H:%M")
     if not time_normed:
-        #time_normed = None
-        flash("Warning: bad time format..., set to None.")
+        time_normed = "NOT_SET"
+        flash("Warning: bad time format..., setting to 'NOT_SET'.")
 
     # process markdown
     body_html = pandoc_pipe( body_md,
@@ -129,4 +130,6 @@ def process_input(title, date_str, time_str, body_md):
                                '--filter=rubric_dyn/filter_img_path.py' ] )
 
     # create exif json
-    img_exifs_json = create_exifs_json(meta['files'])
+    #img_exifs_json = create_exifs_json(meta['files'])
+
+    return ref, date_normed, time_normed, body_html, None

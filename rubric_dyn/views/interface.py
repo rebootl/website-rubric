@@ -23,47 +23,66 @@ interface = Blueprint('interface', __name__,
 
 ### functions returning a "view"
 
-def render_preview(id, text_input):
+def render_preview(id, type, title, author, date_str, time_str, tags, body_md):
     '''process text input into preview and reload the editor page'''
 
-    meta, body_html, img_exifs_json = process_edit(text_input)
-
-    # --> simplify
+    #meta, body_html, img_exifs_json = process_edit(text_input)
+    ref, \
     date_normed, \
     time_normed, \
-    datetime_normed = date_norm( meta['date'],
-                                 current_app.config['DATETIME_FORMAT'],
-                                 current_app.config['DATE_FORMAT'] )
+    body_html, \
+    img_exifs_json = process_input(title, date_str, time_str, body_md)
+
+    # --> simplify
+    #date_normed, \
+    #time_normed, \
+    #datetime_normed = date_norm( meta['date'],
+    #                             current_app.config['DATETIME_FORMAT'],
+    #                             current_app.config['DATE_FORMAT'] )
 
     # --> needed ?
-    if img_exifs_json == "":
-        img_exifs_json = False
+    #if img_exifs_json == "":
+    #    img_exifs_json = False
 
     # --> simplify !!
-    if 'tags' in meta.keys():
-        tags = meta['tags']
-    else:
-        tags = None
+    #if 'tags' in meta.keys():
+    #    tags = meta['tags']
+    #else:
+    #    tags = None
 
     # prepare stuff for post.html template ??
     # --> simplify / streamline
-    db = { 'title': meta['title'],
-           'date_norm': date_normed,
-           'body_html': body_html }
-    entry = { 'db': db,
-              'tags': tags }
+    #db = { 'title': meta['title'],
+    #       'date_norm': date_normed,
+    #       'body_html': body_html }
+    #entry = { 'db': db,
+    #          'tags': tags }
+
+    page = { 'id': id,
+             'ref': ref,
+             'type': type,
+             'title': title,
+             'author': author,
+             'date_norm': date_normed,
+             'time_norm': time_normed,
+             'body_html': body_html,
+             'img_exifs_json': None,
+             'tags': tags,
+             'body_md': body_md }
 
     # render stuff
     return render_template( 'edit.html',
                             preview = True,
                             id = id,
-                            text = text_input,
-                            type = meta['type'],
-                            entry = entry,
-                            img_exifs_json = img_exifs_json )
+                            page = page )
+                            #text = text_input,
+                            #type = meta['type'],
+                            #entry = entry,
+                            #img_exifs_json = img_exifs_json )
 
 def load_to_edit(id):
     '''load editor page for id'''
+    # --> make this a db function !!
 
     # get data for the page to edit
     g.db.row_factory = sqlite3.Row
@@ -82,11 +101,6 @@ def load_to_edit(id):
 
     return render_template( 'edit.html', preview=False, id=id, \
                             page=page )
-
-def load_to_edit_new(type):
-    '''load editor page (new)'''
-    return render_template( 'edit.html', preview=False, id="new", \
-                            new=True, type=type )
 
 ### routes
 
@@ -147,6 +161,7 @@ shows:
     gal_rows = cur.fetchall()
 
     # images
+    # --> commented out for now
     #g.db.row_factory = sqlite3.Row
     #cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
     #                       gallery_id, thumb_ref
@@ -169,6 +184,7 @@ def edit():
     if not session.get('logged_in'):
         abort(401)
 
+    # POST
     # button pressed on edit page (preview / save / cancel)
     if request.method == 'POST':
         action = request.form['actn']
@@ -180,12 +196,12 @@ def edit():
         # meta
         type = request.form['type']
         title = request.form['title']
-        author = request.fomr['author']
+        author = request.form['author']
         date_str = request.form['date']
         time_str = request.form['time']
         tags = request.form['tags']
 
-        text_input = request.form['text-input']
+        body_md = request.form['text-input']
 
         ref, \
         date_normed, \
@@ -194,7 +210,8 @@ def edit():
         img_exifs_json = process_input(title, date_str, time_str, body_md)
 
         if action == "preview":
-            return render_preview(id, text_input)
+            return render_preview(id, type, title, author, date_str, time_str, \
+                                  tags, body_md)
         elif action == "save":
             if id == "new":
                 #page_inst = NewPage(text_input)
@@ -214,6 +231,7 @@ def edit():
         else:
             abort(404)
 
+    # GET
     # loading from overview
     else:
         id = request.args.get('id')
@@ -237,13 +255,16 @@ def new():
     if not session.get('logged_in'):
         abort(401)
 
-    type = request.args.get('type')
+    # --> fill in date and time
 
-    return load_to_edit_new(type)
+    return render_template( 'edit.html', preview=False, id="new", \
+                            new=True, page=None )
 
 @interface.route('/pub')
 def pub():
     '''publish entry'''
+    # --> make this and unpub below single function
+
     if not session.get('logged_in'):
         abort(401)
 
@@ -465,6 +486,7 @@ def edit_image():
     if not session.get('logged_in'):
         abort(401)
 
+    # POST
     # button pressed on edit page (preview / save / cancel)
     if request.method == 'POST':
         action = request.form['actn']
@@ -497,6 +519,7 @@ def edit_image():
         else:
             abort(404)
 
+    # GET
     id = request.args.get('id')
 
     # image
@@ -587,6 +610,7 @@ def edit_gallery():
         else:
             abort(404)
 
+    # GET
     id = request.args.get('id')
 
     if id == None:
@@ -604,4 +628,3 @@ def edit_gallery():
     return render_template( 'edit_gallery.html',
                             gallery = row,
                             images = images )
-
