@@ -50,6 +50,15 @@ class ExifNice:
         self.set_exposure_time()
         self.set_aperture()
 
+        self.exif_nice = { 'exposure': self.exposure_time,
+                           'aperture': self.aperture,
+                           'iso': self.iso,
+                           'focal_length': self.focal_length,
+                           'datetime': self.datetime,
+                           'make': self.make,
+                           'model': self.model,
+                           'software': self.software }
+
     def set_exposure_time(self):
         exp_time_num = self.exif['ExposureTime'][0]
         exp_time_den = self.exif['ExposureTime'][1]
@@ -69,14 +78,7 @@ class ExifNice:
             self.aperture = "-"
 
     def get_json(self):
-        return json.dumps( { 'exposure': self.exposure_time,
-                             'aperture': self.aperture,
-                             'iso': self.iso,
-                             'focallength': self.focal_length,
-                             'datetime': self.datetime,
-                             'make': self.make,
-                             'model': self.model,
-                             'software': self.software } )
+        return json.dumps(self.exif_nice)
 
 class ExifNiceStr(ExifNice):
 
