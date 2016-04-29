@@ -48,6 +48,7 @@ def create_page_nav(curr_type, curr_datetime_norm):
 
     return page_nav
 
+# (--> will be DEPRECATED, since tags will be csv)
 def extract_tags(meta_json):
     '''extract tags from json'''
     meta = json.loads(meta_json)

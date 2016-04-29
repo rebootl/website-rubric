@@ -7,15 +7,12 @@ import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app, make_response
 
-from rubric_dyn.common import pandoc_pipe, get_md5sum, date_norm, url_encode_str, \
-    make_thumb_samename, datetimesec_norm, date_norm2
+from rubric_dyn.common import url_encode_str, datetimesec_norm, date_norm2
 from rubric_dyn.db_read import db_load_gallery, db_load_images
-from rubric_dyn.db_write import update_pub, db_insert_image, db_update_image, \
+from rubric_dyn.db_write import update_pub, db_update_image, \
     db_insert_gallery, db_update_gallery, db_pub_gallery, \
     db_new_entry, db_update_entry
-from rubric_dyn.helper_interface import create_exifs_json, process_meta_json, \
-    process_edit, process_image, process_input
-#from rubric_dyn.Page import EditPage, NewPage
+from rubric_dyn.helper_interface import process_image, process_input
 from rubric_dyn.ExifNice import ExifNice
 
 interface = Blueprint('interface', __name__,
@@ -324,31 +321,34 @@ def download_text():
     response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
     return response
 
-@interface.route('/recreate_exifs')
-def recreate_exifs():
-    '''"hidden url" recreate all exif information
-this was used to create exif information for files
-of already existing entries'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, meta_json
-                          FROM entries''')
-    rows = cur.fetchall()
-
-    for row in rows:
-        meta = process_meta_json(row['meta_json'])
-
-        img_exifs_json = create_exifs_json(meta['files'])
-
-        g.db.execute('''UPDATE entries
-                        SET exifs_json = ?
-                        WHERE id = ?''', (img_exifs_json, row['id']))
-        g.db.commit()
-
-    flash('Updated EXIF data successfully.')
-    return redirect(url_for('interface.overview'))
+# DEPRECATED
+# not needed anymore due to new exif processing
+#
+#@interface.route('/recreate_exifs')
+#def recreate_exifs():
+#    '''"hidden url" recreate all exif information
+#this was used to create exif information for files
+#of already existing entries'''
+#    if not session.get('logged_in'):
+#        abort(401)
+#
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute('''SELECT id, meta_json
+#                          FROM entries''')
+#    rows = cur.fetchall()
+#
+#    for row in rows:
+#        meta = process_meta_json(row['meta_json'])
+#
+#        img_exifs_json = create_exifs_json(meta['files'])
+#
+#        g.db.execute('''UPDATE entries
+#                        SET exifs_json = ?
+#                        WHERE id = ?''', (img_exifs_json, row['id']))
+#        g.db.commit()
+#
+#    flash('Updated EXIF data successfully.')
+#    return redirect(url_for('interface.overview'))
 
 @interface.route('/update_galleries')
 def update_galleries():
@@ -418,67 +418,70 @@ also inserts images into db and creates thumbnails'''
 
     return redirect(url_for('interface.overview'))
 
-@interface.route('/update_images')
-def update_images():
-    '''DEPRECATED USE update_galleries INSTEAD --> evtl. make both usable
-(using process_image)
----
-"hidden url" update image in database from media directory,
-create thumbnails under media/thumbs
-'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
-
-    # get content of the media dir
-    media_files = os.listdir(media_abspath)
-
-    # filter out images
-    image_files = []
-    for file in media_files:
-        # --> join not needed, think
-        file_ext = os.path.splitext(os.path.join(media_abspath, file))[1]
-        if file_ext in current_app.config['IMG_EXTS']:
-            image_files.append(file)
-
-    # get image refs from db
-    cur = g.db.execute('''SELECT ref
-                          FROM images''')
-    rows = cur.fetchall()
-    refs = [ ref[0] for ref in rows ]
-
-    # insert in db if not exists
-    for image_file in image_files:
-        if image_file not in refs:
-            # extract exif into json
-            if os.path.splitext(image_file)[1] in current_app.config['JPEG_EXTS']:
-                img_exif = ExifNice(os.path.join(media_abspath, image_file))
-                if img_exif.has_exif:
-                    exif_json = img_exif.get_json()
-                    datetime_norm = datetimesec_norm( img_exif.datetime,
-                                                      "%Y:%m:%d %H:%M:%S" )
-                else:
-                    exif_json = ""
-                    datetime_norm = ""
-            else:
-                exif_json = ""
-                datetime_norm = ""
-
-            # insert in db
-            #db_insert_image(image_file, datetime_norm, exif_json)
-            # (--> flash message)
-
-    # create thumbnail if not exists
-    # get thumbs --> ??? not used...
-    thumbs = os.listdir(os.path.join(media_abspath, 'thumbs'))
-
-    for file in image_files:
-        make_thumb_samename( os.path.join(media_abspath, file),
-                             os.path.join(media_abspath, 'thumbs') )
-
-    #return str(image_files)
-    return redirect(url_for('interface.overview'))
+# DEPRECATED (for now)
+# --> rewrite using process_image
+#
+#@interface.route('/update_images')
+#def update_images():
+#    '''DEPRECATED USE update_galleries INSTEAD --> evtl. make both usable
+#(using process_image)
+#---
+#"hidden url" update image in database from media directory,
+#create thumbnails under media/thumbs
+#'''
+#    if not session.get('logged_in'):
+#        abort(401)
+#
+#    media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
+#
+#    # get content of the media dir
+#    media_files = os.listdir(media_abspath)
+#
+#    # filter out images
+#    image_files = []
+#    for file in media_files:
+#        # --> join not needed, think
+#        file_ext = os.path.splitext(os.path.join(media_abspath, file))[1]
+#        if file_ext in current_app.config['IMG_EXTS']:
+#            image_files.append(file)
+#
+#    # get image refs from db
+#    cur = g.db.execute('''SELECT ref
+#                          FROM images''')
+#    rows = cur.fetchall()
+#    refs = [ ref[0] for ref in rows ]
+#
+#    # insert in db if not exists
+#    for image_file in image_files:
+#        if image_file not in refs:
+#            # extract exif into json
+#            if os.path.splitext(image_file)[1] in current_app.config['JPEG_EXTS']:
+#                img_exif = ExifNice(os.path.join(media_abspath, image_file))
+#                if img_exif.has_exif:
+#                    exif_json = img_exif.get_json()
+#                    datetime_norm = datetimesec_norm( img_exif.datetime,
+#                                                      "%Y:%m:%d %H:%M:%S" )
+#                else:
+#                    exif_json = ""
+#                    datetime_norm = ""
+#            else:
+#                exif_json = ""
+#                datetime_norm = ""
+#
+#            # insert in db
+#            #db_insert_image(image_file, datetime_norm, exif_json)
+#            # (--> flash message)
+#
+#    # create thumbnail if not exists
+#    # get thumbs --> ??? not used...
+#    thumbs = os.listdir(os.path.join(media_abspath, 'thumbs'))
+#
+#    for file in image_files:
+#        make_thumb_samename( os.path.join(media_abspath, file),
+#                             os.path.join(media_abspath, 'thumbs') )
+#
+#    #return str(image_files)
+#    return redirect(url_for('interface.overview'))
 
 @interface.route('/edit_image', methods=[ 'GET', 'POST' ])
 def edit_image():
