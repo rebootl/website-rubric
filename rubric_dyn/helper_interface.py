@@ -5,7 +5,7 @@ import re
 from flask import current_app, flash, render_template
 from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
     url_encode_str
-from rubric_dyn.ExifNice import ExifNice, ExifNiceStr
+from rubric_dyn.ExifNice import ExifNice
 
 def process_image(image_file, image_dir, ref):
     '''process image data
@@ -44,80 +44,6 @@ def process_image(image_file, image_dir, ref):
     # (existence is checked in function --> maybe better check here ?)
     make_thumb_samename(image_file_abspath, thumbs_abspath)
 
-# DEPRECATED
-# not needed anymore due to new exif processing
-#
-#def create_exifs_json(files):
-#    '''create image info from EXIF data as json dump'''
-#    img_exifs = {}
-#    for file in files:
-#        if os.path.splitext(file)[1] in current_app.config['JPEG_EXTS']:
-#            img_filepath = os.path.join( current_app.config['RUN_ABSPATH'],
-#                                         'media',
-#                                         file )
-#            exif = ExifNiceStr(img_filepath)
-#            if exif.display_str:
-#                image_exif = { os.path.join( '/media',
-#                                             file ) : exif.display_str }
-#                img_exifs.update(image_exif)
-#    if img_exifs:
-#        return json.dumps(img_exifs)
-#    else:
-#        return ""
-
-# DEPRECATED
-# not needed anymore due to new input processing
-#
-#def process_meta_json(meta_json):
-#    '''read out meta information from json dump
-#and set defaults if necessary'''
-#    try:
-#        meta = json.loads(meta_json)
-#    except json.decoder.JSONDecodeError:
-#        flash("Warning: Error in JSON data, using defaults...")
-#        meta = {}
-#
-#    # set defaults
-#    for key, value in current_app.config['META_DEFAULTS'].items():
-#            if key not in meta.keys():
-#                meta[key] = value
-#
-#    if type == "imagepage":
-#        if meta['image'] == "" or meta['image'] == None:
-#            meta['image'] = "NO IMAGE SET"
-#
-#    return meta
-
-# DEPRECATED
-# replaced by below process input
-#
-#def process_edit(text_input, return_md=False):
-#    '''process text input including meta information,
-#also create image information for included image files
-#
-#used by:
-#- Page
-#- views.interface
-#'''
-#    # escape shit ?
-#
-#    # split text in json and markdown block
-#    meta_json, body_md = text_input.split('%%%', 1)
-#
-#    meta = process_meta_json(meta_json)
-#
-#    # process text through pandoc
-#    body_html = pandoc_pipe( body_md,
-#                             [ '--to=html5',
-#                               '--filter=rubric_dyn/filter_img_path.py' ] )
-#
-#    img_exifs_json = create_exifs_json(meta['files'])
-#
-#    if not return_md:
-#        return meta, body_html, img_exifs_json
-#    else:
-#        return meta, meta_json, img_exifs_json, body_html, body_md
-
 def repl_image(img_block):
     '''replace markdown image syntax by html,
 using image.html template
@@ -125,8 +51,6 @@ using image.html template
 - including exif information
 - adapting source path (add /media prefix)
 '''
-    #alt = match_obj.group(1)
-    #src = match_obj.group(2)
     alt = img_block[0]
     src = img_block[1]
 
@@ -230,8 +154,5 @@ def process_input(title, date_str, time_str, text_md):
         # back-subsitute
         body_html_subst = body_html_subst.replace( '<p>' + IMG_SUBST + '</p>',
                                                    img_block_html, 1 )
-
-    # create exif json
-    #img_exifs_json = create_exifs_json(meta['files'])
 
     return ref, date_normed, time_normed, body_html_subst, None

@@ -30,22 +30,6 @@ def db_update_image(id, caption, datetime_norm):
                   (caption, datetime_norm, id) )
     g.db.commit()
 
-# moved to db_read
-#def db_load_gallery(id):
-#    '''load gallery stuff from db'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT id, ref, title, desc, date_norm,
-#                           tags
-#                          FROM galleries
-#                          WHERE id = ?''', (id,))
-#    row = cur.fetchone()
-#
-#    # catch not found
-#    if row == None:
-#        abort(404)
-#
-#    return row
-
 def db_insert_gallery(ref, title, date_norm, desc, tags):
     '''create new gallery in db'''
     g.db.execute( '''INSERT INTO galleries
@@ -69,17 +53,6 @@ def db_pub_gallery(id, pub):
                     SET pub = ?
                     WHERE id = ?''', (pub, id))
     g.db.commit()
-
-# moved to db read
-#def db_load_images(gallery_id):
-#    '''load images for given gallery (id)'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
-#                           exif_json, gallery_id, thumb_ref
-#                          FROM images
-#                          WHERE gallery_id = ?
-#                          ORDER BY datetime_norm ASC''', (gallery_id,))
-#    return cur.fetchall()
 
 def db_new_entry( ref, type, title, author, date_norm, time_norm,
                   tags, body_md, body_html, img_exifs_json,

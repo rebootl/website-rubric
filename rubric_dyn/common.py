@@ -5,7 +5,7 @@ import re
 import hashlib
 from PIL import Image, ImageOps
 from PIL import ImageFile
-# (prevent OSError: image file is truncated)
+# prevent OSError: image file is truncated
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 from datetime import datetime
@@ -72,22 +72,24 @@ def make_thumb_samename(img_in_path_abs, out_dir):
     thumb = ImageOps.fit(image, (256, 256), Image.ANTIALIAS)
     thumb.save(out_filepath_abs)
 
-# deprecated (used in old importer)
-def date_obj(str):
-    try:
-        date_obj = datetime.strptime(
-            str,
-            config.DATE_FORMAT
-        )
-    except ValueError:
-        try:
-            date_obj = datetime.strptime(
-                str,
-                config.DATETIME_FORMAT
-            )
-        except ValueError:
-            date_obj = None
-    return date_obj
+# DEPRECATED
+# (used in old importer)
+#
+#def date_obj(str):
+#    try:
+#        date_obj = datetime.strptime(
+#            str,
+#            config.DATE_FORMAT
+#        )
+#    except ValueError:
+#        try:
+#            date_obj = datetime.strptime(
+#                str,
+#                config.DATETIME_FORMAT
+#            )
+#        except ValueError:
+#            date_obj = None
+#    return date_obj
 
 def url_encode_str(string):
     '''convert a string to be usable in a url'''
@@ -103,30 +105,33 @@ def get_md5sum(str):
     '''generate md5sum from string'''
     return hashlib.md5(str.encode()).hexdigest()
 
-# --> deprecate in favor of single functions !!
-def date_norm( date_str,
-               datetime_fmt=config.DATETIME_FORMAT,
-               date_fmt=config.DATE_FORMAT ):
-    '''return normed date, time and datetime strings
-from a date string that has format defined in config'''
-    try:
-        date_obj = datetime.strptime( date_str,
-                                      datetime_fmt )
-        date_norm = date_obj.strftime("%Y-%m-%d")
-        time_norm = date_obj.strftime("%H:%M")
-        datetime_norm = date_obj.strftime("%Y-%m-%d %H:%M")
-    except ValueError:
-        try:
-            date_obj = datetime.strptime( date_str,
-                                          date_fmt )
-            date_norm = date_obj.strftime("%Y-%m-%d")
-            time_norm = "NOT SET"
-            datetime_norm = date_obj.strftime("%Y-%m-%d %H:%M")
-        except ValueError:
-            date_norm = "ERRONEOUS_DATE"
-            time_norm = "NOT SET"
-            datetime_norm = "ERRONEOUS_DATE"
-    return date_norm, time_norm, datetime_norm
+# DEPRECATED
+# in favor of below single functions
+# (used in importer)
+#
+#def date_norm( date_str,
+#               datetime_fmt=config.DATETIME_FORMAT,
+#               date_fmt=config.DATE_FORMAT ):
+#    '''return normed date, time and datetime strings
+#from a date string that has format defined in config'''
+#    try:
+#        date_obj = datetime.strptime( date_str,
+#                                      datetime_fmt )
+#        date_norm = date_obj.strftime("%Y-%m-%d")
+#        time_norm = date_obj.strftime("%H:%M")
+#        datetime_norm = date_obj.strftime("%Y-%m-%d %H:%M")
+#    except ValueError:
+#        try:
+#            date_obj = datetime.strptime( date_str,
+#                                          date_fmt )
+#            date_norm = date_obj.strftime("%Y-%m-%d")
+#            time_norm = "NOT SET"
+#            datetime_norm = date_obj.strftime("%Y-%m-%d %H:%M")
+#        except ValueError:
+#            date_norm = "ERRONEOUS_DATE"
+#            time_norm = "NOT SET"
+#            datetime_norm = "ERRONEOUS_DATE"
+#    return date_norm, time_norm, datetime_norm
 
 def date_norm2(date_str, date_fmt=config.DATETIME_FORMAT):
     try:

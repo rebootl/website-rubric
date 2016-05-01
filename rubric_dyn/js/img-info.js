@@ -1,5 +1,6 @@
 // set foto exif information from json object if there
 // cem, 2016-02-12
+// cem, 2016-04-29 update toggle
 
 function toggle_info(ev) {
     var node = ev.target
@@ -11,6 +12,19 @@ function toggle_info(ev) {
     }
     else {
         pre.style.display = "block";
+    }
+}
+
+function toggle_info2(ev) {
+    var node = ev
+
+    var fig_i = node.parentElement.getElementsByTagName('div')[1];
+    //alert("FOO");
+    if (fig_i.style.display == "block") {
+        fig_i.style.display = "none";
+    }
+    else {
+        fig_i.style.display = "block";
     }
 }
 

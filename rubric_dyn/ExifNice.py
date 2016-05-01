@@ -80,15 +80,18 @@ class ExifNice:
     def get_json(self):
         return json.dumps(self.exif_nice)
 
-class ExifNiceStr(ExifNice):
-
-    def __init__(self, image_file):
-        self.display_str = None
-        super.__init__(image_file)
-
-        self.display_str = self.exposure_time + ", " + \
-                           self.aperture + ", " + self.iso + ", " + \
-                           self.focal_length + "\n" + \
-                           self.datetime + "\n" + \
-                           self.make + " " + self.model + "\n" + \
-                           self.software
+# DEPRECATED
+# replace by method (get_str) if needed
+#
+#class ExifNiceStr(ExifNice):
+#
+#    def __init__(self, image_file):
+#        self.display_str = None
+#        super.__init__(image_file)
+#
+#        self.display_str = self.exposure_time + ", " + \
+#                           self.aperture + ", " + self.iso + ", " + \
+#                           self.focal_length + "\n" + \
+#                           self.datetime + "\n" + \
+#                           self.make + " " + self.model + "\n" + \
+#                           self.software

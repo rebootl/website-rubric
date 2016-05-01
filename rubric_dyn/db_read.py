@@ -16,7 +16,6 @@ from flask import g
 
 def get_entry_by_date_ref_path(date_ref_path, type, published=True):
     '''return entry data from db, by <date>/<ref> path'''
-
     date, ref = os.path.split(date_ref_path)
 
     if published == True:
@@ -71,7 +70,6 @@ def db_load_gallery(id):
                           FROM galleries
                           WHERE id = ?''', (id,))
     row = cur.fetchone()
-
     # catch not found
     if row == None:
         abort(404)

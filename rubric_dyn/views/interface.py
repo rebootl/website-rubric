@@ -23,37 +23,11 @@ interface = Blueprint('interface', __name__,
 def render_preview(id, type, title, author, date_str, time_str, tags, body_md):
     '''process text input into preview and reload the editor page'''
 
-    #meta, body_html, img_exifs_json = process_edit(text_input)
     ref, \
     date_normed, \
     time_normed, \
     body_html, \
     img_exifs_json = process_input(title, date_str, time_str, body_md)
-
-    # --> simplify
-    #date_normed, \
-    #time_normed, \
-    #datetime_normed = date_norm( meta['date'],
-    #                             current_app.config['DATETIME_FORMAT'],
-    #                             current_app.config['DATE_FORMAT'] )
-
-    # --> needed ?
-    #if img_exifs_json == "":
-    #    img_exifs_json = False
-
-    # --> simplify !!
-    #if 'tags' in meta.keys():
-    #    tags = meta['tags']
-    #else:
-    #    tags = None
-
-    # prepare stuff for post.html template ??
-    # --> simplify / streamline
-    #db = { 'title': meta['title'],
-    #       'date_norm': date_normed,
-    #       'body_html': body_html }
-    #entry = { 'db': db,
-    #          'tags': tags }
 
     page = { 'id': id,
              'ref': ref,
@@ -72,10 +46,6 @@ def render_preview(id, type, title, author, date_str, time_str, tags, body_md):
                             preview = True,
                             id = id,
                             page = page )
-                            #text = text_input,
-                            #type = meta['type'],
-                            #entry = entry,
-                            #img_exifs_json = img_exifs_json )
 
 def load_to_edit(id):
     '''load editor page for id'''
@@ -166,8 +136,6 @@ shows:
     #                      ORDER BY datetime_norm DESC''')
     #img_rows = cur.fetchall()
 
-    # --> catch not found ?? ==> what for ?
-
     return render_template( 'overview.html',
                             entries = rows,
                             title = "Overview",
@@ -200,6 +168,8 @@ def edit():
 
         body_md = request.form['text-input']
 
+        # --> set defaults (title, ..?) !!
+
         ref, \
         date_normed, \
         time_normed, \
@@ -211,15 +181,11 @@ def edit():
                                   tags, body_md)
         elif action == "save":
             if id == "new":
-                #page_inst = NewPage(text_input)
-                #page_inst.save_new()
                 db_new_entry( ref, type, title, author, date_normed,
                               time_normed, tags, body_md, body_html,
                               img_exifs_json )
                 flash("New Page saved successfully!")
             else:
-                #page_inst = EditPage(id, text_input)
-                #page_inst.save_edit()
                 db_update_entry( id, ref, type, title, author, date_normed,
                                  time_normed, tags, body_md, body_html,    
                                  img_exifs_json )
@@ -235,12 +201,11 @@ def edit():
 
         if id == "new":
             # create new
-            # --> is this currently ever used/reached ??? ==> yes, why not ?
             type = request.args.get('type')
             return load_to_edit_new(type)
 
         elif id == None:
-            # --> abort for now
+            # abort for now
             abort(404)
 
         else:
@@ -320,35 +285,6 @@ def download_text():
     response = make_response(text)
     response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
     return response
-
-# DEPRECATED
-# not needed anymore due to new exif processing
-#
-#@interface.route('/recreate_exifs')
-#def recreate_exifs():
-#    '''"hidden url" recreate all exif information
-#this was used to create exif information for files
-#of already existing entries'''
-#    if not session.get('logged_in'):
-#        abort(401)
-#
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT id, meta_json
-#                          FROM entries''')
-#    rows = cur.fetchall()
-#
-#    for row in rows:
-#        meta = process_meta_json(row['meta_json'])
-#
-#        img_exifs_json = create_exifs_json(meta['files'])
-#
-#        g.db.execute('''UPDATE entries
-#                        SET exifs_json = ?
-#                        WHERE id = ?''', (img_exifs_json, row['id']))
-#        g.db.commit()
-#
-#    flash('Updated EXIF data successfully.')
-#    return redirect(url_for('interface.overview'))
 
 @interface.route('/update_galleries')
 def update_galleries():
@@ -589,9 +525,8 @@ def edit_gallery():
             date = request.form['date']
             desc = request.form['desc']
             tags = request.form['tags']
-            # --> evtl. process tags ==> maybe not... ??
+
             # process
-            # --> is ref really needed here ???
             date_normed = date_norm2(date, "%Y-%m-%d")
             # (debug)
             #return str(action)

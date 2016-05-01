@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# --> do we need this ^^^ ???
 import os
 import sqlite3
 from flask import Flask, render_template, g, request, session, redirect, url_for, \
@@ -8,9 +9,6 @@ from flask import Flask, render_template, g, request, session, redirect, url_for
 
 app = Flask(__name__)
 app.config.from_object('config')
-
-# (overwrite config from environment example)
-#app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 # some db stuff
 
@@ -40,20 +38,6 @@ app.register_blueprint(interface, url_prefix='/interface')
 from rubric_dyn.media_static import media_static
 app.register_blueprint(media_static)
 
-# --> move into blueprint ==> done
-#@app.route('/media/<filename>')
-#def media_file(filename):
-#    return send_from_directory(app.config['MEDIA_DIR'], filename)
-
-# --> move into blueprint as well ==> done
-# for testing only, should be done by the webserver
-#@app.route('/media/localfont/Lora/bold/<filename>')
-#@app.route('/media/localfont/Lora/bolditalic/<filename>')
-#@app.route('/media/localfont/Lora/regular/<filename>')
-#@app.route('/media/localfont/Lora/italic/<filename>')
-#@app.route('/media/localfont/Lora/<filename>')
-#def font_file(filename):
-#    return send_from_directory(app.config['FONT_DIR'], filename)
 
 
 if __name__ == '__main__':
