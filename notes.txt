@@ -22,12 +22,16 @@
 - cleanup json/ page meta data !!
   streamline template variables (e.g. .db... !!
   (incl. db schema)
+    ==> WIP
 
 - new export/import (to/from one server directory)
 
 - include image publish state
 
 - rework exif for pages
+    ==> DONE (WIP ?)
+
+- include/create default-template, evtl. setup stuff, README
 
 1. simplify tags (csv)
 2. simplify template variables

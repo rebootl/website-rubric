@@ -1,7 +1,7 @@
 '''db read functions'''
 import os
 import sqlite3
-from flask import g
+from flask import g, abort
 
 # (curr. not used)
 #def get_entry_by_id(id):
@@ -85,3 +85,19 @@ def db_load_images(gallery_id):
                           WHERE gallery_id = ?
                           ORDER BY datetime_norm ASC''', (gallery_id,))
     return cur.fetchall()
+
+def db_load_to_edit(id):
+    '''load editor page for id'''
+    # get data for the page to edit
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT ref, title, author, date_norm, time_norm,
+                           tags, type, body_md
+                          FROM entries
+                          WHERE id = ?
+                          LIMIT 1''', (id,))
+    row = cur.fetchone()
+    # catch not found
+    if row == None:
+        abort(404)
+
+    return row

@@ -8,7 +8,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app, make_response
 
 from rubric_dyn.common import url_encode_str, datetimesec_norm, date_norm2
-from rubric_dyn.db_read import db_load_gallery, db_load_images
+from rubric_dyn.db_read import db_load_gallery, db_load_images, \
+    db_load_to_edit
 from rubric_dyn.db_write import update_pub, db_update_image, \
     db_insert_gallery, db_update_gallery, db_pub_gallery, \
     db_new_entry, db_update_entry
@@ -18,16 +19,19 @@ from rubric_dyn.ExifNice import ExifNice
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
 
+FLASH_WARN_EMPTY_STR = "Warning: {} can not be empty. Setting to 'NOT_SET'."
+
 ### functions returning a "view"
 
-def render_preview(id, type, title, author, date_str, time_str, tags, body_md):
+def render_preview(id, ref, type, title, author, date_normed, time_normed, 
+                   tags, body_html, body_md):
     '''process text input into preview and reload the editor page'''
 
-    ref, \
-    date_normed, \
-    time_normed, \
-    body_html, \
-    img_exifs_json = process_input(title, date_str, time_str, body_md)
+    #ref, \
+    #date_normed, \
+    #time_normed, \
+    #body_html, \
+    #img_exifs_json = process_input(title, date_str, time_str, body_md)
 
     page = { 'id': id,
              'ref': ref,
@@ -46,28 +50,6 @@ def render_preview(id, type, title, author, date_str, time_str, tags, body_md):
                             preview = True,
                             id = id,
                             page = page )
-
-def load_to_edit(id):
-    '''load editor page for id'''
-    # --> make this a db function !!
-
-    # get data for the page to edit
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT ref, title, author, date_norm, time_norm,
-                           tags, type, body_md
-                          FROM entries
-                          WHERE id = ?
-                          LIMIT 1''', (id,))
-    #meta_json, body_md = cur.fetchone()
-    page = cur.fetchone()
-
-    # --> catch not found
-
-    # assemble body
-    #text = '%%%'.join((meta_json, body_md))
-
-    return render_template( 'edit.html', preview=False, id=id, \
-                            page=page )
 
 ### routes
 
@@ -168,7 +150,12 @@ def edit():
 
         body_md = request.form['text-input']
 
-        # --> set defaults (title, ..?) !!
+        # set defaults (title, --> others ..?)
+        if title == "":
+            title = 'NOT_SET'
+            flash(FLASH_WARN_EMPTY_STR.format("Title"))
+
+        # (date is checked in process_input)
 
         ref, \
         date_normed, \
@@ -177,8 +164,8 @@ def edit():
         img_exifs_json = process_input(title, date_str, time_str, body_md)
 
         if action == "preview":
-            return render_preview(id, type, title, author, date_str, time_str, \
-                                  tags, body_md)
+            return render_preview(id, ref, type, title, author, date_normed,
+                                  time_normed, tags, body_html, body_md)
         elif action == "save":
             if id == "new":
                 db_new_entry( ref, type, title, author, date_normed,
@@ -201,15 +188,21 @@ def edit():
 
         if id == "new":
             # create new
-            type = request.args.get('type')
-            return load_to_edit_new(type)
-
+            #type = request.args.get('type')
+            #row = db_load_to_edit(type)
+            return render_template( 'edit.html',
+                                    preview = False,
+                                    id = id,
+                                    page = None )
         elif id == None:
             # abort for now
             abort(404)
-
         else:
-            return load_to_edit(id)
+            row = db_load_to_edit(id)
+            return render_template( 'edit.html',
+                                    preview = False,
+                                    id = id,
+                                    page = row )
 
 @interface.route('/new')
 def new():
@@ -534,8 +527,10 @@ def edit_gallery():
                 date_normed = None
                 flash("Warning: bad date format..., set to None.")
             if not title or title == "":
-                flash("Warning: title must be set, returning.")
-                return redirect(url_for('interface.edit_gallery', id=id))
+                #title = 'NOT_SET'
+                flash("Warning: No title set.")
+                # --> evtl. improve by redirecting _and_ keeping input
+                #return redirect(url_for('interface.edit_gallery', id=id))
             if id == "new":
                 ref = url_encode_str(title)
                 db_insert_gallery(ref, title, date_normed, desc, tags)
