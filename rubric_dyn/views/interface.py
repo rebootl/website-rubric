@@ -85,7 +85,7 @@ shows:
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT id, type, title, date_norm, ref, pub
                           FROM entries
-                          ORDER BY datetime_norm DESC''')
+                          ORDER BY date_norm DESC, time_norm DESC''')
     rows = cur.fetchall()
 
     # create link hrefs

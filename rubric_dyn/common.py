@@ -57,6 +57,8 @@ def make_thumb(img_in_path_abs, out_dir):
     thumb = ImageOps.fit(image, (256, 256), Image.ANTIALIAS)
     thumb.save(out_thumbpath_abs, "PNG")
 
+# --> are this _and_ above function both needed ??
+#     evtl. make one function ???
 def make_thumb_samename(img_in_path_abs, out_dir):
     '''generate thumbnail for image using the same name
 (out_dir has to be a different directory)
@@ -101,6 +103,8 @@ def url_encode_str(string):
     # 3) lowercase
     return alnum_dashed.lower()
 
+# --> deprecate, don't use this anymore
+#     currently it's still in import-page
 def get_md5sum(str):
     '''generate md5sum from string'''
     return hashlib.md5(str.encode()).hexdigest()

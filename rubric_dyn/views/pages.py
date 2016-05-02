@@ -13,28 +13,25 @@ pages = Blueprint('pages', __name__)
 
 ### functions returning a view
 
-def show_post(row, page_nav):
+def show_post(page, page_nav):
     '''show post
 currently used for entry types:
 - article
 - special
 - note
 '''
-    # --> make this one function with belows ?
-
-    # set tags
-    # --> could be changed to set _all_ meta information instead
-    #entry = { 'db': row }
-    #entry['tags'] = extract_tags(row['meta_json'])
-
     # title and img_exifs_json are separate because they are used
     # in parent template
     # --> is this really necessary ??
+    # ==> for title it may make sense, so it can be set separately
+    #     - page.title  used on the page
+    #     - title       used as "browser title"
+    #     (could be used e.g. by interface/edit
+    # (==> img_exifs_json is not used anymore)
     return render_template( 'post.html',
-                            title = row['title'],
-                            page = row,
-                            page_nav = page_nav,
-                            img_exifs_json = row['exifs_json'] )
+                            title = page['title'],
+                            page = page,
+                            page_nav = page_nav )
 
 # --> simplify ??
 def show_post_by_type_ref(type, ref):
@@ -63,7 +60,7 @@ def home():
                            FROM entries
                            WHERE type = 'article'
                            AND pub = 1
-                           ORDER BY datetime_norm DESC''' )
+                           ORDER BY date_norm DESC, time_norm DESC''' )
     rows = cur.fetchall()
 
     # --> streamline shit
@@ -76,7 +73,7 @@ def home():
     articles = []
     for row in rows:
         d = { 'db': row }
-        d['tags'] = extract_tags(row['meta_json'])
+        #d['tags'] = extract_tags(row['meta_json'])
         articles.append(d)
 
     # create article preview
@@ -89,8 +86,7 @@ def home():
     body_md_prev = "\n".join(body_md.split("\n")[:5])
 
     body_html = pandoc_pipe( body_md_prev,
-                             [ '--to=html5',
-                               '--filter=rubric_dyn/filter_img_path.py' ] )
+                             [ '--to=html5' ] )
 
     # notes
     g.db.row_factory = sqlite3.Row
