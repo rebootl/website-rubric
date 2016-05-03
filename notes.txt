@@ -3,7 +3,7 @@
     ==> DONE
 
 - remove pub for images (db)
-    ==> DONE
+    ==> DONE, still in db, evtl. I want this back
 
 - add seconds to images datetime_norm
     ==> DONE
@@ -17,29 +17,30 @@
   so manual gallery creation and automatic (by directory) is possible
 
 - cleanup db functions
-    ==> files done
+    ==> DONE (
 
 - cleanup json/ page meta data !!
   streamline template variables (e.g. .db... !!
-  (incl. db schema)
-    ==> WIP
+    ==> DONE
+  incl. db schema
+  (new export/import needed for this)
+
+- simplify tags
+    ==> DONE (for now)
+
+- gallery publish doesn't work, probably err. in template
+    ==> pub/unpub _must_ be two forms/routes or else cannot work
 
 - new export/import (to/from one server directory)
 
 - include image publish state
 
+- image edit, evtl. save all at once
+
+- make private entries/galleries/images
+
 - rework exif for pages
-    ==> DONE (WIP ?)
+    ==> DONE
 
 - include/create default-template, evtl. setup stuff, README
 
-1. simplify tags (csv)
-2. simplify template variables
-3. below stuff
----
-
-1) export pages to one directory (new exporter)
-
-2) streamline variables/database
-
-3) reimport pages

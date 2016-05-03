@@ -26,7 +26,7 @@ def get_entry_by_date_ref_path(date_ref_path, type, published=True):
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute( '''SELECT type, ref, title, date_norm,
                             datetime_norm, body_html, data1, exifs_json,
-                            meta_json
+                            meta_json, tags
                            FROM entries
                            WHERE date_norm = ?
                            AND ref = ?
@@ -50,7 +50,7 @@ def get_entry_by_ref(ref, type, published=True):
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute( '''SELECT type, ref, title, date_norm,
                             datetime_norm, body_html, data1, exifs_json,
-                            meta_json
+                            meta_json, tags
                            FROM entries
                            WHERE ref = ?
                            AND type = ?
@@ -83,7 +83,7 @@ def db_load_images(gallery_id):
                            exif_json, gallery_id, thumb_ref
                           FROM images
                           WHERE gallery_id = ?
-                          ORDER BY datetime_norm ASC''', (gallery_id,))
+                          ORDER BY datetime_norm ASC, ref ASC''', (gallery_id,))
     return cur.fetchall()
 
 def db_load_to_edit(id):

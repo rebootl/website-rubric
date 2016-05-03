@@ -27,6 +27,7 @@ def render_preview(id, ref, type, title, author, date_normed, time_normed,
                    tags, body_html, body_md):
     '''process text input into preview and reload the editor page'''
 
+    # (is already done below)
     #ref, \
     #date_normed, \
     #time_normed, \
@@ -480,11 +481,14 @@ def pub_gallery():
     if not session.get('logged_in'):
         abort(401)
 
-    id = request.args.get('id')
-    pub = request.args.get('pub')
+    id = request.args.get('gal-id')
+    pub = request.args.get('gal-pub')
 
     if id == None:
         abort(404)
+
+    # (debug)
+    #return str("PUB: "+pub)
 
     # change state
     if pub == "1":
@@ -496,7 +500,7 @@ def pub_gallery():
     else:
         abort(404)
 
-    return redirect(url_for('interface.overview'))
+    return redirect(url_for('interface.overview', _anchor="gallery-"+id))
 
 
 @interface.route('/edit_gallery', methods=[ 'GET', 'POST' ])

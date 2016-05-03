@@ -9,6 +9,8 @@ from rubric_dyn.common import pandoc_pipe
 from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref
 from rubric_dyn.helper_pages import create_page_nav, extract_tags
 
+from rubric_dyn.helper_interface import process_input
+
 pages = Blueprint('pages', __name__)
 
 ### functions returning a view
@@ -54,59 +56,48 @@ def home():
     '''the home page'''
 
     # articles
+
     # get a list of articles
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref, title, date_norm, meta_json
+    cur = g.db.execute( '''SELECT id, ref, title, date_norm, meta_json, tags
                            FROM entries
                            WHERE type = 'article'
                            AND pub = 1
                            ORDER BY date_norm DESC, time_norm DESC''' )
-    rows = cur.fetchall()
-
-    # --> streamline shit
-    # prepare data for template (tags)
-    #
-    # [ { 'row': row,
-    #     'tags': TAGS }
-    #   { 'row: row,
-    #     'tags': TAGS } }
-    articles = []
-    for row in rows:
-        d = { 'db': row }
-        #d['tags'] = extract_tags(row['meta_json'])
-        articles.append(d)
+    articles_rows = cur.fetchall()
 
     # create article preview
     cur = g.db.execute( '''SELECT body_md
                            FROM entries
-                           WHERE id = ?''', (rows[0]['id'],))
+                           WHERE id = ?''', (articles_rows[0]['id'],))
     # --> disable sqlite3 row ???
-    body_md = cur.fetchone()[0]
+    latest_body_md = cur.fetchone()[0]
 
-    body_md_prev = "\n".join(body_md.split("\n")[:5])
+    latest_body_md_prev = "\n".join(latest_body_md.split("\n")[:5])
 
-    body_html = pandoc_pipe( body_md_prev,
-                             [ '--to=html5' ] )
+    #body_html = pandoc_pipe( body_md_prev,
+    #                         [ '--to=html5' ] )
+    prev_ref, \
+    prev_date_normed, \
+    prev_time_normed, \
+    prev_body_html_subst, \
+    prev_img_exifs = process_input("", '2000-01-01', '12:00', latest_body_md_prev)
 
     # notes
+
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
                            FROM entries
                            WHERE type = 'note'
                            AND pub = 1
                            ORDER BY datetime_norm DESC''' )
-    rows = cur.fetchall()
-
-    notes = []
-    for row in rows:
-        d = { 'db': row }
-        notes.append(d)
+    notes_rows = cur.fetchall()
 
     return render_template( 'home.html',
                             title = None,
-                            articles = articles,
-                            article_prev = body_html,
-                            notes = notes )
+                            articles = articles_rows,
+                            article_prev = prev_body_html_subst,
+                            notes = notes_rows )
 
 @pages.route('/articles/<path:article_path>/')
 def article(article_path):
