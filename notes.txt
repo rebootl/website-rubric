@@ -32,6 +32,7 @@
     ==> pub/unpub _must_ be two forms/routes or else cannot work
 
 - new export/import (to/from one server directory)
+  use for download text as well
 
 - include image publish state
 

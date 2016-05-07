@@ -225,6 +225,8 @@ def pub():
         abort(401)
 
     id = request.args.get('id')
+    if id == None:
+        abort(404)
 
     # change state
     update_pub(id, 1)
@@ -240,6 +242,8 @@ def unpub():
         abort(401)
 
     id = request.args.get('id')
+    if id == None:
+        abort(404)
 
     # change state
     update_pub(id, 0)
@@ -248,6 +252,9 @@ def unpub():
 
     return redirect(url_for('interface.overview'))
 
+# --> currently not fully functional
+#     meta data json is missing
+#     rework w/ new export/import
 @interface.route('/download')
 def download_text():
     '''download entry text (markdown)'''
@@ -264,7 +271,8 @@ def download_text():
     ref, meta_json, body_md = cur.fetchone()
 
     # add 'id' to meta
-    meta = json.loads(meta_json)
+    #meta = json.loads(meta_json)
+    meta = {}
     if 'id' not in meta.keys():
         meta['id'] = id
         meta_json_full = json.dumps(meta)
@@ -477,35 +485,37 @@ def edit_image():
 
 @interface.route('/pub_gallery')
 def pub_gallery():
-    '''publish/unpublish gallery'''
+    '''publish gallery'''
     if not session.get('logged_in'):
-        abort(401)
+       abort(401)
 
     id = request.args.get('gal-id')
-    pub = request.args.get('gal-pub')
-
     if id == None:
         abort(404)
 
-    # (debug)
-    #return str("PUB: "+pub)
-
-    # change state
-    if pub == "1":
-        db_pub_gallery(id, '1')
-        flash('Published Gallery ID {}'.format(id))
-    elif pub == "0":
-        db_pub_gallery(id, '0')
-        flash('Unpublished Gallery ID {}'.format(id))
-    else:
-        abort(404)
+    db_pub_gallery(id, '1')
+    flash('Published Gallery ID {}'.format(id))
 
     return redirect(url_for('interface.overview', _anchor="gallery-"+id))
 
+@interface.route('/unpub_gallery')
+def unpub_gallery():
+    '''unpublish gallery'''
+    if not session.get('logged_in'):
+       abort(401)
+
+    id = request.args.get('gal-id')
+    if id == None:
+        abort(404)
+
+    db_pub_gallery(id, '0')
+    flash('Published Gallery ID {}'.format(id))
+
+    return redirect(url_for('interface.overview', _anchor="gallery-"+id))
 
 @interface.route('/edit_gallery', methods=[ 'GET', 'POST' ])
 def edit_gallery():
-
+    '''edit gallery view'''
     if not session.get('logged_in'):
         abort(401)
 
