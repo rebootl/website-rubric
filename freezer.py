@@ -9,13 +9,18 @@ import config
 #freezer = Freezer(app)
 
 #app.config['FREEZER_IGNORE_ENDPOINTS'] = ['endpoint1', 'endpoint2']
-app.config['FREEZER_IGNORE_ENDPOINTS'] = [ 'interface.edit',
+app.config['FREEZER_IGNORE_ENDPOINTS'] = [ 'interface.login',
                                            'interface.overview',
-                                           'interface.login',
+                                           'interface.edit',
                                            'interface.new',
                                            'interface.pub',
                                            'interface.unpub',
                                            'interface.download_text',
+                                           'interface.update_galleries',
+                                           'interface.edit_image',
+                                           'interface.pub_gallery',
+                                           'interface.unpub_gallery',
+                                           'interface.edit_gallery',
                                            'interface.recreate_exifs' ]
 
 # This is a copy of Freezer.no_argument_rules() modified to ignore certain paths
@@ -36,6 +41,6 @@ def copy_folder(in_dir, dest_dir):
 
 if __name__ == '__main__':
     freezer.freeze()
-    copy_folder(config.MEDIA_DIR, 'rubric_dyn/build/')
+    copy_folder('rubric_dyn/media', 'rubric_dyn/build/')
 
 #    freezer.run(debug=True)
