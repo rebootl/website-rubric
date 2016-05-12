@@ -24,7 +24,7 @@ def get_entry_by_date_ref_path(date_ref_path, type, published=True):
         pub = 0
 
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT type, ref, title, date_norm,
+    cur = g.db.execute( '''SELECT id, type, ref, title, date_norm, time_norm,
                             datetime_norm, body_html, data1, exifs_json,
                             meta_json, tags
                            FROM entries

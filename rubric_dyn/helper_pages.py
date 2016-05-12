@@ -1,50 +1,109 @@
 '''helper for pages (functions not returning a view)'''
 import os
 import json
+import sqlite3
+
 from flask import g
 
-def create_page_nav(curr_type, curr_datetime_norm):
+def gen_page_nav(curr_id, rows, prefix, date_path=False):
+    '''get previous and next entry from list of db entries
+and generate page_nav'''
+    cnt = 0
+    for row in rows:
+        if row['id'] == curr_id:
+            break
+        cnt += 1
+
+    prev_row_num = cnt-1
+    if prev_row_num < 0:
+        page_nav = { 'prev_href': None }
+    elif date_path:
+        page_nav = { 'prev_href': os.path.join( prefix,
+            rows[prev_row_num]['date_norm'],
+            rows[prev_row_num]['ref'] ) }
+    else:
+        page_nav = { 'prev_href': os.path.join( prefix,
+            rows[prev_row_num]['ref'] ) }
+
+    next_row_num = cnt+1
+    if next_row_num > len(rows)-1:
+        page_nav['next_href'] = None
+    elif date_path:
+        page_nav['next_href'] = os.path.join( prefix,
+            rows[next_row_num]['date_norm'],
+            rows[next_row_num]['ref'] )
+    else:
+        page_nav['next_href'] = os.path.join( prefix,
+            rows[next_row_num]['ref'] )
+
+    return page_nav
+
+def create_page_nav(curr_id, curr_type, index="/"):
     '''create previous/next navigation for posts (using same type)'''
 
-    q_begin = '''SELECT date_norm, ref
-                 FROM entries
-                 WHERE date_norm IS NOT 'ERRONEOUS_DATE'
-                 AND ( type = ? )
-                 AND pub = 1
-                 '''
+    # get all items as list
+    # get the current index
+    # get the next and preview out of list
+    # --> evtl. this could all be done by a sqlite query,
+    #     but how ? the query would become very complicated...
 
-    # get previous page
-    # and create new page_nav list
-    cur = g.db.execute( q_begin + \
-                        '''AND datetime_norm < ?
-                           ORDER BY datetime_norm DESC LIMIT 1''',
-                           (curr_type, curr_datetime_norm) )
-    prev_result = cur.fetchone()
+    # another variant would be (better for larger dataset)
+    # select all with the same datetime
+    # if there are order by another criteria
+    # and get the next/previous
+    # else get the next/previous by datetime
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT id, ref, date_norm
+                           FROM entries
+                           WHERE date_norm IS NOT 'NOT_SET'
+                           AND ( type = ? )
+                           AND pub = 1
+                           ORDER BY date_norm ASC, time_norm ASC''',
+                           (curr_type,) )
+    rows = cur.fetchall()
+
 
     if curr_type == 'article':
-        type_subpath = "/articles"
-
-    if prev_result is not None:
-        prev_date = prev_result[0]
-        prev_ref = prev_result[1]
-        page_nav = { 'prev_href': os.path.join(type_subpath, prev_date, prev_ref) }
+        prefix = os.path.join("/articles")
     else:
-        page_nav = { 'prev_href': None }
+        prefix = os.path.join('/')
 
-    # get next page
-    # and fill in page_nav list
-    cur = g.db.execute( q_begin + \
-                        '''AND datetime_norm > ?
-                           ORDER BY datetime_norm ASC LIMIT 1''',
-                           (curr_type, curr_datetime_norm) )
-    next_result = cur.fetchone()
+    page_nav = gen_page_nav(curr_id, rows, prefix, True)
 
-    if next_result is not None:
-        next_date = next_result[0]
-        next_ref = next_result[1]
-        page_nav['next_href'] = os.path.join(type_subpath, next_date, next_ref)
-    else:
-        page_nav['next_href'] = None
+    page_nav['index'] = index
+
+    return page_nav
+
+def create_page_nav_image(curr_id, curr_gallery_id, curr_gallery_ref):
+    '''create previous/next navigation for images'''
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT id, ref
+                           FROM images
+                           WHERE gallery_id = ?
+                           ORDER BY datetime_norm ASC''',
+                           (curr_gallery_id,) )
+    rows = cur.fetchall()
+
+    page_nav = gen_page_nav(curr_id, rows, '/')
+
+    page_nav['index'] = os.path.join("/galleries", curr_gallery_ref)
+
+    return page_nav
+
+def create_page_nav_gallery(curr_id):
+    '''create previous/next navigation for galleries'''
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT id, ref
+                           FROM galleries
+                           ORDER BY date_norm ASC''' )
+    rows = cur.fetchall()
+
+    page_nav = gen_page_nav(curr_id, rows, '/galleries')
+
+    page_nav['index'] = '/'
 
     return page_nav
 

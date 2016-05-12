@@ -53,7 +53,7 @@ class ExifNice:
         self.exif_nice = { 'exposure': self.exposure_time,
                            'aperture': self.aperture,
                            'iso': self.iso,
-                           'focal_length': self.focal_length,
+                           'focallength': self.focal_length,
                            'datetime': self.datetime,
                            'make': self.make,
                            'model': self.model,
