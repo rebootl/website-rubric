@@ -169,7 +169,8 @@ def gallery(ref):
         abort(404)
 
     # load thumbnails
-    cur = g.db.execute( '''SELECT ref, thumb_ref FROM images
+    cur = g.db.execute( '''SELECT ref, thumb_ref, caption
+                           FROM images
                            WHERE gallery_id = ?
                            ORDER BY datetime_norm ASC''',
                            (gallery_row['id'],) )

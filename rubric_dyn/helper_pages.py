@@ -65,9 +65,10 @@ def create_page_nav(curr_id, curr_type, index="/"):
 
 
     if curr_type == 'article':
-        prefix = os.path.join("/articles")
+        prefix = "/articles"
+        index = "/#articles"
     else:
-        prefix = os.path.join('/')
+        prefix = '/'
 
     page_nav = gen_page_nav(curr_id, rows, prefix, True)
 
@@ -103,7 +104,7 @@ def create_page_nav_gallery(curr_id):
 
     page_nav = gen_page_nav(curr_id, rows, '/galleries')
 
-    page_nav['index'] = '/'
+    page_nav['index'] = '/#galleries'
 
     return page_nav
 
