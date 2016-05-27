@@ -7,7 +7,7 @@ from flask import Flask, render_template, g, request, session, redirect, url_for
 
 # getting flask app
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/media", static_folder="media")
 app.config.from_object('config')
 
 # some db stuff
@@ -34,9 +34,9 @@ from rubric_dyn.views.interface import interface
 app.register_blueprint(interface, url_prefix='/interface')
 
 # media folder (static)
-
-from rubric_dyn.media_static import media_static
-app.register_blueprint(media_static)
+# ==> setting above
+#from rubric_dyn.media_static import media_static
+#app.register_blueprint(media_static)
 
 
 
