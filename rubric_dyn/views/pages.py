@@ -202,9 +202,17 @@ def imagepage(image_path):
         abort(404)
 
     # prepare data
-    try:
+    # --> error in Python 3.4.2
+    #     'module' object has no attribute 'JSONDecodeError'
+    #try:
+    #    exif = json.loads(row['exif_json'])
+    #except json.decoder.JSONDecodeError:
+    #    exif = None
+    # ==> if no exif data is avail.
+    #     exif_json is set to ""
+    if row['exif_json'] is not "":
         exif = json.loads(row['exif_json'])
-    except json.decoder.JSONDecodeError:
+    else:
         exif = None
 
     src = os.path.join('/media', image_ref)
