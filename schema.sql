@@ -24,9 +24,9 @@ create table galleries (
   id integer primary key autoincrement,
   ref text not null,
   title text not null,
-  desc text,
-  tags text,
-  date_norm text,
+  desc text not null,
+  tags text not null,
+  date_norm text not null,
   pub int default 0
 );
 
@@ -35,9 +35,9 @@ create table images (
   id integer primary key autoincrement,
   ref text not null,
   thumb_ref text not null,
-  caption text,
-  datetime_norm text,
-  exif_json text,
+  caption text not null,
+  datetime_norm text not null,
+  exif_json text not null,
   gallery_id int,
   pub ind default 1
 );
