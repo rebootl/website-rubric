@@ -102,6 +102,7 @@ def home():
 
     cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
                            FROM galleries
+                           WHERE pub = 1
                            ORDER BY date_norm DESC''' )
     galleries_rows = cur.fetchall()
 

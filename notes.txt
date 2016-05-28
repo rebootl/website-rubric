@@ -30,6 +30,8 @@
 
 - gallery publish doesn't work, probably err. in template
     ==> pub/unpub _must_ be two forms/routes or else cannot work
+    --> doesn't work still/again!!
+    ==> FIXED restriction in db query was missing (home view)
 
 - new export/import (to/from one server directory)
   use for download text as well
