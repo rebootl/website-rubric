@@ -1,38 +1,45 @@
 '''config'''
 
-DEBUG = True
-DATABASE = 'website.db'
+DATABASE = '/somepath/website.db'
+
+# a random key, e.g.: 'bd9c0dd8620f6a49ebd7f2176552d141.asgo249'
 SECRET_KEY = 'development key'
-USERNAME = 'noname'
-PASSWORD = 'blablabla123'
 
-MEDIA_DIR = "/home/cem/Scripts/rubric-dyn/media"
-FONT_DIR = "/home/cem/Scripts/rubric-dyn/localfont"
+# interface user
+USERNAME = 'username'
+# password as sha1sum, e.g. '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
+PASSWD_SHA1 = '448h0h4hfi...'
 
+# (needed for image processing)
+# --> improve ??
+RUN_ABSPATH = '/webapp/rubric_dyn'
+
+### SYSTEM STUFF
+
+# date / datetime formats
+# (curr. not used
+#  --> use it, makes kinda sense)
 DATE_FORMAT = "%Y-%m-%d"
+# (used)
 DATETIME_FORMAT = "%Y-%m-%d %H:%M"
 
-### import/export stuff
-
-# --> make this a cli argument
-CONTENT_DIRS = [ "/home/cem/website_rubric/layout",
-                 "/home/cem/Drawings",
-                 "/home/cem/Articles",
-                 "/home/cem/Astro/2015-02-19",
-                 "/home/cem/Astro/2015-02-20",
-                 "/home/cem/Astro/2014-12-09_moon",
-                 "/home/cem/Astro/2015-02-14_tele",
-                 "/home/cem/Astro/2015-08-13",
-                 "/home/cem/Astro/2015-12-25",
-                 "/home/cem/Fotos_DCAM/2016-01-05",
-                 "/home/cem/Astro/2015-12-26" ]
-
-META_DEFAULTS = { 'files': [],
-                  'type': "special",
-                  'title': "NO TITLE SET",
-                  'date': "NO DATE SET",
-                  'author': "NO AUTHOR SET" }
-
+# (used/useful in/for importer)
 PAGE_EXT = ".page"
 
-EXPORT_DIR = "/home/cem/Scripts/rubric-dyn/export"
+# (needed for exif processing)
+JPEG_EXTS = [ '.jpg', '.jpeg', '.JPG' ]
+
+# image extensions
+# (needed for image processing)
+IMG_EXTS = [ '.jpg', '.jpeg', '.JPG', '.png', '.PNG' ]
+
+# DEPRECATED
+#META_DEFAULTS = { 'files': [],
+#                  'type': "special",
+#                  'title': "NO TITLE SET",
+#                  'date': "NO DATE SET",
+#                  'author': "NO AUTHOR SET" }
+
+# DEPRECATED
+#PANDOC_OPTS = [ '--to=html5',
+#                '--filter=/home/cem/Scripts/rubric-dyn/rubric_dyn/filter_img_path.py' ]
