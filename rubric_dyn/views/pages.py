@@ -60,6 +60,24 @@ currently used for types:
 def home():
     '''the home page'''
 
+    # latest
+
+    # get latest entry
+    cur = g.db.execute( '''SELECT body_html
+                           FROM entries
+                           WHERE type = 'latest'
+                           AND pub = 1''' )
+    latest_html = cur.fetchone()[0]
+
+    # page history
+
+    # get entry
+    cur = g.db.execute( '''SELECT body_html
+                           FROM entries
+                           WHERE type = 'history'
+                           AND pub = 1''' )
+    history_html = cur.fetchone()[0]
+
     # articles
 
     # get a list of articles
@@ -123,6 +141,8 @@ def home():
 
     return render_template( 'home.html',
                             title = None,
+                            latest_html = latest_html,
+                            history_html = history_html,
                             articles = articles_rows,
                             article_prev = prev_body_html_subst,
                             notes = notes_rows,
