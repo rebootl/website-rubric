@@ -67,7 +67,11 @@ def home():
                            FROM entries
                            WHERE type = 'latest'
                            AND pub = 1''' )
-    latest_html = cur.fetchone()[0]
+    latest_row = cur.fetchone()
+    if latest_row != None:
+        latest_html = latest_row[0]
+    else:
+        latest_html = None
 
     # page history
 
@@ -76,7 +80,11 @@ def home():
                            FROM entries
                            WHERE type = 'history'
                            AND pub = 1''' )
-    history_html = cur.fetchone()[0]
+    history_row = cur.fetchone()
+    if history_row != None:
+        history_html = history_row[0]
+    else:
+        history_html = None
 
     # articles
 
