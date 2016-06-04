@@ -9,6 +9,8 @@ from flask import Flask, render_template, g, request, session, redirect, url_for
 
 app = Flask(__name__, static_url_path="/media", static_folder="media")
 app.config.from_object('config')
+app.config.from_envvar('RUBRIC_ADD_SETTINGS', silent=True)
+#app.config['DEBUG'] = True
 
 # some db stuff
 

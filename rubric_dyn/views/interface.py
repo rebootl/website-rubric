@@ -143,6 +143,8 @@ def edit():
 
         # meta
         type = request.form['type']
+        if type == 'custom':
+            type = request.form['custom_type']
         title = request.form['title']
         author = request.form['author']
         date_str = request.form['date']
