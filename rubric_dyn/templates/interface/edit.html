@@ -59,6 +59,10 @@
         <input type="radio" form="edit-page" name="type" value="special" {% if page.type == 'special' %}checked{% endif %}>
           special
         </input>
+        <input type="radio" form="edit-page" name="type" value="custom" {% if page.type != 'article' and page.type != 'note' and page.type != 'special' and id != 'new' %}checked{% endif %}>
+          custom
+        <input type="text" form="edit-page" name="custom_type" value="{% if page.type != 'article' and page.type != 'note' and page.type != 'special' %}{{ page.type }}{% endif %}" />
+        </input>
       </td>
     </tr>
   </table>
