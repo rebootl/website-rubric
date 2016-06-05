@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block body %}
+
+  <h2>latest</h2>
+
+  {{ latest_html |safe }}
+
+  <h2>page history</h2>
+
+  {#
+  <small class="small-date">2016-05-21</small>
+
+  <ul>
+    <li>added transition to sliders on home page</li>
+  </ul>
+
+  <small class="small-date">2016-05-12</small>
+  <ul>
+    <li>
+      reworked/reorganised underlaying CMS
+      <ul>  
+        <li>
+          image galleries (as a native feature)
+        </li>
+      </ul>
+    </li>
+    <li>
+      updated homepage, showing lists of content
+    </li>
+  </ul>
+  #}
+
+  {{ history_html |safe }}
+
+  <a name="articles"></a>
+  <h2 class="home-title">articles</h2>
+
+  <p>
+    Currently, these are mostly my personal observation notes (astronomical
+    and natural phenomena), including images.
+  </p>
+
+  <div class="home-list-box">
+    <ul id="article-list" class="home-enh-list rolldown">
+    {% for article in articles %}
+      <li>
+        {% if loop.index == 1 %}
+          <div id="first-item-box">
+        {% endif %}
+        <h3><a href="{{ url_for('pages.article', article_path=article.date_norm+'/'+article.ref) }}" title="View">{{ article.title }}</a></h3>
+        <small>{{ article.date_norm }}</small>
+        {% if article.tags %}
+          <small class="tags">Tags: <strong>{{ article.tags }}</strong></small>
+        {% endif %}
+        {% if loop.index == 1 %}
+          </div>
+          <div id="article-prev-box">
+            {{ article_prev|safe }}
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+    <div class="roll-bar">
+      <img class="roll-btn" src="/media/down_32.png" width="32" onclick="rolldown(this, 'article-list', '200px')" alt="Show/Hide all button" title="Show/Hide all" />
+    </div>
+  </div>
+
+  <a name="galleries"></a>
+  <h2>image galleries</h2>
+
+  <div id="img-gal-outbox">
+    <div id="img-gal-box" class="rolldown">
+      {% for gallery in galleries %}
+        <div class="gal-prev-box">
+          <h3><a href="{{ url_for('pages.gallery', ref=gallery.ref) }}">{{ gallery.title }}</a></h3>
+          <small>{{ gallery.date_norm }}</small>
+          <img src="/media/{{ gallery.thumbs[0].thumb_ref }}" class="home-thumb" />
+          <small class="tags">Tags: <strong>{{ gallery.tags }}</strong></small>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="roll-bar">
+      <img class="roll-btn" src="/media/down_32.png" width="32" onclick="rolldown(this, 'img-gal-box', '280px')" alt="Show/Hide all button" title="Show/Hide all" />
+    </div>
+  </div>
+
+  <h2>notes</h2>
+  <ul id="notes-list">
+  <p>No notes yet.</p>
+  {% for note in notes %}
+    <li>
+      <a href="{{ url_for('pages.show_note', ref=note.ref) }}">{{ note.title }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+
+  <script src="/media/toggle.js"></script>
+
+{% endblock %}

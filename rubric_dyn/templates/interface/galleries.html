@@ -1,0 +1,43 @@
+<form id="edit-gallery" action="{{ url_for('interface.edit_gallery') }}" method="get"></form>
+<form id="gallery-pub" action="{{ url_for('interface.pub_gallery') }}" method="get"></form>
+<form id="gallery-unpub" action="{{ url_for('interface.unpub_gallery') }}" method="get"></form>
+
+<table>
+  <thead>
+    <th>ID</th>
+    <th>Ref</th>
+    <th>Info</th>
+    <th>Published</th>
+  </thead>
+  <tbody>
+  {% for gallery in galleries %}
+    <tr>
+      <td>{{ gallery.id }}<a name="gallery-{{ gallery.id }}"></a></td>
+      <td>{{ gallery.ref }}</td>
+      <td>
+        Title: {{ gallery.title }}<br />
+        Date: {{ gallery.date_norm }}<br />
+        Description: {{ gallery.desc }}<br />
+        <strong>Tags: <span class="i_tags">{{ gallery.tags }}</span></strong>
+      </td>
+      <td>
+      {% if gallery.pub %}
+        <button form="gallery-unpub" type="submit" name="gal-id" value="{{ gallery.id }}" title="Unpublish">
+          <img class="i_img_table" src="/media/checked.png" />
+        </button>
+      {% else %}
+        <button form="gallery-pub" type="submit" name="gal-id" value="{{ gallery.id }}" title="Publish">
+          <img class="i_img_table" src="/media/unchecked.png" />
+        </button>
+      {% endif %}
+      </td>
+{#        <td>{{ gallery.pub }}</td>#}
+      <td>
+        <button form="edit-gallery" type="submit" name="id" value="{{ gallery.id }}">Edit Gallery</button>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<p><button form="edit-gallery" type="submit" name="id" value="new">New Gallery</button></p>

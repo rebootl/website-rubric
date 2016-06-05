@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if title %}{{ title }} - {% endif %}Yet another personal website</title>
+
+<link rel="stylesheet" href="/media/style.css">
+
+<!-- favicon -->
+<link rel="icon" type="image/png" href="/media/favicon.png">
+
+<!--
+    Copyright 2015, 2016 Cem Aydin
+
+    Page created using rubric-dyn (a simple self-written CMS).
+    Based on Flask, Markdown (Pandoc), driven by Python.
+
+    Using webfont: Lora
+    Copyright (c) 2011-2013, Cyreal (www.cyreal.org a@cyreal.org)
+    See: style.css, localfont.css
+-->
+
+<body>
+
+<header>
+  <div id="logo-box">
+    <a href="/" title="Home">
+      <img id="logo" src="/media/Logo-1-150p.png" />
+    </a>
+  </div>
+  {# header title could go here #}
+  <a id="menu-button" href="{{ url_for('pages.special', ref='about') }}" title="About">
+    <img id="menu-button-img" class="header-button" src="/media/about.png" />
+  </a>
+</header>
+
+<article id="page-content" class="{% if imagepage %}imagepage-article{% endif %}">
+{% block body %}{% endblock %}
+  <footer>
+    <small>Copyright 2015, 2016 Cem Aydin</small>
+  </footer>
+</article>
+
+<footer id="page-footer">
+{% if page_nav %}
+  {% include 'page_nav.html' %}
+{% endif %}
+</footer>
+
+<!--<script src="/local.js"></script>-->
+{#
+{% if img_exifs_json %}
+  <script>
+var img_exifs_json = {{ img_exifs_json | safe }};
+  </script>
+{% endif %}
+#}
+  <script src="/media/img-info.js"></script>
+
+</body>

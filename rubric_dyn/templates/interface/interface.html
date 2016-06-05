@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block body %}
+  {% for message in get_flashed_messages() %}
+    <em class=i_flash>{{ message }}</em><br />
+  {% endfor %}
+  {% block i_body %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "interface.html" %}
+{% block i_body %}
+  {% if preview %}
+    <h3 class="i_preview_hint">Preview:</h3>
+    <hr class="i_preview_line" />
+    {% include 'post_body.html' %}
+    <hr class="i_preview_line" />
+  {% endif %}
+
+  <h1>Edit</h1>
+  <h2>ID: {{ id }}</h2>
+  <h3>Ref: {{ page.ref }}</h3>
+
+  <form id="edit-page" action="{{ url_for('interface.edit') }}" method="post"></form>
+
+  <table>
+    <tr>
+      <th>Title:</th>
+      <td>
+        <input type="text" form="edit-page" name="title" value="{{ page.title }}"/>
+      </td>
+    </tr>
+    <tr>
+      <th>Author:</th>
+      <td>
+        <input type="text" form="edit-page" name="author" value="{{ page.author }}" />
+      </td>
+    </tr>
+    <tr>
+      <th>Date:</th>
+      <td>
+        <input type="text" form="edit-page" name="date" value="{{ page.date_norm }}" />
+        (YYYY-MM-DD)
+      </td>
+    </tr>
+    <tr>
+      <th>Time:</th>
+      <td>
+        <input type="text" form="edit-page" name="time" value="{{ page.time_norm }}" />
+        (HH:MM)
+      </td>
+    </tr>
+    <tr>
+      <th>Tags:</th>
+      <td>
+        <input type="text" form="edit-page" name="tags" value="{{ page.tags }}" />
+        (comma separated values)
+      </td>
+    </tr>
+    <tr>
+      <th>Type:</th>
+      <td>
+        <input type="radio" form="edit-page" name="type" value="article" {% if page.type == 'article' or id == 'new' %}checked{% endif %}>
+          article
+        </input>
+        <input type="radio" form="edit-page" name="type" value="note" {% if page.type == 'note' %}checked{% endif %}>
+          note
+        </input>
+        <input type="radio" form="edit-page" name="type" value="special" {% if page.type == 'special' %}checked{% endif %}>
+          special
+        </input>
+      </td>
+    </tr>
+  </table>
+
+  <p>
+    <input form="edit-page" type="hidden" name="id" value="{{ id }}" />
+    <button form="edit-page" type="submit" name="actn" value="preview">Preview</button>
+    <button form="edit-page" type="submit" name="actn" value="save">Save</button>
+    <button form="edit-page" type="submit" name="actn" value="cancel" title="Back to Overview">Cancel</button>
+  </p>
+
+  <p>
+    <strong><pre>Text (Pandoc Markdown):</pre></strong>
+    <textarea id="text-input" name="text-input" form="edit-page" class="edit-textarea">{{ page.body_md }}</textarea>
+  </p>
+
+{% endblock %}

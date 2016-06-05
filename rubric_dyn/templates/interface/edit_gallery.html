@@ -1,0 +1,48 @@
+{% extends "interface.html" %}
+{% block i_body %}
+
+  <h1>Edit Gallery</h1>
+  <h2>ID: {{ gallery.id }}</h2>
+  <h3>Ref: {{ gallery.ref }}</h3>
+
+  <form id="edit-gal" action="{{ url_for('interface.edit_gallery') }}" method="post">
+  </form>
+
+  <table>
+    <tr>
+      <th>Title:</th>
+      <td>
+        <input type="text" form="edit-gal" name="title" value="{{ gallery.title }}" />
+      </td>
+    </tr>
+    <tr>
+      <th>Date:</th>
+      <td>
+        <input type="text" form="edit-gal" name="date" value="{{ gallery.date_norm }}" />
+      </td>
+    </tr>
+    <tr>
+      <th>Description:</th>
+      <td>
+        <textarea form="edit-gal" name="desc" cols="30" rows="2">{{ gallery.desc }}</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Tags:</th>
+      <td>
+        <input type="text" form="edit-gal" name="tags" value="{{ gallery.tags }}" />
+        <br />(comma separated list)
+      </td>
+    </tr>
+  </table>
+
+  <p>
+    <input form="edit-gal" type="hidden" name="id" value="{{ gallery.id }}" />
+    <button form="edit-gal" type="submit" name="actn" value="save">Save</button>
+    <button form="edit-gal" type="submit" name="actn" value="cancel" title="Back to Overview">Cancel</button>
+  </p>
+
+  <h3>Images:</h3>
+  {% include 'images.html' %}
+
+{% endblock %}

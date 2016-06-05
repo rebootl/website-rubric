@@ -1,0 +1,64 @@
+{% extends "interface.html" %}
+{% block i_body %}
+
+  <h1>Edit Image</h1>
+  <h2>ID: {{ image.id }}</h2>
+  <h3>Ref: {{ image.ref }}</h3>
+
+  <table>
+    <th></th>
+    <th>Exif</th>
+    <tr>
+      <td>
+        <img id="edit-img-prev" src="/media/{{ image.ref }}" width="250" />
+      </td>
+      <td>
+        Exposure: {{ image_exif.exposure }}<br />
+        Aperture: {{ image_exif.aperture }}<br />
+        ISO: {{ image_exif.iso }}<br />
+        Focal length: {{ image_exif.focallength }}<br />
+        Date/Time: {{ image_exif.datetime }}<br />
+        Make: {{ image_exif.make }}<br />
+        Model: {{ image_exif.model }}<br />
+        Software: {{ image_exif.software }}<br />
+      </td>
+    </tr>
+  </table>
+
+  <br />
+
+  <form id="edit-image" action="{{ url_for('interface.edit_image') }}" method="post">
+  </form>
+
+  <table>
+    <tr>
+      <th>Caption:</th>
+      <td>
+        <textarea form="edit-image" name="caption" cols="30" rows="2">{{ image.caption }}</textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>Date/Time:</th>
+      <td>
+        <input type="text" form="edit-image" name="datetime" value="{{ image.datetime_norm }}" />
+        <br />(YYYY-MM-DD HH:MM:SS)
+      </td>
+    </tr>
+    <tr>
+      {# <th>Gallery ID:</th>
+      <td>
+        {{ image.gallery_id }}
+        <input type="text" form="edit-image" name="gal-id" value="{{ image.gallery_id }}" disabled />
+      </td> #}
+    </tr>
+  </table>
+
+  <p>
+    <input type="hidden" form="edit-image" name="gal-id" value="{{ image.gallery_id }}" />
+    <input form="edit-image" type="hidden" name="id" value="{{ image.id }}" />
+    {# <button form="edit-text" type="submit" name="actn" value="preview">Preview</button> #}
+    <button form="edit-image" type="submit" name="actn" value="save">Save</button>
+    <button form="edit-image" type="submit" name="actn" value="cancel" title="Back to Overview">Cancel</button>
+  </p>
+
+{% endblock %}

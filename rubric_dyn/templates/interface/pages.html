@@ -1,0 +1,50 @@
+<form id="call-edit" action="{{ url_for('interface.edit') }}" method="get"></form>
+{# create GET url for POST request ?? <input form="call-edit" type="hidden" name="preview" value="False" />#}
+<form id="call-pub" action="{{ url_for('interface.pub') }}" method="get"></form>
+<form id="call-unpub" action="{{ url_for('interface.unpub') }}" method="get"></form>
+<form id="dl-text" action="{{ url_for('interface.download_text') }}" method="get"></form>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Type</th>
+      <th>Title</th>
+      <th>Published</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for entry in entries %}
+    <tr>
+      <td>{{ entry.id }}</td>
+      <td>{{ entry.date_norm}}</td>
+      <td>{{ entry.type }}</td>
+      {% if entry.pub %}
+      <td><a href="{{ hrefs[ entry.id ] }}">{{ entry.title }}</a></td>
+      <td>
+        <button form="call-unpub" type="submit" name="id" value="{{ entry.id }}" title="Unpublish">
+          <img class="i_img_table" src="/media/checked.png" />
+        </button>
+      {% else %}
+      <td>{{ entry.title }}</td>
+      <td>
+        <button form="call-pub" type="submit" name="id" value="{{ entry.id }}" title="Publish">
+          <img class="i_img_table" src="/media/unchecked.png" />
+        </button>
+      {% endif %}
+      </td>
+      <td><button form="call-edit" type="submit" name="id" value="{{ entry.id }}">Edit</button></td>
+      <td><button form="dl-text" type="submit" name="id" value="{{ entry.id }}" title="Download Text">Download-Text</button></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{# <h3>New:</h3> #}
+
+<p>
+  <form action="{{ url_for('interface.new') }}" method="get">
+    <button type="submit" name="id" value="new">New Page</button>
+  </form>
+</p>

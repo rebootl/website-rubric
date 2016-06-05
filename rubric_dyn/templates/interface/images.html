@@ -1,0 +1,40 @@
+<form id="edit-image" action="{{ url_for('interface.edit_image') }}" method="get">
+</form>
+
+{% for image in images %}
+  <form id="update-image-{{ image.id }}" action="{{ url_for('interface.edit_image') }}" method="post"></form>
+{% endfor %}
+
+<table>
+  <thead>
+    {# <th>ID</th> #}
+    <th>Image</th>
+    <th>Info</th>
+    <th>Gallery ID</th>
+  </thead>
+  <tbody>
+  {% for image in images %}
+    <tr>
+      {# <td>{{ image.id }}</td> #}
+      <td>
+        <a name="image-{{ image.id }}"></a>
+        <img class="edit-thumb" src="/media/{{ image.thumb_ref }}" width="150" />
+      </td>
+      <td>
+        Ref: {{ image.ref }}<br />
+        Datetime: <input form="update-image-{{ image.id }}" name="datetime" value="{{ image.datetime_norm }}" /><br />
+        Caption: <textarea form="update-image-{{ image.id }}" name="caption" cols="30" rows="2">{{ image.caption }}</textarea>
+      </td>
+      <td>
+        {{ image.gallery_id }}
+      </td>
+      <td>
+        <input form="update-image-{{ image.id }}" type="hidden" name="id" value="{{ image.id }}" />
+        <input form="update-image-{{ image.id }}" type="hidden" name="gal-id" value="{{ image.gallery_id }}" />
+        <p><button form="update-image-{{ image.id }}" type="submit" name="actn" value="save">Update Meta</button></p>
+        <p><button form="edit-image" type="submit" name="id" value="{{ image.id }}">Open Image Edit</button></p>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
