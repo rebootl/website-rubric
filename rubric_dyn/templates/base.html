@@ -28,13 +28,19 @@
     </a>
   </div>
   {# header title could go here #}
-  <a id="menu-button" href="{{ url_for('pages.special', ref='about') }}" title="About">
-    <img id="menu-button-img" class="header-button" src="/media/about.png" />
-  </a>
+  {#<a id="menu-button" href="{{ url_for('pages.special', ref='about') }}" title="About">#}
+  <img id="menu-button-img" class="header-button"
+    title="Menu"
+    onclick="toggle_height('main-nav');"
+    src="/media/menu.png" />
+  {#</a>#}
 </header>
 
+{% include 'navigation.html' %}
+
 <article id="page-content" class="{% if imagepage %}imagepage-article{% endif %}">
-{% block body %}{% endblock %}
+  {% if title %}<h1>{{ title }}</h1>{% endif %}
+  {% block body %}{% endblock %}
   <footer>
     <small>Copyright 2015, 2016 Cem Aydin</small>
   </footer>
@@ -46,7 +52,8 @@
 {% endif %}
 </footer>
 
-<!--<script src="/local.js"></script>-->
+<script src="/media/toggle.js"></script>
+{#<!--<script src="/local.js"></script>-->#}
 {#
 {% if img_exifs_json %}
   <script>

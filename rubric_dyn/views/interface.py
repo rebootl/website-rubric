@@ -70,7 +70,7 @@ def login():
             session['logged_in'] = True
             flash('Login successful.')
             return redirect(url_for('interface.overview'))
-    return render_template('login.html', error=error, title="Login")
+    return render_template('login.html', error=error, title=None)
 
 @interface.route('/overview', methods=['GET', 'POST'])
 def overview():

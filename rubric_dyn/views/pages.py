@@ -42,17 +42,22 @@ currently used for entry types:
                             page_nav = page_nav )
 
 # --> should go into helper_pages
-def show_post_by_type_ref(type, ref):
-    '''helper to show an entry by type and ref,
-page_nav is shown but empty
-
-currently used for types:
-- special
-- note
-'''
-    row = get_entry_by_ref(ref, type)
-
-    return show_post(row)
+# ==> DEPRECATED
+#def show_post_by_type_ref(type, ref, page_nav=PAGE_NAV_DEFAULT):
+#    '''helper to show an entry by type and ref,
+#page_nav is shown but empty
+#
+#currently used for types:
+#- special
+#- note
+#'''
+#    row = get_entry_by_ref(ref, type)
+#
+##    return show_post(row)
+#    return render_template( 'post.html',
+#                            title = row['title'],
+#                            page = row,
+#                            page_nav = None )
 
 ### routes
 
@@ -86,7 +91,24 @@ def home():
     else:
         history_html = None
 
-    # articles
+    # notes
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
+                           FROM entries
+                           WHERE type = 'note'
+                           AND pub = 1
+                           ORDER BY datetime_norm DESC''' )
+    notes_rows = cur.fetchall()
+
+    return render_template( 'home.html',
+                            title = 'Home',
+                            latest_html = latest_html,
+                            history_html = history_html )
+
+@pages.route('/articles/')
+def articles():
+    '''articles list/overview'''
 
     # get a list of articles
     g.db.row_factory = sqlite3.Row
@@ -113,19 +135,16 @@ def home():
     prev_time_normed, \
     prev_body_html_subst, \
     prev_img_exifs = process_input("", '2000-01-01', '12:00', latest_body_md_prev)
+    return render_template( 'articles.html',
+                            title = 'Articles',
+                            articles = articles_rows,
+                            article_prev = prev_body_html_subst )
 
-    # notes
+@pages.route('/galleries/')
+def galleries():
+    '''galleries overview'''
 
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
-                           FROM entries
-                           WHERE type = 'note'
-                           AND pub = 1
-                           ORDER BY datetime_norm DESC''' )
-    notes_rows = cur.fetchall()
-
-    # image galleries
-
     cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
                            FROM galleries
                            WHERE pub = 1
@@ -147,14 +166,24 @@ def home():
 
         galleries.append(gallery)
 
-    return render_template( 'home.html',
-                            title = None,
-                            latest_html = latest_html,
-                            history_html = history_html,
-                            articles = articles_rows,
-                            article_prev = prev_body_html_subst,
-                            notes = notes_rows,
+    return render_template( 'galleries.html',
+                            title = 'Image galleries',
                             galleries = galleries )
+
+@pages.route('/notes/')
+def notes():
+    '''list of notes'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
+                           FROM entries
+                           WHERE type = 'note'
+                           AND pub = 1
+                           ORDER BY datetime_norm DESC''' )
+    notes_rows = cur.fetchall()
+
+    return render_template( 'notes.html',
+                            title = 'Notes',
+                            notes = notes_rows )
 
 @pages.route('/articles/<path:article_path>/')
 def article(article_path):
@@ -170,17 +199,33 @@ def article(article_path):
 
     return show_post(row, page_nav)
 
+@pages.route('/notes/<ref>/')
+def show_note(ref):
+    '''note page'''
+    row = get_entry_by_ref(ref, 'note')
+
+    page_nav = { 'prev_href': None,
+                 'next_href': None,
+                 'index': "/notes/" }
+
+#    return show_post(row)
+    return render_template( 'post.html',
+                            title = row['title'],
+                            page = row,
+                            page_nav = page_nav )
+#    return show_post_by_type_ref('note', ref)
+
 @pages.route('/special/<ref>/')
 def special(ref):
     '''special page'''
 
-    return show_post_by_type_ref('special', ref)
+    row = get_entry_by_ref(ref, 'special')
 
-@pages.route('/notes/<ref>/')
-def show_note(ref):
-    '''note page'''
-
-    return show_post_by_type_ref('note', ref)
+    return render_template( 'post.html',
+                            title = row['title'],
+                            page = row,
+                            page_nav = None )
+#    return show_post_by_type_ref('special', ref)
 
 @pages.route('/galleries/<ref>/')
 def gallery(ref):

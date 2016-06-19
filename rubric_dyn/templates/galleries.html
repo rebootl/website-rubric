@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+
+<div class="spacer"></div>
+
+{% for gallery in galleries %}
+  <div class="gal-prev-box">
+    <h3><a href="{{ url_for('pages.gallery', ref=gallery.ref) }}">{{ gallery.title }}</a></h3>
+    <small>{{ gallery.date_norm }}</small>
+    <img src="/media/{{ gallery.thumbs[0].thumb_ref }}" class="home-thumb" />
+    <small class="tags">Tags: <strong>{{ gallery.tags }}</strong></small>
+  </div>
+{% endfor %}
+
+{% endblock %}
