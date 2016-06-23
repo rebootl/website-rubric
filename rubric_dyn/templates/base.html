@@ -20,6 +20,7 @@
 -->
 
 <body>
+<div id="site-wrapper"><!-- needed to hide navigation "off-screen" -->
 
 <header>
   <div id="logo-box">
@@ -28,12 +29,10 @@
     </a>
   </div>
   {# header title could go here #}
-  {#<a id="menu-button" href="{{ url_for('pages.special', ref='about') }}" title="About">#}
   <img id="menu-button-img" class="header-button"
     title="Menu"
-    onclick="toggle_height('main-nav');"
+    onclick="menu_toggle('main-nav');"
     src="/media/menu.png" />
-  {#</a>#}
 </header>
 
 {% include 'navigation.html' %}
@@ -53,14 +52,8 @@
 </footer>
 
 <script src="/media/toggle.js"></script>
+<script src="/media/img-info.js"></script>
 {#<!--<script src="/local.js"></script>-->#}
-{#
-{% if img_exifs_json %}
-  <script>
-var img_exifs_json = {{ img_exifs_json | safe }};
-  </script>
-{% endif %}
-#}
-  <script src="/media/img-info.js"></script>
 
+</div><!-- #site-wrapper -->
 </body>
