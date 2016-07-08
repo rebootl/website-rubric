@@ -250,7 +250,7 @@ def unpub():
     # change state
     update_pub(id, 0)
 
-    flash('Unublished ID {}'.format(id))
+    flash('Unpublished ID {}'.format(id))
 
     return redirect(url_for('interface.overview'))
 

@@ -47,3 +47,6 @@
 
 - include/create default-template, evtl. setup stuff, README
 
+- optional page TOC (e.g. checkbox)
+
+- freeze/upload buttons !
