@@ -5,21 +5,18 @@
 <table>
   <thead>
     <th>ID</th>
+    <th>Date</th>
     <th>Ref</th>
-    <th>Info</th>
+    <th>Title</th>
     <th>Published</th>
   </thead>
   <tbody>
   {% for gallery in galleries %}
     <tr>
       <td>{{ gallery.id }}<a name="gallery-{{ gallery.id }}"></a></td>
+      <td>{{ gallery.date_norm }}</td>
       <td>{{ gallery.ref }}</td>
-      <td>
-        Title: {{ gallery.title }}<br />
-        Date: {{ gallery.date_norm }}<br />
-        Description: {{ gallery.desc }}<br />
-        <strong>Tags: <span class="i_tags">{{ gallery.tags }}</span></strong>
-      </td>
+      <td><a href="/galleries/{{ gallery.ref }}">{{ gallery.title }}</a></td>
       <td>
       {% if gallery.pub %}
         <button form="gallery-unpub" type="submit" name="gal-id" value="{{ gallery.id }}" title="Unpublish">

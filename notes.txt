@@ -50,3 +50,6 @@
 - optional page TOC (e.g. checkbox)
 
 - freeze/upload buttons !
+
+- adapt gallery list (interface), too cluttered
+    ==> DONE
