@@ -7,6 +7,39 @@ from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
     url_encode_str
 from rubric_dyn.ExifNice import ExifNice
 
+import sys
+
+def get_images(subpath):
+    '''get image list from subpath (inside /media/)'''
+    # absolute paths
+    media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
+    images_path = os.path.join(media_abspath, subpath)
+
+    if not os.path.isdir(images_path):
+        flash("Warning: Invalid image-path given...")
+        return []
+
+    files = os.listdir(images_path)
+    # filter images
+    image_files = []
+    for file in files:
+        file_ext = os.path.splitext(file)[1]
+        if file_ext in current_app.config['IMG_EXTS']:
+            image_files.append(file)
+
+    image_files.sort()
+
+    return image_files
+
+def gen_image_md(subpath, images):
+    '''generate markdown from a list of image filenames'''
+    md_text = ""
+    for image in images:
+        image_subpath = os.path.join('/media/', subpath, image)
+        img_md = "![]({})\n\n".format(image_subpath)
+        md_text += img_md
+    return md_text
+
 def process_image(image_file, image_dir, ref):
     '''process image data
 - exif information
@@ -41,7 +74,7 @@ def process_image(image_file, image_dir, ref):
                      gallery_id )
 
     # create thumbnail if not exists
-    # (existence is checked in function --> maybe better check here ?)
+    # (existence is checked in function --> maybe better check here ? ==> No, WTF?)
     make_thumb_samename(image_file_abspath, thumbs_abspath)
 
 def repl_image(img_block):
@@ -111,11 +144,16 @@ alternatives:
     # (at the beginning of line)
     # two groups
     # what's this "|" for the argument... WTF ?!
-    re_md_img = re.compile(r'^!\[(.+?)\]\((.+?)\)', re.MULTILINE|re.DOTALL)
+    #re_md_img = re.compile(r'^!\[([^\]]+)\]\(([^)]+)\)', re.MULTILINE|re.DOTALL)
+    # ==> fix empty alt text !!
+    re_md_img = re.compile(r'^!\[(.*?)\]\((.*?)\)', re.MULTILINE|re.DOTALL)
 
     # get markdown image tags
     # a list of tuples: (alt, src)
     img_blocks = re_md_img.findall(text_md)
+
+    # (debug output)
+    #sys.stderr.write(str(img_blocks))
 
     # substitute by placeholders
     text_md_subst = re_md_img.sub(IMG_SUBST, text_md)

@@ -13,7 +13,8 @@ from rubric_dyn.db_read import db_load_gallery, db_load_images, \
 from rubric_dyn.db_write import update_pub, db_update_image, \
     db_insert_gallery, db_update_gallery, db_pub_gallery, \
     db_new_entry, db_update_entry
-from rubric_dyn.helper_interface import process_image, process_input
+from rubric_dyn.helper_interface import process_image, process_input, \
+    get_images, gen_image_md
 from rubric_dyn.ExifNice import ExifNice
 
 interface = Blueprint('interface', __name__,
@@ -159,6 +160,32 @@ def edit():
             flash(FLASH_WARN_EMPTY_STR.format("Title"))
 
         # (date is checked in process_input)
+
+        if action == "add_imgs":
+            # --> process images from path here
+            images_subpath = request.form['imagepath']
+
+            # create image thumbnails ==> don't
+
+            # create and add image markdown
+            images = get_images(images_subpath)
+            img_md = gen_image_md(images_subpath, images)
+            body_md_add = body_md + img_md
+
+            # return
+            page = { "ref": request.form['ref'],
+                     "title": title,
+                     "author": author,
+                     "date_norm": date_str,
+                     "time_norm": time_str,
+                     "tags": tags,
+                     "type": type,
+                     "body_md": body_md_add }
+
+            return render_template( 'edit.html',
+                                    preview = False,
+                                    id = id,
+                                    page = page )
 
         ref, \
         date_normed, \

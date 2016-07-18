@@ -70,6 +70,7 @@
 
   <p>
     <input form="edit-page" type="hidden" name="id" value="{{ id }}" />
+    <input form="edit-page" type="hidden" name="ref" value="{{ ref }}" />
     <button form="edit-page" type="submit" name="actn" value="preview">Preview</button>
     <button form="edit-page" type="submit" name="actn" value="save">Save</button>
     <button form="edit-page" type="submit" name="actn" value="cancel" title="Back to Overview">Cancel</button>
@@ -78,6 +79,21 @@
   <p>
     <strong><pre>Text (Pandoc Markdown):</pre></strong>
     <textarea id="text-input" name="text-input" form="edit-page" class="edit-textarea">{{ page.body_md }}</textarea>
+  </p>
+
+  <p>
+    <strong><pre>Images:</pre></strong>
+    <table>
+      <tr>
+        <td>
+          Add images from path:<br />
+          /media/<input type="text" form="edit-page" name="imagepath" value=""
+ /><br />
+          <button form="edit-page" type="submit" name="actn" value="add_imgs">Add</button>
+          (adds markdown only)
+        </td>
+      </tr>
+    </table>
   </p>
 
 {% endblock %}
