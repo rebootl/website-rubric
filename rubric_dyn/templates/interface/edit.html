@@ -83,6 +83,19 @@
 
   <p>
     <strong><pre>Images:</pre></strong>
+    <table class="prev-table">
+      {% for image in images %}
+        <tr>
+          <td>
+            {{ image.src }}
+            <div class="prev-box">
+              <img class="prev-thumb" src="{{ image.thumb }}" width="100" /><br />
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <br />
     <table>
       <tr>
         <td>

@@ -70,6 +70,9 @@ def make_thumb_samename(img_in_path_abs, out_dir):
     if os.path.isfile(out_filepath_abs):
         return
 
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
+
     image = Image.open(img_in_path_abs)
     thumb = ImageOps.fit(image, (256, 256), Image.ANTIALIAS)
     thumb.save(out_filepath_abs)

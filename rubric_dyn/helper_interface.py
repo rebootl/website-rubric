@@ -4,10 +4,39 @@ import json
 import re
 from flask import current_app, flash, render_template
 from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
-    url_encode_str
+    url_encode_str, make_thumb_samename
 from rubric_dyn.ExifNice import ExifNice
 
+# --> for debug only !!
 import sys
+
+def get_images_from_md(md_text):
+    '''get a list of images and their thumbnails from markdown text'''
+    text_md_subst, img_blocks = preprocess_md(md_text)
+
+    #media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
+    thumbs_abspath = os.path.join( current_app.config['RUN_ABSPATH'],
+                                   'media/thumbs' )
+
+    images = []
+    for img_block in img_blocks:
+        image_src = img_block[1]
+        image_thumb = os.path.join('/media/thumbs', os.path.basename(image_src))
+
+        image = { 'src': image_src,
+                  'thumb': image_thumb }
+
+        images.append(image)
+
+        # generate thumbnail
+        image_abspath = os.path.join( current_app.config['RUN_ABSPATH'],
+                                      os.path.relpath(image_src, '/') )
+        # (debug output)
+        sys.stderr.write('\nRUN_ABSPATH:'+str(current_app.config['RUN_ABSPATH']))
+        sys.stderr.write('\nIMG SRC:'+image_src)
+        make_thumb_samename(image_abspath, thumbs_abspath)
+
+    return images
 
 def get_images(subpath):
     '''get image list from subpath (inside /media/)'''

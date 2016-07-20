@@ -14,7 +14,7 @@ from rubric_dyn.db_write import update_pub, db_update_image, \
     db_insert_gallery, db_update_gallery, db_pub_gallery, \
     db_new_entry, db_update_entry
 from rubric_dyn.helper_interface import process_image, process_input, \
-    get_images, gen_image_md
+    get_images, gen_image_md, get_images_from_md
 from rubric_dyn.ExifNice import ExifNice
 
 interface = Blueprint('interface', __name__,
@@ -51,7 +51,8 @@ def render_preview(id, ref, type, title, author, date_normed, time_normed,
     return render_template( 'edit.html',
                             preview = True,
                             id = id,
-                            page = page )
+                            page = page,
+                            images = get_images_from_md(body_md) )
 
 ### routes
 
@@ -185,7 +186,8 @@ def edit():
             return render_template( 'edit.html',
                                     preview = False,
                                     id = id,
-                                    page = page )
+                                    page = page,
+                                    images = get_images_from_md(body_md_add) )
 
         ref, \
         date_normed, \
@@ -232,7 +234,8 @@ def edit():
             return render_template( 'edit.html',
                                     preview = False,
                                     id = id,
-                                    page = row )
+                                    page = row,
+                                    images = get_images_from_md(row['body_md']) )
 
 @interface.route('/new')
 def new():
