@@ -1,5 +1,7 @@
 {#<h1>{{ page.title }}</h1>#}
-{#<h3 class="date">{{ page.date_norm }}</h3>#}
+{% if page.type == 'article' %}
+  <h2 class="date">{{ page.date_norm }}</h2>
+{% endif %}
 {{ page.body_html | safe }}
 {% if page.tags %}
   <small class="tags">Tags / Keywords: <strong>{{ page.tags|e }}</strong></small>

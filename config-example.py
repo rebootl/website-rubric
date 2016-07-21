@@ -14,6 +14,9 @@ PASSWD_SHA1 = '448h0h4hfi...'
 # --> improve ??
 RUN_ABSPATH = '/webapp/rubric_dyn'
 
+# number of latest entries on home page
+NUM_LATEST_ON_HOME = 1
+
 ### SYSTEM STUFF
 
 # date / datetime formats

@@ -70,3 +70,5 @@
 - some basic language support/information
   --> add language to db entries,
       so it could be used in the template...
+
+- fix markup in interface

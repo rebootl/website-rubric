@@ -19,19 +19,28 @@
     <tr>
       <td>{{ entry.id }}</td>
       <td>{{ entry.date_norm}}</td>
-      <td>{{ entry.type }}</td>
-      {% if entry.pub and ( entry.type == 'article' or entry.type == 'note' or entry.type == 'special' ) %}
-      <td><a href="{{ hrefs[ entry.id ] }}">{{ entry.title }}</a></td>
-      {% else %}
-      <td>{{ entry.title }}</td>
-      {% endif %}
-      {% if entry.pub %}
       <td>
+        {% if entry.type == 'latest' %}
+          <a href="/latest/">latest</a>
+        {% elif entry.type == 'history' %}
+          <a href="/history/">history</a>
+        {% else %}
+          {{ entry.type }}
+        {% endif %}
+      </td>
+      <td>
+        {% if entry.pub and ( entry.type == 'article' or entry.type == 'note' or entry.type == 'special' ) %}
+          <a href="{{ hrefs[ entry.id ] }}">{{ entry.title }}</a>
+        {% else %}
+          {{ entry.title }}
+        {% endif %}
+      </td>
+      <td>
+      {% if entry.pub %}
         <button form="call-unpub" type="submit" name="id" value="{{ entry.id }}" title="Unpublish">
           <img class="i_img_table" src="/media/checked.png" />
         </button>
       {% else %}
-      <td>
         <button form="call-pub" type="submit" name="id" value="{{ entry.id }}" title="Publish">
           <img class="i_img_table" src="/media/unchecked.png" />
         </button>

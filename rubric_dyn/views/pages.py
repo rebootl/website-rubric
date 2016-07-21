@@ -7,7 +7,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
 from rubric_dyn.common import pandoc_pipe
-from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref
+from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
+    get_entrylist, get_entrylist_limit
 from rubric_dyn.helper_pages import create_page_nav, extract_tags, \
     create_page_nav_image, create_page_nav_gallery
 
@@ -67,44 +68,90 @@ def home():
 
     # latest
 
-    # get latest entry
-    cur = g.db.execute( '''SELECT body_html
-                           FROM entries
-                           WHERE type = 'latest'
-                           AND pub = 1''' )
-    latest_row = cur.fetchone()
-    if latest_row != None:
-        latest_html = latest_row[0]
-    else:
-        latest_html = None
+    # get latest entries
+    #g.db.row_factory = sqlite3.Row
+    #cur = g.db.execute( '''SELECT body_html, date_norm
+    #                       FROM entries
+    #                       WHERE type = 'latest'
+    #                       AND pub = 1
+    #                       ORDER BY date_norm DESC
+    #                       LIMIT ?''',
+    #                    (current_app.config['NUM_LATEST_ON_HOME'],) )
+    #latest_rows = cur.fetchall()
+    latest_rows = get_entrylist_limit( 'latest',
+                                       current_app.config['NUM_LATEST_ON_HOME'] )
+    #if latest_row != None:
+    #    latest_html = latest_row[0]
+    #else:
+    #    latest_html = None
 
     # page history
 
-    # get entry
-    cur = g.db.execute( '''SELECT body_html
-                           FROM entries
-                           WHERE type = 'history'
-                           AND pub = 1''' )
-    history_row = cur.fetchone()
-    if history_row != None:
-        history_html = history_row[0]
-    else:
-        history_html = None
+    # get entries
+    #g.db.row_factory = sqlite3.Row
+    #cur = g.db.execute( '''SELECT body_html, date_norm
+    #                       FROM entries
+    #                       WHERE type = 'history'
+    #                       AND pub = 1
+    #                       ORDER BY date_norm DESC
+    #                       LIMIT ?''',
+    #                    (current_app.config['NUM_HISTORY_ON_HOME'],) )
+    #history_rows = cur.fetchall()
+    history_rows = get_entrylist_limit( 'history',
+                                        current_app.config['NUM_HISTORY_ON_HOME'] )
+    #if history_row != None:
+    #    history_html = history_row[0]
+    #else:
+    #    history_html = None
 
     # notes
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
-                           FROM entries
-                           WHERE type = 'note'
-                           AND pub = 1
-                           ORDER BY datetime_norm DESC''' )
-    notes_rows = cur.fetchall()
+    # --> deprecated ?!
+    #g.db.row_factory = sqlite3.Row
+    #cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
+    #                       FROM entries
+    #                       WHERE type = 'note'
+    #                       AND pub = 1
+    #                       ORDER BY datetime_norm DESC''' )
+    #notes_rows = cur.fetchall()
 
     return render_template( 'home.html',
                             title = 'Home',
-                            latest_html = latest_html,
-                            history_html = history_html )
+                            latest = latest_rows,
+                            history = history_rows )
+
+@pages.route('/latest/')
+def latest():
+    '''show all latest entries'''
+    # get entries
+    #g.db.row_factory = sqlite3.Row
+    #cur = g.db.execute( '''SELECT body_html, date_norm
+    #                       FROM entries
+    #                       WHERE type = 'latest'
+    #                       AND pub = 1
+    #                       ORDER BY date_norm DESC''' )
+    #rows = cur.fetchall()
+    rows = get_entrylist('latest')
+
+    return render_template( 'latest.html',
+                            title = 'Latest',
+                            latest = rows )
+
+@pages.route('/history/')
+def history():
+    '''show all history entries'''
+    # get entries
+    #g.db.row_factory = sqlite3.Row
+    #cur = g.db.execute( '''SELECT body_html, date_norm
+    #                       FROM entries
+    #                       WHERE type = 'history'
+    #                       AND pub = 1
+    #                       ORDER BY date_norm DESC''' )
+    #rows = cur.fetchall()
+    rows = get_entrylist('history')
+
+    return render_template( 'history.html',
+                            title = 'Page history',
+                            history = rows )
 
 @pages.route('/articles/')
 def articles():

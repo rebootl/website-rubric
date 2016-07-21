@@ -1,0 +1,6 @@
+{% for entry in history %}
+  <small class="small-date">{{ entry.date_norm }}</small>
+
+  {{ entry.body_html |safe }}
+
+{% endfor %}

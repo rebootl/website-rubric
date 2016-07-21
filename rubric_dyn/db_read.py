@@ -14,6 +14,31 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def get_entrylist(type):
+    '''return rows of entries'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT body_html, date_norm
+                           FROM entries
+                           WHERE type = ?
+                           AND pub = 1
+                           ORDER BY date_norm DESC''',
+                           (type,) )
+    rows = cur.fetchall()
+    return rows
+
+def get_entrylist_limit(type, limit):
+    '''return rows of entries'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT body_html, date_norm
+                           FROM entries
+                           WHERE type = ?
+                           AND pub = 1
+                           ORDER BY date_norm DESC
+                           LIMIT ?''',
+                           (type, limit) )
+    rows = cur.fetchall()
+    return rows
+
 def get_entry_by_date_ref_path(date_ref_path, type, published=True):
     '''return entry data from db, by <date>/<ref> path'''
     date, ref = os.path.split(date_ref_path)
