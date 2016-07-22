@@ -42,6 +42,7 @@ def copy_file(in_path, out_dir):
     cp_command = ['cp', '-u', in_path, out_dir]
     exitcode = subprocess.call(cp_command)
 
+# --> used ??
 def make_thumb(img_in_path_abs, out_dir):
     '''generate thumbnail for image'''
     in_filename = os.path.basename(img_in_path_abs)

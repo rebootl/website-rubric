@@ -87,30 +87,6 @@ def get_entry_by_ref(ref, type, published=True):
 
     return row
 
-def db_load_gallery(id):
-    '''load gallery stuff from db'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, title, desc, date_norm,
-                           tags
-                          FROM galleries
-                          WHERE id = ?''', (id,))
-    row = cur.fetchone()
-    # catch not found
-    if row == None:
-        abort(404)
-
-    return row
-
-def db_load_images(gallery_id):
-    '''load images for given gallery (id)'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
-                           exif_json, gallery_id, thumb_ref
-                          FROM images
-                          WHERE gallery_id = ?
-                          ORDER BY datetime_norm ASC, ref ASC''', (gallery_id,))
-    return cur.fetchall()
-
 def db_load_to_edit(id):
     '''load editor page for id'''
     # get data for the page to edit

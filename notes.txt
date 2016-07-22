@@ -72,3 +72,5 @@
       so it could be used in the template...
 
 - fix markup in interface
+
+- evtl. make link to image in image info

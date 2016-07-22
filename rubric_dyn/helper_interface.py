@@ -69,6 +69,7 @@ def gen_image_md(subpath, images):
         md_text += img_md
     return md_text
 
+# --> deprecated ?
 def process_image(image_file, image_dir, ref):
     '''process image data
 - exif information

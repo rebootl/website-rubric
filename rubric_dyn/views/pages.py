@@ -9,8 +9,7 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 from rubric_dyn.common import pandoc_pipe
 from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
     get_entrylist, get_entrylist_limit
-from rubric_dyn.helper_pages import create_page_nav, extract_tags, \
-    create_page_nav_image, create_page_nav_gallery
+from rubric_dyn.helper_pages import create_page_nav
 
 from rubric_dyn.helper_interface import process_input
 
@@ -42,24 +41,6 @@ currently used for entry types:
                             page = page,
                             page_nav = page_nav )
 
-# --> should go into helper_pages
-# ==> DEPRECATED
-#def show_post_by_type_ref(type, ref, page_nav=PAGE_NAV_DEFAULT):
-#    '''helper to show an entry by type and ref,
-#page_nav is shown but empty
-#
-#currently used for types:
-#- special
-#- note
-#'''
-#    row = get_entry_by_ref(ref, type)
-#
-##    return show_post(row)
-#    return render_template( 'post.html',
-#                            title = row['title'],
-#                            page = row,
-#                            page_nav = None )
-
 ### routes
 
 @pages.route('/')
@@ -67,52 +48,12 @@ def home():
     '''the home page'''
 
     # latest
-
-    # get latest entries
-    #g.db.row_factory = sqlite3.Row
-    #cur = g.db.execute( '''SELECT body_html, date_norm
-    #                       FROM entries
-    #                       WHERE type = 'latest'
-    #                       AND pub = 1
-    #                       ORDER BY date_norm DESC
-    #                       LIMIT ?''',
-    #                    (current_app.config['NUM_LATEST_ON_HOME'],) )
-    #latest_rows = cur.fetchall()
     latest_rows = get_entrylist_limit( 'latest',
                                        current_app.config['NUM_LATEST_ON_HOME'] )
-    #if latest_row != None:
-    #    latest_html = latest_row[0]
-    #else:
-    #    latest_html = None
 
     # page history
-
-    # get entries
-    #g.db.row_factory = sqlite3.Row
-    #cur = g.db.execute( '''SELECT body_html, date_norm
-    #                       FROM entries
-    #                       WHERE type = 'history'
-    #                       AND pub = 1
-    #                       ORDER BY date_norm DESC
-    #                       LIMIT ?''',
-    #                    (current_app.config['NUM_HISTORY_ON_HOME'],) )
-    #history_rows = cur.fetchall()
     history_rows = get_entrylist_limit( 'history',
                                         current_app.config['NUM_HISTORY_ON_HOME'] )
-    #if history_row != None:
-    #    history_html = history_row[0]
-    #else:
-    #    history_html = None
-
-    # notes
-    # --> deprecated ?!
-    #g.db.row_factory = sqlite3.Row
-    #cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
-    #                       FROM entries
-    #                       WHERE type = 'note'
-    #                       AND pub = 1
-    #                       ORDER BY datetime_norm DESC''' )
-    #notes_rows = cur.fetchall()
 
     return render_template( 'home.html',
                             title = 'Home',
@@ -123,13 +64,6 @@ def home():
 def latest():
     '''show all latest entries'''
     # get entries
-    #g.db.row_factory = sqlite3.Row
-    #cur = g.db.execute( '''SELECT body_html, date_norm
-    #                       FROM entries
-    #                       WHERE type = 'latest'
-    #                       AND pub = 1
-    #                       ORDER BY date_norm DESC''' )
-    #rows = cur.fetchall()
     rows = get_entrylist('latest')
 
     return render_template( 'latest.html',
@@ -140,13 +74,6 @@ def latest():
 def history():
     '''show all history entries'''
     # get entries
-    #g.db.row_factory = sqlite3.Row
-    #cur = g.db.execute( '''SELECT body_html, date_norm
-    #                       FROM entries
-    #                       WHERE type = 'history'
-    #                       AND pub = 1
-    #                       ORDER BY date_norm DESC''' )
-    #rows = cur.fetchall()
     rows = get_entrylist('history')
 
     return render_template( 'history.html',
@@ -167,6 +94,7 @@ def articles():
     articles_rows = cur.fetchall()
 
     # create article preview
+    # --> currently not used
     cur = g.db.execute( '''SELECT body_md
                            FROM entries
                            WHERE id = ?''', (articles_rows[0]['id'],))
@@ -182,40 +110,11 @@ def articles():
     prev_time_normed, \
     prev_body_html_subst, \
     prev_img_exifs = process_input("", '2000-01-01', '12:00', latest_body_md_prev)
+
     return render_template( 'articles.html',
                             title = 'Articles',
                             articles = articles_rows,
                             article_prev = prev_body_html_subst )
-
-@pages.route('/galleries/')
-def galleries():
-    '''galleries overview'''
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
-                           FROM galleries
-                           WHERE pub = 1
-                           ORDER BY date_norm DESC''' )
-    galleries_rows = cur.fetchall()
-
-    galleries = []
-    for gallery_row in galleries_rows:
-        gallery = { 'ref': gallery_row['ref'],
-                    'title': gallery_row['title'],
-                    'date_norm': gallery_row['date_norm'],
-                    'tags': gallery_row['tags'] }
-
-        cur = g.db.execute( '''SELECT thumb_ref FROM images
-                               WHERE gallery_id = ?
-                               LIMIT 5''', (gallery_row['id'],) )
-        thumbs_rows = cur.fetchall()
-        gallery['thumbs'] = thumbs_rows
-
-        galleries.append(gallery)
-
-    return render_template( 'galleries.html',
-                            title = 'Image galleries',
-                            galleries = galleries )
 
 @pages.route('/notes/')
 def notes():
@@ -239,8 +138,6 @@ def article(article_path):
     row = get_entry_by_date_ref_path(article_path, 'article')
 
     # get previous/next navigation
-    #page_nav = create_page_nav( row['type'],
-    #                            row['datetime_norm'] )
     page_nav = create_page_nav( row['id'],
                                 row['type'] )
 
@@ -249,18 +146,17 @@ def article(article_path):
 @pages.route('/notes/<ref>/')
 def show_note(ref):
     '''note page'''
+
     row = get_entry_by_ref(ref, 'note')
 
     page_nav = { 'prev_href': None,
                  'next_href': None,
                  'index': "/notes/" }
 
-#    return show_post(row)
     return render_template( 'post.html',
                             title = row['title'],
                             page = row,
                             page_nav = page_nav )
-#    return show_post_by_type_ref('note', ref)
 
 @pages.route('/special/<ref>/')
 def special(ref):
@@ -272,79 +168,4 @@ def special(ref):
                             title = row['title'],
                             page = row,
                             page_nav = None )
-#    return show_post_by_type_ref('special', ref)
 
-@pages.route('/galleries/<ref>/')
-def gallery(ref):
-    '''image gallery page'''
-
-    # load from db
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, title, desc, date_norm,
-                           tags
-                          FROM galleries
-                          WHERE ref = ?''', (ref,))
-    gallery_row = cur.fetchone()
-    # catch not found
-    if gallery_row == None:
-        abort(404)
-
-    # load thumbnails
-    cur = g.db.execute( '''SELECT ref, thumb_ref, caption
-                           FROM images
-                           WHERE gallery_id = ?
-                           ORDER BY datetime_norm ASC''',
-                           (gallery_row['id'],) )
-    images_rows = cur.fetchall()
-
-    page_nav = create_page_nav_gallery(gallery_row['id'])
-
-    return render_template( 'gallery.html',
-                            gallery = gallery_row,
-                            images = images_rows,
-                            page_nav = page_nav )
-
-@pages.route('/galleries/<path:image_path>/')
-def imagepage(image_path):
-    '''single image page'''
-    gallery_ref, image_ref = os.path.split(image_path)
-
-    image_ref = os.path.join('galleries', image_path)
-
-    # get image data
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, caption, datetime_norm,
-                           exif_json, gallery_id
-                          FROM images
-                          WHERE ref = ?''', (image_ref,))
-    row = cur.fetchone()
-    # catch not found
-    if row == None:
-        abort(404)
-
-    # prepare data
-    # --> error in Python 3.4.2
-    #     'module' object has no attribute 'JSONDecodeError'
-    #try:
-    #    exif = json.loads(row['exif_json'])
-    #except json.decoder.JSONDecodeError:
-    #    exif = None
-    # ==> if no exif data is avail.
-    #     exif_json is set to ""
-    if row['exif_json'] is not "":
-        exif = json.loads(row['exif_json'])
-    else:
-        exif = None
-
-    src = os.path.join('/media', image_ref)
-
-    page_nav = create_page_nav_image( row['id'],
-                                      row['gallery_id'],
-                                      gallery_ref )
-
-    return render_template( 'imagepage.html',
-                            image = { 'alt': row['caption'],
-                                      'src': src,
-                                      'exif': exif },
-                            imagepage = True,
-                            page_nav = page_nav )

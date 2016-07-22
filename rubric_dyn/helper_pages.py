@@ -76,43 +76,11 @@ def create_page_nav(curr_id, curr_type, index="/"):
 
     return page_nav
 
-def create_page_nav_image(curr_id, curr_gallery_id, curr_gallery_ref):
-    '''create previous/next navigation for images'''
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref
-                           FROM images
-                           WHERE gallery_id = ?
-                           ORDER BY datetime_norm ASC''',
-                           (curr_gallery_id,) )
-    rows = cur.fetchall()
-
-    page_nav = gen_page_nav(curr_id, rows, '/')
-
-    page_nav['index'] = os.path.join("/galleries", curr_gallery_ref)
-
-    return page_nav
-
-def create_page_nav_gallery(curr_id):
-    '''create previous/next navigation for galleries'''
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref
-                           FROM galleries
-                           ORDER BY date_norm ASC''' )
-    rows = cur.fetchall()
-
-    page_nav = gen_page_nav(curr_id, rows, '/galleries')
-
-    page_nav['index'] = '/galleries/'
-
-    return page_nav
-
-# (--> will be DEPRECATED, since tags will be csv)
-def extract_tags(meta_json):
-    '''extract tags from json'''
-    meta = json.loads(meta_json)
-    if 'tags' in meta.keys():
-        return meta['tags']
-    else:
-        return None
+# (--> DEPRECATED, since tags are csv)
+#def extract_tags(meta_json):
+#    '''extract tags from json'''
+#    meta = json.loads(meta_json)
+#    if 'tags' in meta.keys():
+#        return meta['tags']
+#    else:
+#        return None
