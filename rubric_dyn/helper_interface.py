@@ -23,6 +23,11 @@ def get_images_from_md(md_text):
         image_src = img_block[1]
         image_thumb = os.path.join('/media/thumbs', os.path.basename(image_src))
 
+        # handle "external" images
+        if image_src.startswith('http://'):
+            image_thumb = image_src
+            image_src = 'External URL: ' + image_src
+
         image = { 'src': image_src,
                   'thumb': image_thumb }
 
@@ -32,8 +37,8 @@ def get_images_from_md(md_text):
         image_abspath = os.path.join( current_app.config['RUN_ABSPATH'],
                                       os.path.relpath(image_src, '/') )
         # (debug output)
-        sys.stderr.write('\nRUN_ABSPATH:'+str(current_app.config['RUN_ABSPATH']))
-        sys.stderr.write('\nIMG SRC:'+image_src)
+        #sys.stderr.write('\nRUN_ABSPATH:'+str(current_app.config['RUN_ABSPATH']))
+        #sys.stderr.write('\nIMG SRC:'+image_src)
         make_thumb_samename(image_abspath, thumbs_abspath)
 
     return images

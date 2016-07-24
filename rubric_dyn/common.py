@@ -67,6 +67,10 @@ def make_thumb_samename(img_in_path_abs, out_dir):
     in_filename = os.path.basename(img_in_path_abs)
     out_filepath_abs = os.path.join(out_dir, in_filename)
 
+    # check in-file
+    if not os.path.isfile(img_in_path_abs):
+        return
+
     # leave if already there
     if os.path.isfile(out_filepath_abs):
         return

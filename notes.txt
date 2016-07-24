@@ -74,3 +74,9 @@
       so it could be used in the template...
 
 - fix markup in interface
+
+- overview --> new entry --> preview
+  type custom (others?) changes to article
+
+- image preview leads to error for images from web (http://...)
+    ==> FIXED
