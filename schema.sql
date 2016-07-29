@@ -19,7 +19,8 @@ create table entries (
   tags_csv text
 );
 
-drop table if exists galleries;
+/* not used atm. */
+/*drop table if exists galleries;
 create table galleries (
   id integer primary key autoincrement,
   ref text not null,
@@ -40,4 +41,4 @@ create table images (
   exif_json text not null,
   gallery_id int,
   pub ind default 1
-);
+);*/
