@@ -2,29 +2,42 @@
   <!-- previous button -->
   <div id="prev-link-box" class="page-nav-button">
     {% if page_nav.prev_href %}
-      <a href="{{ page_nav.prev_href }}">
-        <img class="prev-next-button-img" title="Previous by date" alt="Previous Button" src="/media/prev-uppercut_48.png" />
+      <a href="{{ page_nav.prev_href }}" title="No previous entry">
+        <img class="prev-next-button-img"
+             alt="previous button"
+             src="/media/layout/icons/prev-uppercut.png" />
       </a>
     {% else %}
-      <img id="prev-button-img" class="prev-next-button-img inactive" title="No previous entry" alt="Previous Button" src="/media/prev-uppercut_48.png" />
+      <img id="prev-button-img"
+           class="prev-next-button-img inactive"
+           title="No previous entry"
+           alt="previous button"
+           src="/media/layout/icons/prev-uppercut.png" />
     {% endif %}
   </div>
 
   <!-- content button -->
   <div id="content-link-box" class="page-nav-button">
-    <a href="{{ page_nav.index }}">
-      <img class="article-footer-button" title="Index/Up" alt="Content Button" src="/media/index-uppercut_48.png" />
+    <a href="{{ page_nav.index }}" title="Index/Up">
+      <img class="article-footer-button"
+           alt="index button"
+           src="/media/layout/icons/index-uppercut.png" />
     </a>
   </div>
 
   <!-- next button -->
   <div id="next-link-box" class="page-nav-button">
   {% if page_nav.next_href %}
-    <a href="{{ page_nav.next_href }}">
-      <img class="prev-next-button-img" title="Next by date" alt="Next Button" src="/media/next-uppercut_48.png" />
+    <a href="{{ page_nav.next_href }}" title="Next by date">
+      <img class="prev-next-button-img"
+           alt="next button"
+           src="/media/layout/icons/next-uppercut.png" />
     </a>
   {% else %}
-    <img class="prev-next-button-img inactive" title="No next entry" alt="Next Button" src="/media/next-uppercut_48.png" />
+    <img class="prev-next-button-img inactive"
+         title="No next entry"
+         alt="next button"
+         src="/media/layout/icons/next-uppercut.png" />
   {% endif %}
   </div>
 </nav>

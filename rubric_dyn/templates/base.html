@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% if title %}{{ title }} - {% endif %}Yet another personal website</title>
 
-<link rel="stylesheet" href="/media/style.css">
+<link rel="stylesheet" href="/media/layout/css/style.css">
 
 <!-- favicon -->
 <link rel="icon" type="image/png" href="/media/favicon.png">
@@ -32,7 +32,7 @@
   <img id="menu-button-img" class="header-button"
     title="Menu"
     onclick="menu_toggle('main-nav');"
-    src="/media/menu.png" />
+    src="/media/layout/icons/menu.png" />
 </header>
 
 {% include 'navigation.html' %}
@@ -51,8 +51,8 @@
 {% endif %}
 </footer>
 
-<script src="/media/toggle.js"></script>
-<script src="/media/img-info.js"></script>
+<script src="/media/layout/js/toggle.js"></script>
+<script src="/media/layout/js/img-info.js"></script>
 {#<!--<script src="/local.js"></script>-->#}
 
 </div><!-- #site-wrapper -->
