@@ -12,7 +12,10 @@
   <h2>ID: {{ id }}</h2>
   <h3>Ref: {{ page.ref }}</h3>
 
-  <form id="edit-page" action="{{ url_for('interface.edit') }}" method="post"></form>
+  <form id="edit-page"
+        action="{{ url_for('interface.edit') }}"
+        method="post"
+        enctype="multipart/form-data"></form>
 
   <table>
     <tr>
@@ -81,8 +84,10 @@
     <textarea id="text-input" name="text-input" form="edit-page" class="edit-textarea">{{ page.body_md }}</textarea>
   </p>
 
+  <h3>Images:</h3>
+
   <p>
-    <strong><pre>Images:</pre></strong>
+
     <table class="prev-table">
       {% for image in images %}
         <tr>
@@ -95,18 +100,42 @@
         </tr>
       {% endfor %}
     </table>
-    <br />
+
+    <pre>Insert image markdown</pre>
+
     <table>
       <tr>
+        <th>
+          Images already on server:<br />
+          (media directory)
+        </th>
         <td>
-          Add images from path:<br />
           /media/<input type="text" form="edit-page" name="imagepath" value=""
  /><br />
-          <button form="edit-page" type="submit" name="actn" value="add_imgs">Add</button>
-          (adds markdown only)
+          (subdirectory path e.g.: images/2016-01-01/
+        </td>
+        <td>
+          <button form="edit-page" type="submit" name="actn" value="add_imgs">
+            Add
+          </button><br />
+          (adds markdown only [??])
+        </td>
+      </tr>
+      <tr>
+        <th>
+          Upload and insert new images:
+        </th>
+        <td>
+          <input type="file" form="edit-page" name="file" />
+        </td>
+        <td>
+          <button form="edit-page" type="submit" name="actn" value="upld_imgs">
+            Upload
+          </button>
         </td>
       </tr>
     </table>
+
   </p>
 
 {% endblock %}

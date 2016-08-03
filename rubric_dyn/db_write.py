@@ -8,14 +8,34 @@ def update_pub(id, pub):
                     WHERE id = ?''', (pub, id))
     g.db.commit()
 
-def db_new_entry( ref, type, title, author, date_norm, time_norm,
-                  tags, body_md, body_html, img_exifs_json,
-                  published = 0,
-                  date_str = "NOT_SET", datetime_norm = "NOT_SET",
-                  body_md5sum = "NOT_SET", meta_json = "NOT_SET",
-                  data1 = None ):
+def db_new_entry(page_ret):
     '''insert new page entry into database,
 keeping "backward compatible" for now (using all parameters)'''
+
+    # retrieve information
+    # this is doubling stuff but it helps keeping an overview
+    # --> probably a better way would be to use an object !!
+    ref = page_ret['ref']
+    type = page_ret['type']
+    title = page_ret['title']
+    author = page_ret['author']
+    date_norm = page_ret['date_norm']
+    time_norm = page_ret['time_norm']
+    tags = page_ret['tags']
+    body_md = page_ret['body_md']
+    body_html = page_ret['body_html']
+
+    published = 0
+
+    # backward compatibility data
+    # --> remove this crap !!!
+    date_str = "NOT_SET"
+    datetime_norm = "NOT_SET"
+    body_md5sum = "NOT_SET"
+    meta_json = "NOT_SET"
+    data1 = None
+    img_exifs_json = None
+
     g.db.execute( '''INSERT INTO entries
                      (ref, type, title, author,
                       date_str, datetime_norm, date_norm,
@@ -31,14 +51,35 @@ keeping "backward compatible" for now (using all parameters)'''
                     published, img_exifs_json, tags ) )
     g.db.commit()
 
-def db_update_entry( id, ref, type, title, author, date_norm,
-                     time_norm, tags, body_md, body_html,
-                     img_exifs_json,
-                     date_str = "NOT_SET", datetime_norm = "NOT_SET",
-                     body_md5sum = "NOT_SET", meta_json = "NOT_SET",
-                     data1 = None ):
+def db_update_entry(page_ret):
     '''update page entry in database,
 keeping "backward compatible" for now (using all parameters)'''
+
+    # retrieve information
+    # this is doubling stuff but it helps keeping an overview
+    # --> probably a better way would be to use an object !!
+    id = page_ret['id']
+    ref = page_ret['ref']
+    type = page_ret['type']
+    title = page_ret['title']
+    author = page_ret['author']
+    date_norm = page_ret['date_norm']
+    time_norm = page_ret['time_norm']
+    tags = page_ret['tags']
+    body_md = page_ret['body_md']
+    body_html = page_ret['body_html']
+
+    published = 0
+
+    # backward compatibility data
+    # --> remove this crap !!!
+    date_str = "NOT_SET"
+    datetime_norm = "NOT_SET"
+    body_md5sum = "NOT_SET"
+    meta_json = "NOT_SET"
+    data1 = None
+    img_exifs_json = None
+
     g.db.execute( '''UPDATE entries
                      SET ref = ?, type = ?, title = ?, author = ?,
                       date_str = ?, datetime_norm = ?, date_norm = ?,

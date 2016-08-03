@@ -2,6 +2,7 @@
 import os
 import json
 import re
+import datetime
 from flask import current_app, flash, render_template
 from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
     url_encode_str, make_thumb_samename
@@ -9,6 +10,27 @@ from rubric_dyn.ExifNice import ExifNice
 
 # --> for debug only !!
 import sys
+
+def allowed_image_file(filename):
+    '''check allowed image extension (adapted from flask docs)'''
+    if os.path.splitext(filename)[1] in current_app.config['IMG_EXTS']:
+        return True
+    else:
+        return False
+#    return '.' in filename and \
+#           filename.rsplit('.', 1)[1] in current_app.config['ALLOWED_IMG_EXTS']
+
+def gen_image_subpath():
+    '''generate and return a store path for image upload'''
+    date_str = datetime.datetime.now().strftime('%Y-%m-%d')
+    subpath = os.path.join( 'images', date_str )
+
+    store_path_abs = os.path.join(current_app.config['RUN_ABSPATH'], 'media',
+                               subpath)
+    if not os.path.isdir(store_path_abs):
+        os.makedirs(store_path_abs)
+
+    return subpath
 
 def get_images_from_md(md_text):
     '''get a list of images and their thumbnails from markdown text'''
@@ -195,7 +217,7 @@ alternatives:
 
     return text_md_subst, img_blocks
 
-def process_input(title, date_str, time_str, text_md):
+def process_input(title, text_md):
     '''page edit input processing and prepare for database
 (new, replacement for process_edit above)'''
 
@@ -203,14 +225,15 @@ def process_input(title, date_str, time_str, text_md):
     ref = url_encode_str(title)
 
     # process date and time
-    date_normed = date_norm2(date_str, "%Y-%m-%d")
-    if not date_normed:
-        date_normed = "NOT_SET"
-        flash("Warning: bad date format..., setting to 'NOT_SET'.")
-    time_normed = time_norm(time_str, "%H:%M")
-    if not time_normed:
-        time_normed = "NOT_SET"
-        flash("Warning: bad time format..., setting to 'NOT_SET'.")
+    # --> checked in edit, remove here
+    #date_normed = date_norm2(date_str, "%Y-%m-%d")
+    #if not date_normed:
+    #    date_normed = "NOT_SET"
+    #    flash("Warning: bad date format..., setting to 'NOT_SET'.")
+    #time_normed = time_norm(time_str, "%H:%M")
+    #if not time_normed:
+    #    time_normed = "NOT_SET"
+    #    flash("Warning: bad time format..., setting to 'NOT_SET'.")
 
     # pre-process markdown
     # substitute text and get image blocks
@@ -231,4 +254,4 @@ def process_input(title, date_str, time_str, text_md):
         body_html_subst = body_html_subst.replace( '<p>' + IMG_SUBST + '</p>',
                                                    img_block_html, 1 )
 
-    return ref, date_normed, time_normed, body_html_subst, None
+    return ref, body_html_subst

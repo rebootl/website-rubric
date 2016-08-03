@@ -106,10 +106,7 @@ def articles():
     #body_html = pandoc_pipe( body_md_prev,
     #                         [ '--to=html5' ] )
     prev_ref, \
-    prev_date_normed, \
-    prev_time_normed, \
-    prev_body_html_subst, \
-    prev_img_exifs = process_input("", '2000-01-01', '12:00', latest_body_md_prev)
+    prev_body_html_subst = process_input("", latest_body_md_prev)
 
     return render_template( 'articles.html',
                             title = 'Articles',

@@ -6,12 +6,14 @@ import datetime
 import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app, make_response
+from werkzeug.utils import secure_filename
 
-from rubric_dyn.common import url_encode_str, datetimesec_norm, date_norm2
+from rubric_dyn.common import url_encode_str, datetimesec_norm, date_norm2, \
+    time_norm
 from rubric_dyn.db_read import db_load_to_edit
 from rubric_dyn.db_write import db_new_entry, db_update_entry, update_pub
 from rubric_dyn.helper_interface import process_input, get_images, \
-    gen_image_md, get_images_from_md
+    gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
 from rubric_dyn.ExifNice import ExifNice
 
 interface = Blueprint('interface', __name__,
@@ -21,28 +23,29 @@ FLASH_WARN_EMPTY_STR = "Warning: {} can not be empty. Setting to 'NOT_SET'."
 
 ### functions returning a "view"
 
-def render_preview(id, ref, type, title, author, date_normed, time_normed, 
-                   tags, body_html, body_md):
-    '''process text input into preview and reload the editor page'''
-
-    page = { 'id': id,
-             'ref': ref,
-             'type': type,
-             'title': title,
-             'author': author,
-             'date_norm': date_normed,
-             'time_norm': time_normed,
-             'body_html': body_html,
-             'img_exifs_json': None,
-             'tags': tags,
-             'body_md': body_md }
-
-    # render stuff
-    return render_template( 'edit.html',
-                            preview = True,
-                            id = id,
-                            page = page,
-                            images = get_images_from_md(body_md) )
+# --> deprecated
+#def render_preview(id, ref, type, title, author, date_normed, time_normed, 
+#                   tags, body_html, body_md):
+#    '''process text input into preview and reload the editor page'''
+#
+#    page = { 'id': id,
+#             'ref': ref,
+#             'type': type,
+#             'title': title,
+#             'author': author,
+#             'date_norm': date_normed,
+#             'time_norm': time_normed,
+#             'body_html': body_html,
+#             'img_exifs_json': None,
+#             'tags': tags,
+#             'body_md': body_md }
+#
+#    # render stuff
+#    return render_template( 'edit.html',
+#                            preview = True,
+#                            id = id,
+#                            page = page,
+#                            images = get_images_from_md(body_md) )
 
 ### routes
 
@@ -112,88 +115,150 @@ def edit():
         if action == "cancel":
             return redirect(url_for('interface.overview'))
 
-        id = request.form['id']
-
-        # meta
+        # request data, check and set defaults if necessary
+        # --> check and defaults could go in a helper func.... ?!?!
         type = request.form['type']
         if type == 'custom':
             type = request.form['custom_type']
+
         title = request.form['title']
-        author = request.form['author']
-        date_str = request.form['date']
-        time_str = request.form['time']
-        tags = request.form['tags']
-
-        body_md = request.form['text-input']
-
-        # set defaults (title, --> others ..?)
         if title == "":
             title = 'NOT_SET'
             flash(FLASH_WARN_EMPTY_STR.format("Title"))
 
-        # (date is checked in process_input)
+        # --> simplify
+        date_str = request.form['date']
+        date_normed = date_norm2(date_str, "%Y-%m-%d")
+        if not date_normed:
+            date_normed = "NOT_SET"
+            flash("Warning: bad date format..., setting to 'NOT_SET'.")
+        time_str = request.form['time']
+        time_normed = time_norm(time_str, "%H:%M")
+        if not time_normed:
+            time_normed = "NOT_SET"
+            flash("Warning: bad time format..., setting to 'NOT_SET'.")
+
+        # assembly data
+        # --> evtl. make obj. for this, e.g. page object
+        page_return = { 'id': request.form['id'],
+                        'ref': request.form['ref'],
+                        'title': title,
+                        'author': request.form['author'],
+                        'date_norm': date_normed,
+                        'time_norm': time_normed,
+                        'tags': request.form['tags'],
+                        'type': type,
+                        'body_md': request.form['text-input'] }
+
+        # actions
 
         if action == "add_imgs":
-            # --> process images from path here
             images_subpath = request.form['imagepath']
-
-            # create image thumbnails ==> don't
 
             # create and add image markdown
             images = get_images(images_subpath)
             img_md = gen_image_md(images_subpath, images)
-            body_md_add = body_md + img_md
+            body_md_add = page_return['body_md'] + img_md
 
             # return
-            page = { "ref": request.form['ref'],
-                     "title": title,
-                     "author": author,
-                     "date_norm": date_str,
-                     "time_norm": time_str,
-                     "tags": tags,
-                     "type": type,
-                     "body_md": body_md_add }
+            page_return['body_md'] = body_md_add
 
+            images = get_images_from_md(body_md_add)
             return render_template( 'edit.html',
                                     preview = False,
-                                    id = id,
-                                    page = page,
-                                    images = get_images_from_md(body_md_add) )
+                                    id = page_return['id'],
+                                    page = page_return,
+                                    images = images )
 
-        ref, \
-        date_normed, \
-        time_normed, \
-        body_html, \
-        img_exifs_json = process_input(title, date_str, time_str, body_md)
+        elif action == "upld_imgs":
+            # --> move into separate func., at least partially ?!?!
+            if 'file' not in request.files:
+                # --> return unchanged
+                # ==> that's illegal, just abort
+                abort(404)
 
-        if action == "preview":
-            return render_preview(id, ref, type, title, author, date_normed,
-                                  time_normed, tags, body_html, body_md)
-        elif action == "save":
-            if id == "new":
-                db_new_entry( ref, type, title, author, date_normed,
-                              time_normed, tags, body_md, body_html,
-                              img_exifs_json )
-                flash("New Page saved successfully!")
+            file = request.files['file']
+            # if user does not select file, browser also
+            # submit a empty part without filename (from flask docs)
+            if file.filename == '':
+                flash('No selected file...')
+                # return unchanged
+                # --> test
+                images = get_images_from_md(page_return['body_md'])
+                return render_template( 'edit.html',
+                                    preview = False,
+                                    id = page_return['id'],
+                                    page = page_return,
+                                    images = images )
+
+            if file and allowed_image_file(file.filename):
+                subpath = gen_image_subpath()
+                filename = secure_filename(file.filename)
+                filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
+                                             'media',
+                                             subpath,
+                                             filename )
+                if not os.path.isfile(filepath_abs):
+                    file.save(filepath_abs)
+                else:
+                    flash("File w/ same name already present, not saved.")
+
+                # generate markdown
+                img_md = gen_image_md(subpath, [ filename ])
+                body_md_add = page_return['body_md'] + img_md
+                page_return['body_md'] = body_md_add
+
+                # return to edit
+                images = get_images_from_md(body_md_add)
+                return render_template( 'edit.html',
+                                        preview = False,
+                                        id = page_return['id'],
+                                        page = page_return,
+                                        images = images )
             else:
-                db_update_entry( id, ref, type, title, author, date_normed,
-                                 time_normed, tags, body_md, body_html,    
-                                 img_exifs_json )
-                flash("Page ID {} saved successfully!".format(id))
-            return redirect(url_for('interface.overview'))
+                flash('Not a valid image file...')
+                # return unchanged
+                # --> test
+                images = get_images_from_md(page_return['body_md'])
+                return render_template( 'edit.html',
+                                        preview = False,
+                                        id = page_return['id'],
+                                        page = page_return,
+                                        images = images )
+
+        elif action == "preview" or action == "save":
+
+            ref_new, body_html = process_input(title, page_return['body_md'])
+
+            page_return.update({ 'ref': ref_new,
+                                 'body_html': body_html })
+
+            if action == "preview":
+                images = get_images_from_md(page_return['body_md'])
+                return render_template( 'edit.html',
+                                         preview = True,
+                                         id = page_return['id'],
+                                         page = page_return,
+                                         images = images )
+            elif action == "save":
+                id = page_return['id']
+                if id == "new":
+                    db_new_entry(page_return)
+                    flash("New Page saved successfully!")
+                else:
+                    db_update_entry(page_return)
+                    flash("Page ID {} saved successfully!".format(id))
+                return redirect(url_for('interface.overview'))
         else:
             abort(404)
 
     # GET
-    # loading from overview
+    # (loading from overview)
     else:
         id = request.args.get('id')
 
         if id == "new":
             # create new
-            # --> ???
-            #type = request.args.get('type')
-            #row = db_load_to_edit(type)
             return render_template( 'edit.html',
                                     preview = False,
                                     id = id,
