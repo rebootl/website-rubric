@@ -119,7 +119,12 @@ def edit():
         # --> check and defaults could go in a helper func.... ?!?!
         type = request.form['type']
         if type == 'custom':
-            type = request.form['custom_type']
+            custom_type = request.form['custom_type']
+            if custom_type == '':
+                type = 'undefined'
+                flash("Warning: custom type not specified, setting to undefined.")
+            else:
+                type = custom_type
 
         title = request.form['title']
         if title == "":

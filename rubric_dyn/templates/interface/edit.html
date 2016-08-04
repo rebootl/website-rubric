@@ -54,7 +54,7 @@
     <tr>
       <th>Type:</th>
       <td>
-        <input type="radio" form="edit-page" name="type" value="article" {% if page.type == 'article' or id == 'new' %}checked{% endif %}>
+        <input type="radio" form="edit-page" name="type" value="article" {% if page.type == 'article' %}checked{% endif %}>
           article
         </input>
         <input type="radio" form="edit-page" name="type" value="note" {% if page.type == 'note' %}checked{% endif %}>
@@ -63,7 +63,7 @@
         <input type="radio" form="edit-page" name="type" value="special" {% if page.type == 'special' %}checked{% endif %}>
           special
         </input>
-        <input type="radio" form="edit-page" name="type" value="custom" {% if page.type != 'article' and page.type != 'note' and page.type != 'special' and id != 'new' %}checked{% endif %}>
+        <input type="radio" form="edit-page" name="type" value="custom" {% if page.type != 'article' and page.type != 'note' and page.type != 'special' %}checked{% endif %}>
           custom
         <input type="text" form="edit-page" name="custom_type" value="{% if page.type != 'article' and page.type != 'note' and page.type != 'special' %}{{ page.type }}{% endif %}" />
         </input>

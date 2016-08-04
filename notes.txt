@@ -40,7 +40,7 @@
 
 - image edit, evtl. save all at once
 
-- make private entries/galleries/images
+- make private entries
 
 - rework exif for pages
     ==> DONE
@@ -77,6 +77,9 @@
 
 - overview --> new entry --> preview
   type custom (others?) changes to article
+    ==> FIXED
 
 - image preview leads to error for images from web (http://...)
     ==> FIXED
+
+- evtl. show files on overview ?
