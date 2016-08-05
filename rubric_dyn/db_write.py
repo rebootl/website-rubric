@@ -8,6 +8,7 @@ def update_pub(id, pub):
                     WHERE id = ?''', (pub, id))
     g.db.commit()
 
+# --> deprecated, done in Page class now
 def db_new_entry(page_ret):
     '''insert new page entry into database,
 keeping "backward compatible" for now (using all parameters)'''
@@ -51,6 +52,7 @@ keeping "backward compatible" for now (using all parameters)'''
                     published, img_exifs_json, tags ) )
     g.db.commit()
 
+# --> deprecated, done in Page class now
 def db_update_entry(page_ret):
     '''update page entry in database,
 keeping "backward compatible" for now (using all parameters)'''

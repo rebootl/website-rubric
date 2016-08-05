@@ -65,7 +65,7 @@ def get_images_from_md(md_text):
 
     return images
 
-def get_images(subpath):
+def get_images_from_path(subpath):
     '''get image list from subpath (inside /media/)'''
     # absolute paths
     media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')

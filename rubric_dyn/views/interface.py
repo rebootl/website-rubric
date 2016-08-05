@@ -11,10 +11,11 @@ from werkzeug.utils import secure_filename
 from rubric_dyn.common import url_encode_str, datetimesec_norm, date_norm2, \
     time_norm
 from rubric_dyn.db_read import db_load_to_edit
-from rubric_dyn.db_write import db_new_entry, db_update_entry, update_pub
-from rubric_dyn.helper_interface import process_input, get_images, \
+from rubric_dyn.db_write import update_pub
+from rubric_dyn.helper_interface import process_input, get_images_from_path, \
     gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
-from rubric_dyn.ExifNice import ExifNice
+#from rubric_dyn.ExifNice import ExifNice
+from rubric_dyn.Page import Page
 
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
@@ -126,34 +127,44 @@ def edit():
             else:
                 type = custom_type
 
-        title = request.form['title']
-        if title == "":
-            title = 'NOT_SET'
-            flash(FLASH_WARN_EMPTY_STR.format("Title"))
+        #title = request.form['title']
+        #if title == "":
+        #    title = 'NOT_SET'
+        #    flash(FLASH_WARN_EMPTY_STR.format("Title"))
 
         # --> simplify
-        date_str = request.form['date']
-        date_normed = date_norm2(date_str, "%Y-%m-%d")
-        if not date_normed:
-            date_normed = "NOT_SET"
-            flash("Warning: bad date format..., setting to 'NOT_SET'.")
-        time_str = request.form['time']
-        time_normed = time_norm(time_str, "%H:%M")
-        if not time_normed:
-            time_normed = "NOT_SET"
-            flash("Warning: bad time format..., setting to 'NOT_SET'.")
+        # ==> use page obj. instead
+        #date_str = request.form['date']
+        #date_normed = date_norm2(date_str, "%Y-%m-%d")
+        #if not date_normed:
+        #    date_normed = "NOT_SET"
+        #    flash("Warning: bad date format..., setting to 'NOT_SET'.")
+        #time_str = request.form['time']
+        #time_normed = time_norm(time_str, "%H:%M")
+        #if not time_normed:
+        #    time_normed = "NOT_SET"
+        #    flash("Warning: bad time format..., setting to 'NOT_SET'.")
 
         # assembly data
         # --> evtl. make obj. for this, e.g. page object
-        page_return = { 'id': request.form['id'],
-                        'ref': request.form['ref'],
-                        'title': title,
-                        'author': request.form['author'],
-                        'date_norm': date_normed,
-                        'time_norm': time_normed,
-                        'tags': request.form['tags'],
-                        'type': type,
-                        'body_md': request.form['text-input'] }
+        #page_return = { 'id': request.form['id'],
+        #                'ref': request.form['ref'],
+        #                'title': title,
+        #                'author': request.form['author'],
+        #                'date_norm': date_normed,
+        #                'time_norm': time_normed,
+        #                'tags': request.form['tags'],
+        #                'type': type,
+        #                'body_md': request.form['text-input'] }
+
+        page_obj = Page( request.form['id'],
+                         type,
+                         request.form['title'],
+                         request.form['author'],
+                         request.form['date'],
+                         request.form['time'],
+                         request.form['tags'],
+                         request.form['text-input'] )
 
         # actions
 
@@ -161,19 +172,20 @@ def edit():
             images_subpath = request.form['imagepath']
 
             # create and add image markdown
-            images = get_images(images_subpath)
+            images = get_images_from_path(images_subpath)
             img_md = gen_image_md(images_subpath, images)
-            body_md_add = page_return['body_md'] + img_md
+
+            #body_md_add = page_return['body_md'] + img_md
+            #body_md_add = page_obj.body_md + img_md
+            page_obj.body_md = page_obj.body_md + img_md
+            page_obj.update_images()
 
             # return
-            page_return['body_md'] = body_md_add
-
-            images = get_images_from_md(body_md_add)
             return render_template( 'edit.html',
                                     preview = False,
-                                    id = page_return['id'],
-                                    page = page_return,
-                                    images = images )
+                                    id = page_obj.id,
+                                    page = page_obj,
+                                    images = page_obj.images )
 
         elif action == "upld_imgs":
             # --> move into separate func., at least partially ?!?!
@@ -189,12 +201,11 @@ def edit():
                 flash('No selected file...')
                 # return unchanged
                 # --> test
-                images = get_images_from_md(page_return['body_md'])
                 return render_template( 'edit.html',
-                                    preview = False,
-                                    id = page_return['id'],
-                                    page = page_return,
-                                    images = images )
+                                        preview = False,
+                                        id = page_obj.id,
+                                        page = page_obj,
+                                        images = page_obj.images )
 
             if file and allowed_image_file(file.filename):
                 subpath = gen_image_subpath()
@@ -210,49 +221,47 @@ def edit():
 
                 # generate markdown
                 img_md = gen_image_md(subpath, [ filename ])
-                body_md_add = page_return['body_md'] + img_md
-                page_return['body_md'] = body_md_add
+                #body_md_add = page_return['body_md'] + img_md
+                page_obj.body_md = page_obj.body_md + img_md
+                page_obj.update_images()
 
                 # return to edit
-                images = get_images_from_md(body_md_add)
                 return render_template( 'edit.html',
                                         preview = False,
-                                        id = page_return['id'],
-                                        page = page_return,
-                                        images = images )
+                                        id = page_obj.id,
+                                        page = page_obj,
+                                        images = page_obj.images )
             else:
                 flash('Not a valid image file...')
                 # return unchanged
                 # --> test
-                images = get_images_from_md(page_return['body_md'])
                 return render_template( 'edit.html',
                                         preview = False,
-                                        id = page_return['id'],
-                                        page = page_return,
-                                        images = images )
+                                        id = page_obj.id,
+                                        page = page_obj,
+                                        images = page_obj.images )
 
         elif action == "preview" or action == "save":
 
-            ref_new, body_html = process_input(title, page_return['body_md'])
+            #ref_new, body_html = process_input(title, page_return['body_md'])
 
-            page_return.update({ 'ref': ref_new,
-                                 'body_html': body_html })
+            #page_return.update({ 'ref': ref_new,
+            #                     'body_html': body_html })
 
             if action == "preview":
-                images = get_images_from_md(page_return['body_md'])
                 return render_template( 'edit.html',
                                          preview = True,
-                                         id = page_return['id'],
-                                         page = page_return,
-                                         images = images )
+                                         id = page_obj.id,
+                                         page = page_obj,
+                                         images = page_obj.images )
             elif action == "save":
-                id = page_return['id']
-                if id == "new":
-                    db_new_entry(page_return)
+                #id = page_return['id']
+                if page_obj.id == "new":
+                    page_obj.db_write_new_entry()
                     flash("New Page saved successfully!")
                 else:
-                    db_update_entry(page_return)
-                    flash("Page ID {} saved successfully!".format(id))
+                    page_obj.db_update_entry()
+                    flash("Page ID {} saved successfully!".format(page_obj.id))
                 return redirect(url_for('interface.overview'))
         else:
             abort(404)
