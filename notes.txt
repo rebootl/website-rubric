@@ -1,3 +1,33 @@
+### Tasks
+
+- evtl. make link to image in image info [ref1]
+
+- some basic language support/information
+  --> add language to db entries,
+      so it could be used in the template...
+
+- fix markup in interface
+
+- evtl. show files on overview
+
+- cleanup db columns
+  --> new export/import needed for this
+
+- make private entries
+
+- include/create default-template, evtl. setup stuff, README
+
+- optional page TOC (e.g. checkbox)
+
+- evtl. freeze/upload buttons
+
+
+
+__Resolved:__
+
+
+
+--- old ---
 
 - make next by date link [ > ] not clickable, if last
     ==> DONE
@@ -12,18 +42,12 @@
   (create galleries from subdirs)
     ==> DONE
 
-- add list of images in media dir on overview
-  and make gallery_id writable again,
-  so manual gallery creation and automatic (by directory) is possible
-
 - cleanup db functions
-    ==> DONE (
+    ==> DONE
 
 - cleanup json/ page meta data !!
   streamline template variables (e.g. .db... !!
     ==> DONE
-  incl. db schema
-  (new export/import needed for this)
 
 - simplify tags
     ==> DONE (for now)
@@ -33,23 +57,14 @@
     --> doesn't work still/again!!
     ==> FIXED restriction in db query was missing (home view)
 
-- new export/import (to/from one server directory)
-  use for download text as well
-
 - include image publish state
+    ==> OBSOLETE removed galleries, images not in db
 
 - image edit, evtl. save all at once
-
-- make private entries
+    ==> OBSOLETE removed galleries, images not in db
 
 - rework exif for pages
     ==> DONE
-
-- include/create default-template, evtl. setup stuff, README
-
-- optional page TOC (e.g. checkbox)
-
-- freeze/upload buttons !
 
 - adapt gallery list (interface), too cluttered
     ==> DONE
@@ -67,13 +82,7 @@
         downside is that there is no "single image view", which is kinda nice,
         but if you really want that just link the image
     --> maybe something could be done about that ?
-        - evtl. make link to image in image info ?
-
-- some basic language support/information
-  --> add language to db entries,
-      so it could be used in the template...
-
-- fix markup in interface
+        --> [ref1]
 
 - overview --> new entry --> preview
   type custom (others?) changes to article
@@ -82,4 +91,6 @@
 - image preview leads to error for images from web (http://...)
     ==> FIXED
 
-- evtl. show files on overview ?
+- make gallery_id writable again,
+  so manual gallery creation and automatic (by directory) is possible
+    ==> OBSOLETE

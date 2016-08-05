@@ -5,11 +5,10 @@ import json
 import datetime
 import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
-    url_for, abort, flash, current_app, make_response
+    url_for, abort, flash, current_app
 from werkzeug.utils import secure_filename
 
-from rubric_dyn.common import url_encode_str, datetimesec_norm, date_norm2, \
-    time_norm
+from rubric_dyn.common import url_encode_str, date_norm2, time_norm
 from rubric_dyn.db_read import db_load_to_edit
 from rubric_dyn.db_write import update_pub
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
@@ -265,35 +264,36 @@ def unpub():
 #     meta data json is missing
 #     rework w/ new export/import
 # --> never used it up to now...
-@interface.route('/download')
-def download_text():
-    '''download entry text (markdown)'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    id = request.args.get('id')
-
-    # get text
-    cur = g.db.execute('''SELECT ref, meta_json, body_md
-                          FROM entries
-                          WHERE id = ?
-                          LIMIT 1''', (id,))
-    ref, meta_json, body_md = cur.fetchone()
-
-    # add 'id' to meta
-    #meta = json.loads(meta_json)
-    meta = {}
-    if 'id' not in meta.keys():
-        meta['id'] = id
-        meta_json_full = json.dumps(meta)
-    else:
-        meta_json_full = meta_json
-
-    text = '\n%%%\n'.join((meta_json_full, body_md))
-
-    datetime_str = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%S')
-    filename = ref + "_" + datetime_str + ".page"
-
-    response = make_response(text)
-    response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
-    return response
+# ==> deprecate
+#@interface.route('/download')
+#def download_text():
+#    '''download entry text (markdown)'''
+#    if not session.get('logged_in'):
+#        abort(401)
+#
+#    id = request.args.get('id')
+#
+#    # get text
+#    cur = g.db.execute('''SELECT ref, meta_json, body_md
+#                          FROM entries
+#                          WHERE id = ?
+#                          LIMIT 1''', (id,))
+#    ref, meta_json, body_md = cur.fetchone()
+#
+#    # add 'id' to meta
+#    #meta = json.loads(meta_json)
+#    meta = {}
+#    if 'id' not in meta.keys():
+#        meta['id'] = id
+#        meta_json_full = json.dumps(meta)
+#    else:
+#        meta_json_full = meta_json
+#
+#    text = '\n%%%\n'.join((meta_json_full, body_md))
+#
+#    datetime_str = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%S')
+#    filename = ref + "_" + datetime_str + ".page"
+#
+#    response = make_response(text)
+#    response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
+#    return response

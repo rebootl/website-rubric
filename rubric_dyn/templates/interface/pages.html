@@ -2,7 +2,7 @@
 {# create GET url for POST request ?? <input form="call-edit" type="hidden" name="preview" value="False" />#}
 <form id="call-pub" action="{{ url_for('interface.pub') }}" method="get"></form>
 <form id="call-unpub" action="{{ url_for('interface.unpub') }}" method="get"></form>
-<form id="dl-text" action="{{ url_for('interface.download_text') }}" method="get"></form>
+{#<form id="dl-text" action="{{ url_for('interface.download_text') }}" method="get"></form>#}
 
 <table>
   <thead>
@@ -47,7 +47,7 @@
       {% endif %}
       </td>
       <td><button form="call-edit" type="submit" name="id" value="{{ entry.id }}">Edit</button></td>
-      <td><button form="dl-text" type="submit" name="id" value="{{ entry.id }}" title="Download Text">Download-Text</button></td>
+{#      <td><button form="dl-text" type="submit" name="id" value="{{ entry.id }}" title="Download Text">Download-Text</button></td>#}
     </tr>
   {% endfor %}
   </tbody>
