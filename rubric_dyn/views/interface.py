@@ -19,8 +19,6 @@ from rubric_dyn.Page import Page
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
 
-FLASH_WARN_EMPTY_STR = "Warning: {} can not be empty. Setting to 'NOT_SET'."
-
 ### functions returning a "view"
 
 # (none...)
@@ -134,58 +132,45 @@ def edit():
                                     images = page_obj.images )
 
         # upload selected images
-        # --> multi-file todo
         elif action == "upld_imgs":
-            if 'file' not in request.files:
+            if not request.files.getlist("files"):
                 abort(404)
+            else:
+                files = request.files.getlist("files")
 
-            file = request.files['file']
-            # if user does not select file, browser also
-            # submit a empty part without filename (from flask docs)
-            if file.filename == '':
-                flash('No selected file...')
-                # return unchanged
-                # --> test
-                return render_template( 'edit.html',
-                                        preview = False,
-                                        id = page_obj.id,
-                                        page = page_obj,
-                                        images = page_obj.images )
+            filenames = []
+            for file in files:
+                if file and allowed_image_file(file.filename):
+                    subpath = gen_image_subpath()
+                    filename = secure_filename(file.filename)
+                    filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
+                                                 'media',
+                                                 subpath,
+                                                 filename )
+                    if not os.path.isfile(filepath_abs):
+                        file.save(filepath_abs)
+                    else:
+                        flash("File w/ same name already present, not saved: {}".format(filename))
 
-            if file and allowed_image_file(file.filename):
-                subpath = gen_image_subpath()
-                filename = secure_filename(file.filename)
-                filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
-                                             'media',
-                                             subpath,
-                                             filename )
-                if not os.path.isfile(filepath_abs):
-                    file.save(filepath_abs)
+                    filenames.append(filename)
+
                 else:
-                    flash("File w/ same name already present, not saved.")
+                    flash("Not a valid image file: {}".format(file.filename))
 
+            if filenames != []:
                 # generate markdown
-                img_md = gen_image_md(subpath, [ filename ])
+                img_md = gen_image_md(subpath, filenames)
 
                 # update object
                 page_obj.body_md = page_obj.body_md + img_md
                 page_obj.update_images()
 
-                # return to edit
-                return render_template( 'edit.html',
-                                        preview = False,
-                                        id = page_obj.id,
-                                        page = page_obj,
-                                        images = page_obj.images )
-            else:
-                flash('Not a valid image file...')
-                # return unchanged
-                # --> test
-                return render_template( 'edit.html',
-                                        preview = False,
-                                        id = page_obj.id,
-                                        page = page_obj,
-                                        images = page_obj.images )
+            # return to edit
+            return render_template( 'edit.html',
+                                    preview = False,
+                                    id = page_obj.id,
+                                    page = page_obj,
+                                    images = page_obj.images )
 
         elif action == "preview" or action == "save":
 
@@ -243,7 +228,7 @@ def new():
 def pub():
     '''publish entry'''
     # --> make this and unpub below single function
-    # ==> this didn't work ! didn't it ?
+    # ==> this didn't work for galleries ! didn't it ?
 
     if not session.get('logged_in'):
         abort(401)
