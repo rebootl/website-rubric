@@ -88,25 +88,27 @@
 
   <p>
 
-    <table class="prev-table">
-      {% for image in images %}
-        <tr>
-          <td>
-            {{ image.src }}
-            <div class="prev-box">
-              <img class="prev-thumb" src="{{ image.thumb }}" width="100" /><br />
-            </div>
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
+    <pre>(hover for preview)</pre>
 
-    <pre>Insert image markdown</pre>
+    <div class="prev-table-box">
+      <table class="prev-table">
+        {% for image in images %}
+          <tr>
+            <td>
+              {{ image.src }}
+              <div class="prev-box">
+                <img class="prev-thumb" src="{{ image.thumb }}" width="100" /><br />
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
 
     <table>
       <tr>
         <th>
-          Images already on server:<br />
+          Insert images from server:<br />
           (media directory)
         </th>
         <td>

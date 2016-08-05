@@ -14,7 +14,6 @@ from rubric_dyn.db_read import db_load_to_edit
 from rubric_dyn.db_write import update_pub
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
     gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
-#from rubric_dyn.ExifNice import ExifNice
 from rubric_dyn.Page import Page
 
 interface = Blueprint('interface', __name__,
@@ -24,29 +23,7 @@ FLASH_WARN_EMPTY_STR = "Warning: {} can not be empty. Setting to 'NOT_SET'."
 
 ### functions returning a "view"
 
-# --> deprecated
-#def render_preview(id, ref, type, title, author, date_normed, time_normed, 
-#                   tags, body_html, body_md):
-#    '''process text input into preview and reload the editor page'''
-#
-#    page = { 'id': id,
-#             'ref': ref,
-#             'type': type,
-#             'title': title,
-#             'author': author,
-#             'date_norm': date_normed,
-#             'time_norm': time_normed,
-#             'body_html': body_html,
-#             'img_exifs_json': None,
-#             'tags': tags,
-#             'body_md': body_md }
-#
-#    # render stuff
-#    return render_template( 'edit.html',
-#                            preview = True,
-#                            id = id,
-#                            page = page,
-#                            images = get_images_from_md(body_md) )
+# (none...)
 
 ### routes
 
@@ -116,8 +93,7 @@ def edit():
         if action == "cancel":
             return redirect(url_for('interface.overview'))
 
-        # request data, check and set defaults if necessary
-        # --> check and defaults could go in a helper func.... ?!?!
+        # request data and instantiate Page object
         type = request.form['type']
         if type == 'custom':
             custom_type = request.form['custom_type']
@@ -126,36 +102,6 @@ def edit():
                 flash("Warning: custom type not specified, setting to undefined.")
             else:
                 type = custom_type
-
-        #title = request.form['title']
-        #if title == "":
-        #    title = 'NOT_SET'
-        #    flash(FLASH_WARN_EMPTY_STR.format("Title"))
-
-        # --> simplify
-        # ==> use page obj. instead
-        #date_str = request.form['date']
-        #date_normed = date_norm2(date_str, "%Y-%m-%d")
-        #if not date_normed:
-        #    date_normed = "NOT_SET"
-        #    flash("Warning: bad date format..., setting to 'NOT_SET'.")
-        #time_str = request.form['time']
-        #time_normed = time_norm(time_str, "%H:%M")
-        #if not time_normed:
-        #    time_normed = "NOT_SET"
-        #    flash("Warning: bad time format..., setting to 'NOT_SET'.")
-
-        # assembly data
-        # --> evtl. make obj. for this, e.g. page object
-        #page_return = { 'id': request.form['id'],
-        #                'ref': request.form['ref'],
-        #                'title': title,
-        #                'author': request.form['author'],
-        #                'date_norm': date_normed,
-        #                'time_norm': time_normed,
-        #                'tags': request.form['tags'],
-        #                'type': type,
-        #                'body_md': request.form['text-input'] }
 
         page_obj = Page( request.form['id'],
                          type,
@@ -168,6 +114,7 @@ def edit():
 
         # actions
 
+        # add images from subpath
         if action == "add_imgs":
             images_subpath = request.form['imagepath']
 
@@ -175,8 +122,7 @@ def edit():
             images = get_images_from_path(images_subpath)
             img_md = gen_image_md(images_subpath, images)
 
-            #body_md_add = page_return['body_md'] + img_md
-            #body_md_add = page_obj.body_md + img_md
+            # update object
             page_obj.body_md = page_obj.body_md + img_md
             page_obj.update_images()
 
@@ -187,11 +133,10 @@ def edit():
                                     page = page_obj,
                                     images = page_obj.images )
 
+        # upload selected images
+        # --> multi-file todo
         elif action == "upld_imgs":
-            # --> move into separate func., at least partially ?!?!
             if 'file' not in request.files:
-                # --> return unchanged
-                # ==> that's illegal, just abort
                 abort(404)
 
             file = request.files['file']
@@ -221,7 +166,8 @@ def edit():
 
                 # generate markdown
                 img_md = gen_image_md(subpath, [ filename ])
-                #body_md_add = page_return['body_md'] + img_md
+
+                # update object
                 page_obj.body_md = page_obj.body_md + img_md
                 page_obj.update_images()
 
@@ -243,11 +189,6 @@ def edit():
 
         elif action == "preview" or action == "save":
 
-            #ref_new, body_html = process_input(title, page_return['body_md'])
-
-            #page_return.update({ 'ref': ref_new,
-            #                     'body_html': body_html })
-
             if action == "preview":
                 return render_template( 'edit.html',
                                          preview = True,
@@ -255,7 +196,6 @@ def edit():
                                          page = page_obj,
                                          images = page_obj.images )
             elif action == "save":
-                #id = page_return['id']
                 if page_obj.id == "new":
                     page_obj.db_write_new_entry()
                     flash("New Page saved successfully!")
@@ -294,7 +234,7 @@ def new():
     if not session.get('logged_in'):
         abort(401)
 
-    # --> fill in date and time
+    # --> autom. fill in date and time
 
     return render_template( 'edit.html', preview=False, id="new", \
                             new=True, page=None )
@@ -303,6 +243,7 @@ def new():
 def pub():
     '''publish entry'''
     # --> make this and unpub below single function
+    # ==> this didn't work ! didn't it ?
 
     if not session.get('logged_in'):
         abort(401)
