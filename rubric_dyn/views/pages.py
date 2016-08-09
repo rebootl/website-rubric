@@ -87,7 +87,7 @@ def articles():
 
     # get a list of articles
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref, title, date_norm, meta_json, tags
+    cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
                            FROM entries
                            WHERE type = 'article'
                            AND pub = 1
@@ -96,19 +96,23 @@ def articles():
 
     # create article preview
     # --> currently not used
-    cur = g.db.execute( '''SELECT body_md
-                           FROM entries
-                           WHERE id = ?''', (articles_rows[0]['id'],))
-    # --> disable sqlite3 row ???
-    latest_body_md = cur.fetchone()[0]
+    if articles_rows != []:
+        cur = g.db.execute( '''SELECT body_md
+                               FROM entries
+                               WHERE id = ?''', (articles_rows[0]['id'],))
+        # --> disable sqlite3 row ???
+        latest_body_md = cur.fetchone()[0]
 
-    latest_body_md_prev = "\n".join(latest_body_md.split("\n")[:5])
+        latest_body_md_prev = "\n".join(latest_body_md.split("\n")[:5])
 
-    #body_html = pandoc_pipe( body_md_prev,
-    #                         [ '--to=html5' ] )
-    prev_ref, \
-    prev_body_html_subst = process_input("", latest_body_md_prev)
+        #body_html = pandoc_pipe( body_md_prev,
+        #                         [ '--to=html5' ] )
+        prev_ref, \
+        prev_body_html_subst = process_input("", latest_body_md_prev)
+    else:
+        prev_body_html_subst = None
 
+#    return str(articles_rows)
     return render_template( 'articles.html',
                             title = 'Articles',
                             articles = articles_rows,
@@ -118,11 +122,11 @@ def articles():
 def notes():
     '''list of notes'''
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT ref, title, date_norm, meta_json
+    cur = g.db.execute( '''SELECT ref, title, date_norm
                            FROM entries
                            WHERE type = 'note'
                            AND pub = 1
-                           ORDER BY datetime_norm DESC''' )
+                           ORDER BY date_norm DESC, time_norm DESC''' )
     notes_rows = cur.fetchall()
 
     return render_template( 'notes.html',

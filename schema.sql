@@ -5,18 +5,12 @@ create table entries (
   type text not null,
   title text not null,
   author text not null,
-  date_str text not null,
-  datetime_norm text not null,
   date_norm text not null,
   time_norm text not null,
   body_html text not null,
-  body_md5sum text not null,
-  meta_json text not null,
   body_md text not null,
-  data1 text,
-  pub int default 0,
-  exifs_json text,
-  tags_csv text
+  tags text,
+  pub int default 0
 );
 
 /* not used atm. */

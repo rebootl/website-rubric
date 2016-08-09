@@ -260,6 +260,81 @@ def unpub():
 
     return redirect(url_for('interface.overview'))
 
+@interface.route('/export_entries')
+def export_entries():
+    '''export db entries to json (on server)'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    # get the entries to export
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT id, ref, type, title, author,
+                            date_norm, time_norm, body_html, body_md,
+                            tags, pub
+                           FROM entries
+                           ORDER BY id ASC''' )
+    rows = cur.fetchall()
+
+    # create list
+    entries = []
+    for row in rows:
+
+        entry = {}
+        for i, v in enumerate(row):
+            entry.update( { row.keys()[i]: v } )
+
+        entries.append(entry)
+
+    # dump json
+    #entries_json = json.dumps(entries)
+
+    with open(current_app.config['DB_ENTRIES_JSON_DUMP'], 'w') as f:
+        json.dump(entries, f)
+
+    flash("Dumped json to {}".format(current_app.config['DB_ENTRIES_JSON_DUMP']))
+    return redirect(url_for('interface.overview'))
+
+@interface.route('/import_entries')
+def import_entries():
+    '''import db entries from json (on server)'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    # read json
+    with open(current_app.config['DB_ENTRIES_JSON_DUMP'], 'r') as f:
+        entries = json.load(f)
+
+    # instantiate pages and write to db
+
+    for entry in entries:
+
+        # check if already present
+        cur = g.db.execute( '''SELECT ref
+                               FROM entries
+                               WHERE id = ?''', (entry['id'],))
+        row = cur.fetchone()
+
+        if row != None:
+            flash("Entry already in db: ID: {} ref: {}".format( entry['id'],
+                                                               row[0] ))
+            continue
+
+        page_obj = Page( entry['id'],
+                         entry['type'],
+                         entry['title'],
+                         entry['author'],
+                         entry['date_norm'],
+                         entry['time_norm'],
+                         entry['tags'],
+                         entry['body_md'],
+                         entry['pub'] )
+
+        page_obj.db_write_new_entry()
+
+        flash("Imported entry ID: {}".format(entry['id']))
+
+    return redirect(url_for('interface.overview'))
+
 # --> currently not fully functional
 #     meta data json is missing
 #     rework w/ new export/import

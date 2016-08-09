@@ -42,12 +42,12 @@ norm and set defaults if necessary'''
 
         # backward compatibility data
         # --> remove this crap !!!
-        self.date_str = "NOT_SET"
-        self.datetime_norm = "NOT_SET"
-        self.body_md5sum = "NOT_SET"
-        self.meta_json = "NOT_SET"
-        self.data1 = None
-        self.img_exifs_json = None
+        #self.date_str = "NOT_SET"
+        #self.datetime_norm = "NOT_SET"
+        #self.body_md5sum = "NOT_SET"
+        #self.meta_json = "NOT_SET"
+        #self.data1 = None
+        #self.img_exifs_json = None
 
         self.update_images()
 
@@ -59,17 +59,14 @@ norm and set defaults if necessary'''
 keeping "backward compatible" for now (using all parameters)'''
         g.db.execute( '''INSERT INTO entries
                          (ref, type, title, author,
-                          date_str, datetime_norm, date_norm,
-                          time_norm, body_html, body_md5sum,
-                          meta_json, body_md, data1, pub, exifs_json,
-                          tags)
+                          date_norm, time_norm,
+                          body_html, body_md, tags, pub)
                          VALUES
-                         (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                         (?,?,?,?,?,?,?,?,?,?)''',
                       ( self.ref, self.type, self.title, self.author,
-                        self.date_str, self.datetime_norm, self.date_norm,
-                        self.time_norm, self.body_html, self.body_md5sum,
-                        self.meta_json, self.body_md, self.data1,
-                        self.pub, self.img_exifs_json, self.tags ) )
+                        self.date_norm, self.time_norm,
+                        self.body_html, self.body_md,
+                        self.tags, self.pub ) )
         g.db.commit()
 
     def db_update_entry(self):
@@ -77,14 +74,11 @@ keeping "backward compatible" for now (using all parameters)'''
 keeping "backward compatible" for now (using all parameters)'''
         g.db.execute( '''UPDATE entries
                          SET ref = ?, type = ?, title = ?, author = ?,
-                          date_str = ?, datetime_norm = ?, date_norm = ?,
-                          time_norm = ?, body_html = ?, body_md5sum = ?,
-                          meta_json = ?, body_md = ?, data1 = ?,
-                          exifs_json = ?, tags = ?
+                          date_norm = ?, time_norm = ?,
+                          body_html = ?, body_md = ?, tags = ?
                          WHERE id = ?''',
                       ( self.ref, self.type, self.title, self.author,
-                        self.date_str, self.datetime_norm, self.date_norm,
-                        self.time_norm, self.body_html, self.body_md5sum,
-                        self.meta_json, self.body_md, self.data1,
-                        self.img_exifs_json, self.tags, self.id ) )
+                        self.date_norm, self.time_norm,
+                        self.body_html, self.body_md,
+                        self.tags, self.id ) )
         g.db.commit()

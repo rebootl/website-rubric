@@ -13,3 +13,6 @@ test*
 
 config.py
 upload.sh
+
+entries.json*
+schema.sql_*
