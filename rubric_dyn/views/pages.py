@@ -21,13 +21,14 @@ PAGE_NAV_DEFAULT = { 'prev_href': None,
 
 ### functions returning a view
 
-def show_post(page, page_nav=PAGE_NAV_DEFAULT):
-    '''show post
-currently used for entry types:
-- article
-- special
-- note
-'''
+# --> deprecated
+#def show_post(page, page_nav=PAGE_NAV_DEFAULT):
+#    '''show post
+#currently used for entry types:
+#- article
+#- special
+#- note
+#'''
     # title and img_exifs_json are separate because they are used
     # in parent template
     # --> is this really necessary ??
@@ -36,12 +37,14 @@ currently used for entry types:
     #     - title       used as "browser title"
     #     (could be used e.g. by interface/edit
     # (==> img_exifs_json is not used anymore)
-    return render_template( 'post.html',
-                            title = page['title'],
-                            page = page,
-                            page_nav = page_nav )
+#    return render_template( 'post.html',
+#                            title = page['title'],
+#                            page = page,
+#                            page_nav = page_nav )
 
 ### routes
+
+### individually adapted pages
 
 @pages.route('/')
 def home():
@@ -60,25 +63,23 @@ def home():
                             latest = latest_rows,
                             history = history_rows )
 
-@pages.route('/latest/')
-def latest():
-    '''show all latest entries'''
-    # get entries
-    rows = get_entrylist('latest')
+@pages.route('/special/about/')
+def about():
+    '''about page'''
 
-    return render_template( 'latest.html',
-                            title = 'Latest',
-                            latest = rows )
+    row = get_entry_by_ref('about', 'special')
 
-@pages.route('/history/')
-def history():
-    '''show all history entries'''
-    # get entries
-    rows = get_entrylist('history')
+    # page history
+    history_rows = get_entrylist_limit( 'history',
+                                        current_app.config['NUM_HISTORY_ON_HOME'] )
 
-    return render_template( 'history.html',
-                            title = 'Page history',
-                            history = rows )
+    return render_template( 'about.html',
+                            title = row['title'],
+                            page = row,
+                            history = history_rows,
+                            page_nav = None )
+
+### lists / overviews
 
 @pages.route('/articles/')
 def articles():
@@ -128,6 +129,28 @@ def notes():
                             title = 'Notes',
                             notes = notes_rows )
 
+@pages.route('/latest/')
+def latest():
+    '''show all latest entries'''
+    # get entries
+    rows = get_entrylist('latest')
+
+    return render_template( 'latest.html',
+                            title = 'Latest',
+                            latest = rows )
+
+@pages.route('/history/')
+def history():
+    '''show all history entries'''
+    # get entries
+    rows = get_entrylist('history')
+
+    return render_template( 'history.html',
+                            title = 'Page history',
+                            history = rows )
+
+### individual pages
+
 @pages.route('/articles/<path:article_path>/')
 def article(article_path):
     '''single article'''
@@ -138,11 +161,15 @@ def article(article_path):
     page_nav = create_page_nav( row['id'],
                                 row['type'] )
 
-    return show_post(row, page_nav)
+    #return show_post(row, page_nav)
+    return render_template( 'post.html',
+                            title = row['title'],
+                            page = row,
+                            page_nav = page_nav )
 
 @pages.route('/notes/<ref>/')
 def show_note(ref):
-    '''note page'''
+    '''note pages'''
 
     row = get_entry_by_ref(ref, 'note')
 
@@ -157,7 +184,7 @@ def show_note(ref):
 
 @pages.route('/special/<ref>/')
 def special(ref):
-    '''special page'''
+    '''special pages'''
 
     row = get_entry_by_ref(ref, 'special')
 
@@ -165,4 +192,3 @@ def special(ref):
                             title = row['title'],
                             page = row,
                             page_nav = None )
-
