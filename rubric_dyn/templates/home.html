@@ -3,18 +3,22 @@
 
   <h2>latest</h2>
 
-{#  {% for entry in latest %}
+{#
+  {% for entry in latest %}
     <small class="small-date">{{ entry.date_norm }}</small>
 
     {{ entry.body_html |safe }}
 
-  {% endfor %}#}
+  {% endfor %}
+#}
 
+{#
   {% include "latest_entries.html" %}
 
   <a href="/latest/" class="more-button" title="View all latest entries">
     <img src="/media/layout/icons/more.png" alt="more button" />
   </a>
+#}
 
   <div class="spacer"></div>
 

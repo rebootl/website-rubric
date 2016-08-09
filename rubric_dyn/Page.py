@@ -2,6 +2,8 @@
 
 from rubric_dyn.common import date_norm2, time_norm
 from rubric_dyn.helper_interface import process_input, get_images_from_md
+from rubric_dyn.db_read import get_latest
+from rubric_dyn.db_write import db_write_change
 
 from flask import flash, g
 
@@ -69,6 +71,9 @@ keeping "backward compatible" for now (using all parameters)'''
                         self.tags, self.pub ) )
         g.db.commit()
 
+        # write to changelog
+        db_write_change(get_latest(), 'n')
+
     def db_update_entry(self):
         '''update page entry in database,
 keeping "backward compatible" for now (using all parameters)'''
@@ -82,3 +87,6 @@ keeping "backward compatible" for now (using all parameters)'''
                         self.body_html, self.body_md,
                         self.tags, self.id ) )
         g.db.commit()
+
+        # write to changelog
+        db_write_change(self.id, 'e')

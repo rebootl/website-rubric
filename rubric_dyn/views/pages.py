@@ -51,17 +51,18 @@ def home():
     '''the home page'''
 
     # latest
+    # --> use changelog
     latest_rows = get_entrylist_limit( 'latest',
                                        current_app.config['NUM_LATEST_ON_HOME'] )
 
     # page history
-    history_rows = get_entrylist_limit( 'history',
-                                        current_app.config['NUM_HISTORY_ON_HOME'] )
+    # (moved to about)
+    #history_rows = get_entrylist_limit( 'history',
+    #                                    current_app.config['NUM_HISTORY_ON_HOME'] )
 
     return render_template( 'home.html',
                             title = 'Home',
-                            latest = latest_rows,
-                            history = history_rows )
+                            latest = latest_rows )
 
 @pages.route('/special/about/')
 def about():

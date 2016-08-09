@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from rubric_dyn.common import url_encode_str, date_norm2, time_norm
 from rubric_dyn.db_read import db_load_to_edit
-from rubric_dyn.db_write import update_pub
+from rubric_dyn.db_write import update_pub, update_pub_change
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
     gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
 from rubric_dyn.Page import Page
@@ -72,10 +72,33 @@ shows:
             href = "NOT_DEFINED"
         hrefs.update({ row['id']: href })
 
+    # insert changelog
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, entry_id, mod_type,
+                           date_norm, time_norm, pub
+                          FROM changelog
+                          ORDER BY id DESC''')
+    change_rows = cur.fetchall()
+
+    changes = []
+    for change_row in change_rows:
+        change = {}
+        for i, v in enumerate(change_row):
+            change.update( { change_row.keys()[i]: v } )
+
+            cur = g.db.execute('''SELECT title FROM entries
+                                  WHERE id = ?''', (change_row['entry_id'],))
+            entry_title = cur.fetchone()[0]
+            change.update( { 'entry_title': entry_title } )
+
+        changes.append(change)
+
     return render_template( 'overview.html',
                             entries = rows,
                             title = "Overview",
-                            hrefs = hrefs )
+                            hrefs = hrefs,
+                            changes = changes )
 
 @interface.route('/edit', methods=['GET', 'POST'])
 def edit():
@@ -223,6 +246,38 @@ def new():
     return render_template( 'edit.html', preview=False, id="new", \
                             new=True, page=None )
 
+@interface.route('/pub-change')
+def pub_change():
+    '''publish change'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    id = request.args.get('id')
+    if id == None:
+        abort(404)
+
+    # change state
+    update_pub_change(id, 1)
+    flash('Published change ID: {}'.format(id))
+
+    return redirect(url_for('interface.overview'))
+
+@interface.route('/unpub-change')
+def unpub_change():
+    '''unpublish change'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    id = request.args.get('id')
+    if id == None:
+        abort(404)
+
+    # change state
+    update_pub_change(id, 0)
+    flash('Unpublished change ID: {}'.format(id))
+
+    return redirect(url_for('interface.overview'))
+
 @interface.route('/pub')
 def pub():
     '''publish entry'''
@@ -237,7 +292,7 @@ def pub():
         abort(404)
 
     # change state
-    update_pub(id, 1)
+    update_pub_change(id, 1)
 
     flash('Published ID {}'.format(id))
 

@@ -14,6 +14,17 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def get_latest():
+    '''get latest entry id (used for changelog)'''
+    cur = g.db.execute('''SELECT id FROM entries
+                          ORDER BY id DESC
+                          LIMIT 1''')
+    row = cur.fetchone()
+    if row != []:
+        return row[0]
+    else:
+        return None
+
 def get_entrylist(type):
     '''return rows of entries'''
     g.db.row_factory = sqlite3.Row

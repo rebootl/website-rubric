@@ -13,6 +13,16 @@ create table entries (
   pub int default 0
 );
 
+drop table if exists changelog;
+create table changelog (
+  id integer primary key autoincrement,
+  entry_id integer not null,
+  mod_type text not null,
+  date_norm text not null,
+  time_norm text not null,
+  pub int default 0
+);
+
 /* not used atm. */
 /*drop table if exists galleries;
 create table galleries (

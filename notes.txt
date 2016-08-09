@@ -13,9 +13,6 @@
 
 - evtl. show files on overview
 
-- cleanup db columns
-  --> new export/import needed for this
-
 - make private entries
 
 - include/create default-template, evtl. setup stuff, README
@@ -28,6 +25,9 @@
 
 __Resolved:__
 
+- cleanup db columns
+  --> new export/import needed for this
+    ==> DONE
 
 
 --- old ---
