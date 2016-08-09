@@ -1,5 +1,8 @@
 ### Tasks
 
+- auto-generate "latest" on home page
+  --> changelog in db !!
+
 - evtl. make link to image in image info [ref1]
 
 - some basic language support/information
