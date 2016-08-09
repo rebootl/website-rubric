@@ -8,8 +8,8 @@ from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
     url_encode_str, make_thumb_samename
 from rubric_dyn.ExifNice import ExifNice
 
-# --> for debug only !!
-import sys
+# for debug only !!
+#import sys
 
 def allowed_image_file(filename):
     '''check allowed image extension (adapted from flask docs)'''
@@ -17,8 +17,6 @@ def allowed_image_file(filename):
         return True
     else:
         return False
-#    return '.' in filename and \
-#           filename.rsplit('.', 1)[1] in current_app.config['ALLOWED_IMG_EXTS']
 
 def gen_image_subpath():
     '''generate and return a store path for image upload'''
@@ -36,7 +34,6 @@ def get_images_from_md(md_text):
     '''get a list of images and their thumbnails from markdown text'''
     text_md_subst, img_blocks = preprocess_md(md_text)
 
-    #media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
     thumbs_abspath = os.path.join( current_app.config['RUN_ABSPATH'],
                                    'media/thumbs' )
 

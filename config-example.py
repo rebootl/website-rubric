@@ -18,6 +18,9 @@ RUN_ABSPATH = '/webapp/rubric_dyn'
 NUM_LATEST_ON_HOME = 1
 NUM_HISTORY_ON_HOME = 3
 
+# json export file
+DB_ENTRIES_JSON_DUMP = '/somepath-on-server/entries.json'
+
 ### SYSTEM STUFF
 
 # date / datetime formats
@@ -27,7 +30,7 @@ DATE_FORMAT = "%Y-%m-%d"
 # (used)
 DATETIME_FORMAT = "%Y-%m-%d %H:%M"
 
-# (used/useful in/for importer)
+# (used/useful in/for old importer)
 PAGE_EXT = ".page"
 
 # (needed for exif processing)
