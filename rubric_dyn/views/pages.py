@@ -6,9 +6,9 @@ import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
-from rubric_dyn.common import pandoc_pipe
+from rubric_dyn.common import pandoc_pipe, gen_href
 from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
-    get_entrylist, get_entrylist_limit
+    get_entrylist, get_entrylist_limit, get_changelog_limit
 from rubric_dyn.helper_pages import create_page_nav
 
 from rubric_dyn.helper_interface import process_input
@@ -21,26 +21,7 @@ PAGE_NAV_DEFAULT = { 'prev_href': None,
 
 ### functions returning a view
 
-# --> deprecated
-#def show_post(page, page_nav=PAGE_NAV_DEFAULT):
-#    '''show post
-#currently used for entry types:
-#- article
-#- special
-#- note
-#'''
-    # title and img_exifs_json are separate because they are used
-    # in parent template
-    # --> is this really necessary ??
-    # ==> for title it may make sense, so it can be set separately
-    #     - page.title  used on the page
-    #     - title       used as "browser title"
-    #     (could be used e.g. by interface/edit
-    # (==> img_exifs_json is not used anymore)
-#    return render_template( 'post.html',
-#                            title = page['title'],
-#                            page = page,
-#                            page_nav = page_nav )
+# (none...)
 
 ### routes
 
@@ -52,17 +33,89 @@ def home():
 
     # latest
     # --> use changelog
-    latest_rows = get_entrylist_limit( 'latest',
-                                       current_app.config['NUM_LATEST_ON_HOME'] )
+    #latest_rows = get_entrylist_limit( 'latest',
+    #                                   current_app.config['NUM_LATEST_ON_HOME'] )
 
     # page history
     # (moved to about)
     #history_rows = get_entrylist_limit( 'history',
     #                                    current_app.config['NUM_HISTORY_ON_HOME'] )
+    # get limit no. of latest changes
+    change_rows = get_changelog_limit(current_app.config['NUM_LATEST_ON_HOME'])
+
+    # prepare list of changes ordered by dates
+    #
+    # structure:
+    #
+    # dates = [ { 'date': "2016-08-01",
+    #             'changes': [ { change1_data } ] },
+    #           { 'date': "2016-07-30",
+    #             'changes': [ { change2_data } ] } ]
+    #
+
+    # create list from changelog data
+    # and insert additional informations per item
+    changes = []
+    for change_row in change_rows:
+        change = {}
+        for i, v in enumerate(change_row):
+            change.update( { change_row.keys()[i]: v } )
+
+        cur = g.db.execute('''SELECT ref, type, title, date_norm,
+                               pub
+                              FROM entries
+                              WHERE id = ?''', (change_row['entry_id'],))
+        entry = cur.fetchone()
+        if entry['pub'] != 1:
+            continue
+
+        change['entry'] = entry
+        # update entry for specific types
+        # e.g. adding body_html for latest
+        if entry['type'] == 'latest':
+            cur = g.db.execute('''SELECT ref, type, title, date_norm,
+                                   body_html, pub
+                                  FROM entries
+                                  WHERE id = ?''', (change_row['entry_id'],))
+            entry = cur.fetchone()
+            change['entry'] = entry
+        # set href
+        change['entry_href'] = gen_href(entry)
+        # set timezone name
+        # --> not using atm. just write "localtime" or so
+        #change['tzname'] = get_tzname( change_row['date_norm'],
+        #                               change_row['time_norm'] )
+
+        changes.append(change)
+
+    # first create the date sets
+    date_sets = []
+    last_date = ""
+    for change in changes:
+        curr_date = change['date_norm']
+        if curr_date != last_date:
+            date_set = { 'date': curr_date,
+                         'changes': [] }
+            date_sets.append(date_set)
+            last_date = curr_date
+
+    # add the changes to the sets
+    for date_set in date_sets:
+        for change in changes:
+            if change['date_norm'] == date_set['date']:
+                date_set['changes'].append(change)
+
+    # debug output
+    #date_repr = ""
+    #for date_set in date_sets:
+    #    date_repr += date_set['date'] + "\n"
+    #    for change in date_set['changes']:
+    #        date_repr += " " + change['entry']['title'] + "\n"
+    #return '<pre>' + date_repr + '</pre>'
 
     return render_template( 'home.html',
                             title = 'Home',
-                            latest = latest_rows )
+                            date_sets = date_sets )
 
 @pages.route('/special/about/')
 def about():
@@ -97,27 +150,26 @@ def articles():
 
     # create article preview
     # --> currently not used
-    if articles_rows != []:
-        cur = g.db.execute( '''SELECT body_md
-                               FROM entries
-                               WHERE id = ?''', (articles_rows[0]['id'],))
-        # --> disable sqlite3 row ???
-        latest_body_md = cur.fetchone()[0]
+    #if articles_rows != []:
+    #    cur = g.db.execute( '''SELECT body_md
+    #                           FROM entries
+    #                           WHERE id = ?''', (articles_rows[0]['id'],))
+    #    # --> disable sqlite3 row ???
+    #    latest_body_md = cur.fetchone()[0]
 
-        latest_body_md_prev = "\n".join(latest_body_md.split("\n")[:5])
+    #    latest_body_md_prev = "\n".join(latest_body_md.split("\n")[:5])
 
-        #body_html = pandoc_pipe( body_md_prev,
-        #                         [ '--to=html5' ] )
-        prev_ref, \
-        prev_body_html_subst = process_input("", latest_body_md_prev)
-    else:
-        prev_body_html_subst = None
+    #    #body_html = pandoc_pipe( body_md_prev,
+    #    #                         [ '--to=html5' ] )
+    #    prev_ref, \
+    #    prev_body_html_subst = process_input("", latest_body_md_prev)
+    #else:
+    #    prev_body_html_subst = None
 
-#    return str(articles_rows)
     return render_template( 'articles.html',
                             title = 'Articles',
-                            articles = articles_rows,
-                            article_prev = prev_body_html_subst )
+                            articles = articles_rows )
+    #                        article_prev = prev_body_html_subst )
 
 @pages.route('/notes/')
 def notes():
@@ -166,7 +218,6 @@ def article(article_path):
     page_nav = create_page_nav( row['id'],
                                 row['type'] )
 
-    #return show_post(row, page_nav)
     return render_template( 'post.html',
                             title = row['title'],
                             page = row,

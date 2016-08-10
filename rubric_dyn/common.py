@@ -9,9 +9,34 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 from datetime import datetime
+#from pytz import timezone
 
 import config
 # --> shouldn't flask current_app config be used here ???
+
+# --> not using atm...
+#def get_tzname(date_norm, time_norm):
+#    '''get the timezone name for given date/time,
+#needed for daylight saving time e.g.: CET/CEST'''
+#    date_str = date_norm + " " + time_norm
+#    date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+#
+#    tz_obj = timezone(config.PYTZ_TIMEZONE)
+#
+#    loc_dt = tz_obj.localize(date_obj)
+#
+#    return loc_dt.strftime('%z')
+
+def gen_href(row):
+    '''generate href for different page types'''
+    if row['type'] == 'article':
+        return os.path.join('/articles', row['date_norm'], row['ref'])
+    elif row['type'] == 'special':
+        return os.path.join('/special', row['ref'])
+    elif row['type'] == 'note':
+        return os.path.join('/notes', row['ref'])
+    else:
+        return "NOT_DEFINED"
 
 def pandoc_pipe(content, opts):
     '''create a pandoc pipe reading from a variable and returning the output'''

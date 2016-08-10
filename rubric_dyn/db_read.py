@@ -14,6 +14,17 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def get_changelog_limit(limit):
+    '''get number of changelog entries'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, entry_id, mod_type,
+                           date_norm, time_norm, pub
+                          FROM changelog
+                          WHERE pub = 1
+                          ORDER BY date_norm DESC, time_norm DESC
+                          LIMIT ?''', (limit,))
+    return cur.fetchall()
+
 def get_latest():
     '''get latest entry id (used for changelog)'''
     cur = g.db.execute('''SELECT id FROM entries

@@ -8,7 +8,7 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 from werkzeug.utils import secure_filename
 
-from rubric_dyn.common import url_encode_str, date_norm2, time_norm
+from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_href
 from rubric_dyn.db_read import db_load_to_edit
 from rubric_dyn.db_write import update_pub, update_pub_change
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
@@ -62,14 +62,16 @@ shows:
     # create link hrefs
     hrefs = {}
     for row in rows:
-        if row['type'] == 'article':
-            href = os.path.join('/articles', row['date_norm'], row['ref'])
-        elif row['type'] == 'special':
-            href = os.path.join('/special', row['ref'])
-        elif row['type'] == 'note':
-            href = os.path.join('/notes', row['ref'])
-        else:
-            href = "NOT_DEFINED"
+        # --> use common function
+        href = gen_href(row)
+        #if row['type'] == 'article':
+        #    href = os.path.join('/articles', row['date_norm'], row['ref'])
+        #elif row['type'] == 'special':
+        #    href = os.path.join('/special', row['ref'])
+        #elif row['type'] == 'note':
+        #    href = os.path.join('/notes', row['ref'])
+        #else:
+        #    href = "NOT_DEFINED"
         hrefs.update({ row['id']: href })
 
     # insert changelog
@@ -78,7 +80,7 @@ shows:
     cur = g.db.execute('''SELECT id, entry_id, mod_type,
                            date_norm, time_norm, pub
                           FROM changelog
-                          ORDER BY id DESC''')
+                          ORDER BY date_norm DESC, time_norm DESC''')
     change_rows = cur.fetchall()
 
     changes = []
@@ -292,7 +294,7 @@ def pub():
         abort(404)
 
     # change state
-    update_pub_change(id, 1)
+    update_pub(id, 1)
 
     flash('Published ID {}'.format(id))
 
