@@ -6,10 +6,10 @@ import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
-from rubric_dyn.common import pandoc_pipe, gen_href
+from rubric_dyn.common import pandoc_pipe
 from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
-    get_entrylist, get_entrylist_limit, get_changelog_limit
-from rubric_dyn.helper_pages import create_page_nav
+    get_entrylist, get_entrylist_limit, get_changelog_limit, get_changelog
+from rubric_dyn.helper_pages import create_page_nav, gen_changelog
 
 from rubric_dyn.helper_interface import process_input
 
@@ -43,75 +43,8 @@ def home():
     # get limit no. of latest changes
     change_rows = get_changelog_limit(current_app.config['NUM_LATEST_ON_HOME'])
 
-    # prepare list of changes ordered by dates
-    #
-    # structure:
-    #
-    # dates = [ { 'date': "2016-08-01",
-    #             'changes': [ { change1_data } ] },
-    #           { 'date': "2016-07-30",
-    #             'changes': [ { change2_data } ] } ]
-    #
-
-    # create list from changelog data
-    # and insert additional informations per item
-    changes = []
-    for change_row in change_rows:
-        change = {}
-        for i, v in enumerate(change_row):
-            change.update( { change_row.keys()[i]: v } )
-
-        cur = g.db.execute('''SELECT ref, type, title, date_norm,
-                               pub
-                              FROM entries
-                              WHERE id = ?''', (change_row['entry_id'],))
-        entry = cur.fetchone()
-        if entry['pub'] != 1:
-            continue
-
-        change['entry'] = entry
-        # update entry for specific types
-        # e.g. adding body_html for latest
-        if entry['type'] == 'latest':
-            cur = g.db.execute('''SELECT ref, type, title, date_norm,
-                                   body_html, pub
-                                  FROM entries
-                                  WHERE id = ?''', (change_row['entry_id'],))
-            entry = cur.fetchone()
-            change['entry'] = entry
-        # set href
-        change['entry_href'] = gen_href(entry)
-        # set timezone name
-        # --> not using atm. just write "localtime" or so
-        #change['tzname'] = get_tzname( change_row['date_norm'],
-        #                               change_row['time_norm'] )
-
-        changes.append(change)
-
-    # first create the date sets
-    date_sets = []
-    last_date = ""
-    for change in changes:
-        curr_date = change['date_norm']
-        if curr_date != last_date:
-            date_set = { 'date': curr_date,
-                         'changes': [] }
-            date_sets.append(date_set)
-            last_date = curr_date
-
-    # add the changes to the sets
-    for date_set in date_sets:
-        for change in changes:
-            if change['date_norm'] == date_set['date']:
-                date_set['changes'].append(change)
-
-    # debug output
-    #date_repr = ""
-    #for date_set in date_sets:
-    #    date_repr += date_set['date'] + "\n"
-    #    for change in date_set['changes']:
-    #        date_repr += " " + change['entry']['title'] + "\n"
-    #return '<pre>' + date_repr + '</pre>'
+    # get list ordered by dates
+    date_sets = gen_changelog(change_rows)
 
     return render_template( 'home.html',
                             title = 'Home',
@@ -205,6 +138,19 @@ def history():
     return render_template( 'history.html',
                             title = 'Page history',
                             history = rows )
+
+@pages.route('/changelog/')
+def changelog():
+    '''show all changelog entries'''
+    # get entries
+    change_rows = get_changelog()
+
+    # get list ordered by dates
+    date_sets = gen_changelog(change_rows)
+
+    return render_template( 'changelog.html',
+                            title = 'Latest/Changelog',
+                            date_sets = date_sets )
 
 ### individual pages
 

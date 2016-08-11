@@ -1,0 +1,56 @@
+{% for date_set in date_sets %}
+  <small class="small-date">{{ date_set.date }}</small>
+
+  {% for change in date_set.changes %}
+    <small class="small-date">{{ change.time_norm }}{#{{ change.tzname }}#}</small
+>
+
+    {% if change.entry.type == 'latest' %}
+
+      {{ change.entry.body_html | safe }}
+
+    {% elif change.entry.type == 'article' %}
+
+      {% if change.mod_type == 'n' %} {# "new" entry #}
+        <p>Added a NEW article: <a href="{{ change.entry_href }}">{{ change.entry.title }}</a></p>
+      {% elif change.mod_type == 'e' %} {# "edited" entry #}
+        <p>Edited article: <a href="{{ change.entry_href }}">{{ change.entry.title }}</a></p>
+      {% else %}
+        <p>unknown mod: {{ change.entry.title}}</p>
+      {% endif %}
+
+    {% elif change.entry.type == 'note' %}
+
+      {% if change.mod_type == 'n' %} {# "new" entry #}
+        <p>Created NEW note: <a href="{{ change.entry_href }}">{{ change.entry.title }}</a></p>
+      {% elif change.mod_type == 'e' %} {# "edited" entry #}
+        <p>Edited note: <a href="{{ change.entry_href }}">{{ change.entry.title }}</a></p>
+      {% else %}
+        <p>unknown mod: {{ change.entry.title}}</p>
+      {% endif %}
+
+    {% elif change.entry.type == 'history' %}
+
+      {% if change.mod_type == 'n' %} {# "new" entry #}
+        <p>Added new entry in page history: {{ change.entry.title }}<br /><a href="/history">View history</a></p>
+      {% elif change.mod_type == 'e' %} {# "edited" entry #}
+        <p>Modified page history entry: {{ change.entry.title }}<br /><a href="/history">View history</a></p>
+      {% else %}
+        <p>unknown mod: {{ change.entry.title}}</p>
+      {% endif %}
+
+    {% else %}
+
+      {% if change.mod_type == 'n' %} {# "new" entry #}
+        <p>Added a NEW entry: <a href="{{ change.entry_href }}">{{ change.entry.title }}</a></p>
+      {% elif change.mod_type == 'e' %} {# "edited" entry #}
+        <p>modified entry: {{ change.entry.title }}</p>
+      {% else %}
+        <p>unknown mod: {{ change.entry.title}}</p>
+      {% endif %}
+
+    {% endif %}
+
+  {% endfor %}
+
+{% endfor %}
