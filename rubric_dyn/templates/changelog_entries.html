@@ -32,11 +32,11 @@
     {% elif change.entry.type == 'history' %}
 
       {% if change.mod_type == 'n' %} {# "new" entry #}
-        <p>Added new entry in page history: {{ change.entry.title }}<br /><a href="/history">View history</a></p>
+        <p>Added new entry in page history: <em><small class="small-date">{{ change.entry.date_norm }}</small>, {{ change.entry.title }}</em><br /><a href="/history">View history</a></p>
       {% elif change.mod_type == 'e' %} {# "edited" entry #}
-        <p>Modified page history entry: {{ change.entry.title }}<br /><a href="/history">View history</a></p>
+        <p>Modified page history entry: <em><small class="small-date">{{ change.entry.date_norm }}</small>, {{ change.entry.title }}</em><br /><a href="/history">View history</a></p>
       {% else %}
-        <p>unknown mod: {{ change.entry.title}}</p>
+        <p>unknown mod: <em>{{ change.entry.title }}</em></p>
       {% endif %}
 
     {% else %}
