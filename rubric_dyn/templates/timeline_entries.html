@@ -1,0 +1,41 @@
+{% for date_set in date_sets %}
+  <small class="small-date">{{ date_set.date }}</small>
+
+  {% for page in date_set.pages %}
+    {% if page.time_norm != 'NOT_SET' %}
+      <small class="small-date">{{ page.time_norm }}{#{{ page.tzname }}#}</small>
+    {% endif %}
+    {#<hr />#}
+
+    <div class="timeline-entry">
+      {% if page.cut %}
+        <div class="entry-prev">{{ page.body_html_cut | safe}}</div>
+    <div class="timeline-more-box">
+      <a href="{{ hrefs[page.id] }}">
+        <img class="timeline-more-button"
+             src="/media/layout/icons/more.png" /></a><span class="timeline-more-textbox"><a href="{{ hrefs[page.id] }}"><strong>{{ page.title }}</strong></a></span>
+    </div>
+    </div>
+
+      {% else %}
+        {{ page.body_html | safe }}
+    </div>
+      {% endif %}
+
+{#
+    {% if page.type == 'latest' %}
+
+    {% elif page.type == 'article' %}
+        
+    {% elif page.type == 'note' %}
+
+    {% elif page.type == 'history' %}
+
+    {% else %}
+
+    {% endif %}
+#}
+
+  {% endfor %}
+
+{% endfor %}

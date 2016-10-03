@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block body %}
+
+{#  <h2>latest</h2>#}
+
+  {% for topic in topics %}
+    <h2>{{ topic.title }}</h2>
+    {#{% for tag in topic.tags %}
+      <small class="tags">{{ tag }}</small>
+    {% endfor %}#}
+
+    <ul>
+    {% for page in topic.pages %}
+        <li>{% if page.type == 'latest' %}
+          <a href="/latest/">latest</a>
+        {% elif page.type == 'history' %}
+          <a href="/history/">history</a>
+        {% else %}
+          {{ page.type }}
+        {% endif %}: {% if page.type == 'article' or page.type == 'note' or page.type == 'special' %}
+          <a href="{{ hrefs[ page.id ] }}">{{ page.title }}</a>
+        {% else %}
+          {{ page.title }}
+        {% endif %}</li>
+    {% endfor %}
+    </ul>
+
+    {#{{ topic.body_html |safe }}#}
+
+  {% endfor %}
+
+{% endblock %}

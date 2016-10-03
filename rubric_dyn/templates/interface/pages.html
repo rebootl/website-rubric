@@ -4,11 +4,20 @@
 <form id="call-unpub" action="{{ url_for('interface.unpub') }}" method="get"></form>
 {#<form id="dl-text" action="{{ url_for('interface.download_text') }}" method="get"></form>#}
 
+{# <h3>New:</h3> #}
+
+<p>
+  <form action="{{ url_for('interface.new') }}" method="get">
+    <button type="submit" name="id" value="new">New Page</button>
+  </form>
+</p>
+
 <table>
   <thead>
     <tr>
       <th>ID</th>
       <th>Date</th>
+      <th>Time</th>
       <th>Type</th>
       <th>Title</th>
       <th>Published</th>
@@ -18,7 +27,8 @@
   {% for entry in entries %}
     <tr>
       <td>{{ entry.id }}</td>
-      <td>{{ entry.date_norm}}</td>
+      <td>{{ entry.date_norm }}</td>
+      <td>{{ entry.time_norm }}</td>
       <td>
         {% if entry.type == 'latest' %}
           <a href="/latest/">latest</a>
@@ -52,11 +62,3 @@
   {% endfor %}
   </tbody>
 </table>
-
-{# <h3>New:</h3> #}
-
-<p>
-  <form action="{{ url_for('interface.new') }}" method="get">
-    <button type="submit" name="id" value="new">New Page</button>
-  </form>
-</p>

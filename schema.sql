@@ -23,6 +23,13 @@ create table changelog (
   pub int default 0
 );
 
+drop table if exists categories;
+create table categories (
+  id integer primary key autoincrement,
+  title text not null,
+  tags text
+);
+
 /* not used atm. */
 /*drop table if exists galleries;
 create table galleries (

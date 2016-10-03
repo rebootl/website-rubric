@@ -2,15 +2,15 @@
 import os
 import sqlite3
 import json
-import datetime
 import hashlib
+from datetime import datetime
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 from werkzeug.utils import secure_filename
 
-from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_href
-from rubric_dyn.db_read import db_load_to_edit
-from rubric_dyn.db_write import update_pub, update_pub_change
+from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_hrefs
+from rubric_dyn.db_read import db_load_to_edit, db_load_category
+from rubric_dyn.db_write import update_pub, update_pub_change, db_store_category
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
     gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
 from rubric_dyn.Page import Page
@@ -54,25 +54,14 @@ shows:
 
     # get all pages
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, type, title, date_norm, ref, pub
+    cur = g.db.execute('''SELECT id, type, title, date_norm, time_norm,
+                            ref, pub
                           FROM entries
                           ORDER BY date_norm DESC, time_norm DESC''')
     rows = cur.fetchall()
 
-    # create link hrefs
-    hrefs = {}
-    for row in rows:
-        # --> use common function
-        href = gen_href(row)
-        #if row['type'] == 'article':
-        #    href = os.path.join('/articles', row['date_norm'], row['ref'])
-        #elif row['type'] == 'special':
-        #    href = os.path.join('/special', row['ref'])
-        #elif row['type'] == 'note':
-        #    href = os.path.join('/notes', row['ref'])
-        #else:
-        #    href = "NOT_DEFINED"
-        hrefs.update({ row['id']: href })
+    # get link hrefs
+    hrefs = gen_hrefs(rows)
 
     # insert changelog
 
@@ -96,11 +85,19 @@ shows:
 
         changes.append(change)
 
+    # categories
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, title, tags
+                          FROM categories
+                          ORDER BY id ASC''')
+    categories = cur.fetchall()
+
     return render_template( 'overview.html',
                             entries = rows,
                             title = "Overview",
                             hrefs = hrefs,
-                            changes = changes )
+                            changes = changes,
+                            categories = categories )
 
 @interface.route('/edit', methods=['GET', 'POST'])
 def edit():
@@ -128,9 +125,11 @@ def edit():
         page_obj = Page( request.form['id'],
                          type,
                          request.form['title'],
-                         request.form['author'],
-                         request.form['date'],
-                         request.form['time'],
+                         current_app.config['AUTHOR_NAME'],
+                         #request.form['date'],
+                         #request.form['time'],
+                         datetime.now().strftime('%Y-%m-%d'),
+                         datetime.now().strftime('%H:%M'),
                          request.form['tags'],
                          request.form['text-input'] )
 
@@ -236,6 +235,45 @@ def edit():
                                     id = id,
                                     page = row,
                                     images = get_images_from_md(row['body_md']) )
+
+@interface.route('/edit_category', methods=['GET', 'POST'])
+def edit_category():
+    '''edit/create a category'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    # POST
+    # button pressed on edit page (preview / save / cancel)
+    if request.method == 'POST':
+        action = request.form['actn']
+        if action == "cancel":
+            return redirect(url_for('interface.overview'))
+        elif action == "store":
+            db_store_category( request.form['id'],
+                               request.form['title'],
+                               request.form['tags'] )
+            flash("Category stored: {}".format(request.form['title']))
+            return redirect(url_for('interface.overview'))
+
+    # GET
+    # (loading from overview)
+    else:
+        id = request.args.get('id')
+
+        if id == "new":
+            # create new
+            return render_template( 'edit_category.html',
+                                    id = id,
+                                    category = None )
+        elif id == None:
+            # abort for now
+            abort(404)
+        else:
+            #row = db_load_to_edit(id)
+            row = db_load_category(id)
+            return render_template( 'edit_category.html',
+                                    id = id,
+                                    category = row )
 
 @interface.route('/new')
 def new():

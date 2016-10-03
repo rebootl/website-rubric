@@ -1,0 +1,45 @@
+{% extends "interface.html" %}
+{% block i_body %}
+
+  <h1>Edit category</h1>
+  <h2>ID: {{ id }}</h2>
+  {#<h3>Ref: {{ page.ref }}</h3>#}
+
+  <form id="edit-category"
+        action="{{ url_for('interface.edit_category') }}"
+        method="post"
+        enctype="multipart/form-data"></form>
+
+  <table>
+    <tr>
+      <th>Title:</th>
+      <td>
+        <input type="text"
+               form="edit-category"
+               name="title" value="{{ category.title }}" />
+      </td>
+    </tr>
+    <tr>
+      <th>Tags:</th>
+      <td>
+        <input type="text"
+               form="edit-category"
+               name="tags" value="{{ category.tags }}" />
+        (comma separated values)
+      </td>
+    </tr>
+  </table>
+
+  <p>
+    <input form="edit-category"
+           type="hidden"
+           name="id" value="{{ id }}" />
+    <button form="edit-category"
+            type="submit"
+            name="actn" value="store">Store</button>
+    <button form="edit-category"
+            type="submit"
+            name="actn" value="cancel" title="Back to Overview">Cancel</button>
+  </p>
+
+{% endblock %}

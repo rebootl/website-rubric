@@ -1,13 +1,29 @@
 {% extends "base.html" %}
 {% block body %}
 
+{#  <h1>Timeline</h1>
+  <h1>Categorized</h1>
+  <h1>About</h1>#}
+
+  {#{% include "navigation.html" %}#}
+
+  <ul class="home-nav">
+    <li><a href="/timeline/">Timeline</a></li>
+    <li><a href="/categorized/">Categorized</a></li>
+    <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
+  </ul>
+
   <h2>latest</h2>
 
-  {% include "changelog_entries.html" %}
+{#  {% include "changelog_entries.html" %}#}
 
+  {% include "timeline_entries.html" %}
+
+{#
   <a href="/changelog/" class="more-button" title="View all latest/changelog entries">
     <img src="/media/layout/icons/more.png" alt="more button" />
   </a>
+#}
 
   <div class="spacer"></div>
 

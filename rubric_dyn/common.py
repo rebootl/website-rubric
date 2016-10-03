@@ -27,6 +27,14 @@ import config
 #
 #    return loc_dt.strftime('%z')
 
+def gen_hrefs(rows):
+    '''generate hrefs for pages'''
+    hrefs = {}
+    for row in rows:
+        href = gen_href(row)
+        hrefs.update({ row['id']: href })
+    return hrefs
+
 def gen_href(row):
     '''generate href for different page types'''
     if row['type'] == 'article':

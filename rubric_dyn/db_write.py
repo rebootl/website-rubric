@@ -3,6 +3,20 @@ from datetime import datetime
 
 from flask import g
 
+def db_store_category(id, title, tags):
+    '''store category entry'''
+    if id == "new":
+        g.db.execute('''INSERT INTO categories
+                        (title, tags)
+                        VALUES
+                        (?,?)''', (title, tags))
+        g.db.commit()
+    else:
+        g.db.execute('''UPDATE categories
+                        SET title = ?, tags = ?
+                        WHERE id = ?''', (title, tags, id))
+        g.db.commit()
+
 def db_write_change(id, type):
     '''write to changelog'''
     # get current date and time

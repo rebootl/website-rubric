@@ -13,15 +13,12 @@ app.config['FREEZER_IGNORE_ENDPOINTS'] = [ 'interface.login',
                                            'interface.overview',
                                            'interface.edit',
                                            'interface.new',
+                                           'interface.pub_change',
+                                           'interface.unpub_change',
                                            'interface.pub',
                                            'interface.unpub',
-                                           'interface.download_text',
-                                           'interface.update_galleries',
-                                           'interface.edit_image',
-                                           'interface.pub_gallery',
-                                           'interface.unpub_gallery',
-                                           'interface.edit_gallery',
-                                           'interface.recreate_exifs' ]
+                                           'interface.export_entries',
+                                           'interface.import_entries' ]
 
 # This is a copy of Freezer.no_argument_rules() modified to ignore certain paths
 def no_argument_rules_urls_with_ignore():

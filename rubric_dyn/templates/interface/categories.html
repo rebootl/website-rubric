@@ -1,0 +1,33 @@
+<form id="call-edit-category"
+      action="{{ url_for('interface.edit_category') }}"
+      method="get"></form>
+
+<p>
+  <form action="{{ url_for('interface.edit_category') }}" method="get">
+    <button type="submit" name="id" value="new">New Category</button>
+  </form>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Tags</th>
+    </tr>
+  </thead>
+  {% for category in categories %}
+    <tr>
+      <td>{{ category.id }}</td>
+      <td><em>{{ category.title }}</em></td>
+      <td>{{ category.tags }}
+        {#{% for tag in topic.tags %}
+          {{ tag }},
+        {% endfor %}#}
+      </td>
+      <td><button form="call-edit-category"
+                  type="submit"
+                  name="id" value="{{ category.id }}">Edit</button></td>
+    </tr>
+  {% endfor %}
+</table>

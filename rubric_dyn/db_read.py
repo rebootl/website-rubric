@@ -14,6 +14,18 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def db_load_category(id):
+    '''load category'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, title, tags
+                          FROM categories
+                          WHERE id = ?''', (id,))
+    row = cur.fetchone()
+    # (catch not found !!!)
+    if row is None:
+        abort(404)
+    return row
+
 def get_changelog():
     '''get number of changelog entries'''
     g.db.row_factory = sqlite3.Row
