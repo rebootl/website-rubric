@@ -1,7 +1,23 @@
-### Tasks
+## Tasks
 
-- auto-generate "latest" on home page
-  --> changelog in db !!
+- "save/save and close" button
+
+- update date checkbox
+
+- finish updated home page w/ big links etc.
+
+- how/where to link back from entry, "Index/Up"
+
+- tags page
+
+- make private entries
+
+- cleanup CSS
+
+- evtl. streamline types ?
+
+
+--- postponed ---
 
 - evtl. make link to image in image info [ref1]
 
@@ -13,8 +29,6 @@
 
 - evtl. show files on overview
 
-- make private entries
-
 - include/create default-template, evtl. setup stuff, README
 
 - optional page TOC (e.g. checkbox)
@@ -22,11 +36,14 @@
 - evtl. freeze/upload buttons
 
 
-
-__Resolved:__
+### Resolved:
 
 - cleanup db columns
   --> new export/import needed for this
+    ==> DONE
+
+- auto-generate "latest" on home page
+  --> changelog in db !!
     ==> DONE
 
 

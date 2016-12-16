@@ -3,24 +3,35 @@
 
   {% for page in date_set.pages %}
     {% if page.time_norm != 'NOT_SET' %}
-      <small class="small-date">{{ page.time_norm }}{#{{ page.tzname }}#}</small>
+      <small class="small-date"
+             id="pos_{{ page.date_norm }}_{{ page.time_norm }}">{{ page.time_norm }}{#{{ page.tzname }}#}</small>
     {% endif %}
     {#<hr />#}
 
     <div class="timeline-entry">
+      {{ page.body_html | safe}}
+{#      {% if page.changed %}
+        <small class="small-date float-right">edited: {{ page.change_date }} {{ page.change_time }}</small>
+      {% endif %}#}
       {% if page.cut %}
-        <div class="entry-prev">{{ page.body_html_cut | safe}}</div>
-    <div class="timeline-more-box">
-      <a href="{{ hrefs[page.id] }}">
-        <img class="timeline-more-button"
-             src="/media/layout/icons/more.png" /></a><span class="timeline-more-textbox"><a href="{{ hrefs[page.id] }}"><strong>{{ page.title }}</strong></a></span>
-    </div>
+{#        <div class="entry-prev">{{ page.body_html | safe}}</div>#}
+        <div class="timeline-more-box">
+          <a href="{{ hrefs[page.id] }}">
+            <img class="timeline-more-button"
+                 src="/media/layout/icons/more.png"
+                 alt="timeline more button"
+                 title="view complete entry" /></a><span class="timeline-more-textbox"><a href="{{ hrefs[page.id] }}" title="view complete entry"><strong>{{ page.title }}</strong></a></span>
+        </div>
+      {% endif %}
     </div>
 
-      {% else %}
+
+
+{#      {% else %}
         {{ page.body_html | safe }}
     </div>
       {% endif %}
+#}
 
 {#
     {% if page.type == 'latest' %}

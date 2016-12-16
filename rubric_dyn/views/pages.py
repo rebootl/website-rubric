@@ -27,8 +27,10 @@ def get_timeline_entries(n):
     cur = g.db.execute('''SELECT id, ref, type, title,
                            date_norm, time_norm, body_html, tags
                           FROM entries
-                          WHERE type != 'special'
-                          AND pub = 1
+                          WHERE ( type = 'article'
+                           OR type = 'note'
+                           OR type = 'latest' )
+                           AND pub = 1
                           ORDER BY date_norm DESC, time_norm DESC
                           LIMIT ?''', (n,))
     pages_rows = cur.fetchall()
@@ -42,15 +44,31 @@ def get_timeline_entries(n):
     # create list (--> use list instear sqlite.Row instead ???)
     pages = []
     for page_row in pages_rows:
-        page = {}
-        for i, v in enumerate(page_row):
-            page.update( { page_row.keys()[i]: v } )
+        #page = {}
+        #for i, v in enumerate(page_row):
+        #    page.update( { page_row.keys()[i]: v } )
+        page = dict(page_row)
+
+        # get changes for page
+        # --> needed here ?
+        #cur = g.db.execute('''SELECT date_norm, time_norm
+        #                      FROM changelog
+        #                      WHERE entry_id = ?
+        #                       AND mod_type = 'e'
+        #                      LIMIT 1''', (page['id'],))
+        #changes_row = cur.fetchone()
+        #if changes_row != None:
+        #    page['changed'] = True
+        #    page['change_date'] = changes_row['date_norm']
+        #    page['change_time'] = changes_row['time_norm']
+        #else:
+        #    page['changed'] = False
 
         # limit page length
         #  more than three paragraphs
         if page['body_html'].count('</p>') > 3:
             body_html_cut = "</p>".join(page['body_html'].split("</p>", 3)[:3])
-            page['body_html_cut'] = body_html_cut
+            page['body_html'] = body_html_cut
             page['cut'] = True
         # --> more than one image
         #elif ...
@@ -84,6 +102,24 @@ def get_timeline_entries(n):
 
 ### individually adapted pages
 
+#@pages.route('/test/')
+#def test():
+#    '''test page'''
+#
+#    # test db row factory
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute('''SELECT date_norm, time_norm
+#                          FROM changelog
+#                          WHERE entry_id = ?
+#                          LIMIT 1''', (53,))
+#    r = cur.fetchone()
+#
+#    if r == None:
+#        return "NONE"
+#
+#    return str(len(r))
+
+
 @pages.route('/')
 def home():
     '''the home page'''
@@ -107,7 +143,8 @@ def home():
 
     return render_template( 'home.html',
                             title = 'Home',
-                            date_sets = date_sets )
+                            date_sets = date_sets,
+                            hrefs = hrefs )
 
 @pages.route('/timeline/')
 def timeline():

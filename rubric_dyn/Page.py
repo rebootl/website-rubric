@@ -78,12 +78,10 @@ keeping "backward compatible" for now (using all parameters)'''
         '''update page entry in database,
 keeping "backward compatible" for now (using all parameters)'''
         g.db.execute( '''UPDATE entries
-                         SET ref = ?, type = ?, title = ?, author = ?,
-                          date_norm = ?, time_norm = ?,
+                         SET ref = ?, type = ?, title = ?,
                           body_html = ?, body_md = ?, tags = ?
                          WHERE id = ?''',
-                      ( self.ref, self.type, self.title, self.author,
-                        self.date_norm, self.time_norm,
+                      ( self.ref, self.type, self.title,
                         self.body_html, self.body_md,
                         self.tags, self.id ) )
         g.db.commit()
