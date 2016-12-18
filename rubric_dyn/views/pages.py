@@ -8,7 +8,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 
 from rubric_dyn.common import pandoc_pipe, gen_hrefs
 from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
-    get_entrylist, get_entrylist_limit, get_changelog_limit, get_changelog
+    get_entrylist, get_entrylist_limit, get_changelog_limit, get_changelog, \
+    get_entry_by_date_ref
 from rubric_dyn.helper_pages import create_page_nav, gen_changelog
 
 from rubric_dyn.helper_interface import process_input
@@ -358,3 +359,18 @@ def special(ref):
                             title = row['title'],
                             page = row,
                             page_nav = None )
+
+@pages.route('/<date>/<ref>/')
+def entry_by_date_ref(date, ref):
+    '''single entry'''
+
+    row = get_entry_by_date_ref(date, ref)
+
+    # get previous/next navigation
+    page_nav = create_page_nav( row['id'],
+                                row['type'] )
+
+    return render_template( 'post.html',
+                            title = row['title'],
+                            page = row,
+                            page_nav = page_nav )

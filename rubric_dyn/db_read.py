@@ -14,6 +14,30 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def get_entry_by_date_ref(date, ref, published=True):
+    '''return entry data from db, by <date>/<ref>'''
+    if published == True:
+        pub = 1
+    else:
+        pub = 0
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT id, type, ref, title, author,
+                            date_norm, time_norm, body_html, tags
+                           FROM entries
+                           WHERE date_norm = ?
+                           AND ref = ?
+                           AND ( type = 'article'
+                            OR type = 'note'
+                            OR type = 'latest' )
+                           AND pub = ?''', (date, ref, pub) )
+    row = cur.fetchone()
+    # (catch not found !!!)
+    if row is None:
+        abort(404)
+
+    return row
+
 def db_load_category(id):
     '''load category'''
     g.db.row_factory = sqlite3.Row
