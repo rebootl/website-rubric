@@ -80,7 +80,11 @@ shows:
 
             cur = g.db.execute('''SELECT title FROM entries
                                   WHERE id = ?''', (change_row['entry_id'],))
-            entry_title = cur.fetchone()[0]
+            row = cur.fetchone()
+            if row == None:
+                entry_title = "DELETED_ENTRY"
+            else:
+                entry_title = row[0]
             change.update( { 'entry_title': entry_title } )
 
         changes.append(change)
