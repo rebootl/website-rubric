@@ -1,8 +1,11 @@
+{# title set in base.html, why actually ?
+   is it also because of preview ? #}
 {#<h1>{{ page.title }}</h1>#}
-{% if page.type == 'article' %}
-  <h2 class="date">{{ page.date_norm }}</h2>
-{% endif %}
+
+<small class="date">{{ page.date_norm }}</small>
+
 {{ page.body_html | safe }}
+
 {% if page.tags %}
   <small class="tags">Tags / Keywords: <strong>{{ page.tags|e }}</strong></small>
 {% endif %}

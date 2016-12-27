@@ -4,17 +4,16 @@
   {% for page in date_set.pages %}
     {% if page.time_norm != 'NOT_SET' %}
       <small class="small-date"
-             id="pos_{{ page.date_norm }}_{{ page.time_norm }}">{{ page.time_norm }}{#{{ page.tzname }}#}</small>
+             id="pos_{{ page.date_norm }}_{{ page.time_norm }}">{{ page.time_norm }}</small>
     {% endif %}
-    {#<hr />#}
+
+    <small><a href="{{ hrefs[page.id] }}">{{ page.ref }}</a></small>
 
     <div class="timeline-entry">
+
       {{ page.body_html | safe}}
-{#      {% if page.changed %}
-        <small class="small-date float-right">edited: {{ page.change_date }} {{ page.change_time }}</small>
-      {% endif %}#}
+
       {% if page.cut %}
-{#        <div class="entry-prev">{{ page.body_html | safe}}</div>#}
         <div class="timeline-more-box">
           <a href="{{ hrefs[page.id] }}">
             <img class="timeline-more-button"
@@ -24,28 +23,6 @@
         </div>
       {% endif %}
     </div>
-
-
-
-{#      {% else %}
-        {{ page.body_html | safe }}
-    </div>
-      {% endif %}
-#}
-
-{#
-    {% if page.type == 'latest' %}
-
-    {% elif page.type == 'article' %}
-        
-    {% elif page.type == 'note' %}
-
-    {% elif page.type == 'history' %}
-
-    {% else %}
-
-    {% endif %}
-#}
 
   {% endfor %}
 

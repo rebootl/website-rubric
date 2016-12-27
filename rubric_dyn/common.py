@@ -37,12 +37,12 @@ def gen_hrefs(rows):
 
 def gen_href(row):
     '''generate href for different page types'''
-    if row['type'] == 'article':
-        return os.path.join('/articles', row['date_norm'], row['ref'])
-    elif row['type'] == 'special':
+#    if row['type'] == 'article':
+#        return os.path.join('/articles', row['date_norm'], row['ref'])
+    if row['type'] == 'special':
         return os.path.join('/special', row['ref'])
     elif row['type'] == 'note':
-        return os.path.join('/notes', row['ref'])
+        return os.path.join('/', row['date_norm'], row['ref'])
     else:
         return "NOT_DEFINED"
 

@@ -25,6 +25,7 @@ PAGE_NAV_DEFAULT = { 'prev_href': None,
 def get_timeline_entries(n):
     '''return n timeline entries'''
     g.db.row_factory = sqlite3.Row
+    # --> optimize (notes only)
     cur = g.db.execute('''SELECT id, ref, type, title,
                            date_norm, time_norm, body_html, tags
                           FROM entries
@@ -36,6 +37,8 @@ def get_timeline_entries(n):
                           LIMIT ?''', (n,))
     pages_rows = cur.fetchall()
 
+    # --> optimize (for notes only)
+    #     move down evtl.
     hrefs = gen_hrefs(pages_rows)
 
     #                      WHERE ( type = 'article'
@@ -140,7 +143,7 @@ def home():
     # get list ordered by dates
     #date_sets = gen_changelog(change_rows)
 
-    date_sets, hrefs = get_timeline_entries(1)
+    date_sets, hrefs = get_timeline_entries(10)
 
     return render_template( 'home.html',
                             title = 'Home',
@@ -176,18 +179,18 @@ def about():
 
 ### lists / overviews
 
-@pages.route('/articles/')
-def articles():
-    '''articles list/overview'''
-
-    # get a list of articles
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
-                           FROM entries
-                           WHERE type = 'article'
-                           AND pub = 1
-                           ORDER BY date_norm DESC, time_norm DESC''' )
-    articles_rows = cur.fetchall()
+#@pages.route('/articles/')
+#def articles():
+#    '''articles list/overview'''
+#
+#    # get a list of articles
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
+#                           FROM entries
+#                           WHERE type = 'article'
+#                           AND pub = 1
+#                           ORDER BY date_norm DESC, time_norm DESC''' )
+#    articles_rows = cur.fetchall()
 
     # create article preview
     # --> currently not used
@@ -207,10 +210,10 @@ def articles():
     #else:
     #    prev_body_html_subst = None
 
-    return render_template( 'articles.html',
-                            title = 'Articles',
-                            articles = articles_rows )
-    #                        article_prev = prev_body_html_subst )
+#    return render_template( 'articles.html',
+#                            title = 'Articles',
+#                            articles = articles_rows )
+#    #                        article_prev = prev_body_html_subst )
 
 @pages.route('/notes/')
 def notes():
@@ -227,15 +230,15 @@ def notes():
                             title = 'Notes',
                             notes = notes_rows )
 
-@pages.route('/latest/')
-def latest():
-    '''show all latest entries'''
-    # get entries
-    rows = get_entrylist('latest')
-
-    return render_template( 'latest.html',
-                            title = 'Latest',
-                            latest = rows )
+#@pages.route('/latest/')
+#def latest():
+#    '''show all latest entries'''
+#    # get entries
+#    rows = get_entrylist('latest')
+#
+#    return render_template( 'latest.html',
+#                            title = 'Latest',
+#                            latest = rows )
 
 @pages.route('/history/')
 def history():
@@ -319,35 +322,35 @@ def categorized():
 
 ### individual pages
 
-@pages.route('/articles/<path:article_path>/')
-def article(article_path):
-    '''single article'''
+#@pages.route('/articles/<path:article_path>/')
+#def article(article_path):
+#    '''single article'''
+#
+#    row = get_entry_by_date_ref_path(article_path, 'article')
+#
+#    # get previous/next navigation
+#    page_nav = create_page_nav( row['id'],
+#                                row['type'] )
+#
+#    return render_template( 'post.html',
+#                            title = row['title'],
+#                            page = row,
+#                            page_nav = page_nav )
 
-    row = get_entry_by_date_ref_path(article_path, 'article')
-
-    # get previous/next navigation
-    page_nav = create_page_nav( row['id'],
-                                row['type'] )
-
-    return render_template( 'post.html',
-                            title = row['title'],
-                            page = row,
-                            page_nav = page_nav )
-
-@pages.route('/notes/<ref>/')
-def show_note(ref):
-    '''note pages'''
-
-    row = get_entry_by_ref(ref, 'note')
-
-    page_nav = { 'prev_href': None,
-                 'next_href': None,
-                 'index': "/notes/" }
-
-    return render_template( 'post.html',
-                            title = row['title'],
-                            page = row,
-                            page_nav = page_nav )
+#@pages.route('/notes/<ref>/')
+#def show_note(ref):
+#    '''note pages'''
+#
+#    row = get_entry_by_ref(ref, 'note')
+#
+#    page_nav = { 'prev_href': None,
+#                 'next_href': None,
+#                 'index': "/notes/" }
+#
+#    return render_template( 'post.html',
+#                            title = row['title'],
+#                            page = row,
+#                            page_nav = page_nav )
 
 @pages.route('/special/<ref>/')
 def special(ref):
