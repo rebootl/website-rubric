@@ -2,7 +2,7 @@
    is it also because of preview ? #}
 {#<h1>{{ page.title }}</h1>#}
 
-<small class="date">{{ page.date_norm }}</small>
+<small class="date">{{ page.date_norm }} {% if page.time_norm != "NOT_SET" %}{{ page.time_norm }}{% endif %}</small>
 
 {{ page.body_html | safe }}
 

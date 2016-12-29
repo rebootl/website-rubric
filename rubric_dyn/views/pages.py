@@ -143,7 +143,7 @@ def home():
     # get list ordered by dates
     #date_sets = gen_changelog(change_rows)
 
-    date_sets, hrefs = get_timeline_entries(10)
+    date_sets, hrefs = get_timeline_entries(3)
 
     return render_template( 'home.html',
                             title = 'Home',

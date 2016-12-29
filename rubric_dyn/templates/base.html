@@ -38,7 +38,11 @@
 {% include 'navigation.html' %}
 
 <article id="page-content" class="{% if imagepage %}imagepage-article{% endif %}">
-  {% if title %}<h1>{{ title }}</h1>{% endif %}
+  {% if title == "NOT_SET" %}
+    {#<h1 class="date">(untitled)</h1>#}
+  {% else %}
+    <h1>{{ title }}</h1>
+  {% endif %}
   {% block body %}{% endblock %}
   <footer>
     <small>Copyright 2015, 2016 Cem Aydin</small>

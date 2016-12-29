@@ -14,6 +14,26 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def get_ref(id):
+    cur = g.db.execute( '''SELECT ref
+                           FROM entries
+                           WHERE id = ?''', (id,) )
+    row = cur.fetchone()
+    # (catch not found !!!)
+    if row is None:
+        abort(404)
+
+    return row[0]
+
+def get_numentries(date):
+    '''get number of untitled entries for date'''
+    cur = g.db.execute( '''SELECT id
+                           FROM entries
+                           WHERE date_norm = ?''',
+                        (date,))
+    rows = cur.fetchall()
+    return len(rows)
+
 def get_entry_by_date_ref(date, ref, published=True):
     '''return entry data from db, by <date>/<ref>'''
     if published == True:

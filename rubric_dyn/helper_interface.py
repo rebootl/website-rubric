@@ -5,7 +5,7 @@ import re
 import datetime
 from flask import current_app, flash, render_template
 from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
-    url_encode_str, make_thumb_samename
+    make_thumb_samename
 from rubric_dyn.ExifNice import ExifNice
 
 # for debug only !!
@@ -214,12 +214,13 @@ alternatives:
 
     return text_md_subst, img_blocks
 
-def process_input(title, text_md):
+def process_input(text_md):
     '''page edit input processing and prepare for database
 (new, replacement for process_edit above)'''
 
     # make ref (from title)
-    ref = url_encode_str(title)
+    # ==> moved to Page obj.
+    #ref = url_encode_str(title)
 
     # process date and time
     # --> checked in edit, remove here
@@ -251,4 +252,4 @@ def process_input(title, text_md):
         body_html_subst = body_html_subst.replace( '<p>' + IMG_SUBST + '</p>',
                                                    img_block_html, 1 )
 
-    return ref, body_html_subst
+    return body_html_subst
