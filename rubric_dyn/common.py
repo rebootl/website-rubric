@@ -10,6 +10,9 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 from datetime import datetime
 #from pytz import timezone
+import json
+
+from flask import current_app
 
 import config
 # --> shouldn't flask current_app config be used here ???
@@ -26,6 +29,12 @@ import config
 #    loc_dt = tz_obj.localize(date_obj)
 #
 #    return loc_dt.strftime('%z')
+
+def get_feat():
+    '''get featured id from file'''
+    # read json
+    with open(current_app.config['FEAT_STORE_F'], 'r') as f:
+        return json.load(f)
 
 def gen_hrefs(rows):
     '''generate hrefs for pages'''

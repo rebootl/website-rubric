@@ -14,5 +14,5 @@ test*
 config.py
 upload.sh
 
-entries.json*
+*.json*
 schema.sql_*
