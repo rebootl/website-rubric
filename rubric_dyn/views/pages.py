@@ -6,7 +6,7 @@ import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
-from rubric_dyn.common import pandoc_pipe, gen_hrefs
+from rubric_dyn.common import pandoc_pipe, gen_hrefs, get_feat
 from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
     get_entrylist, get_entrylist_limit, get_changelog_limit, get_changelog, \
     get_entry_by_date_ref
@@ -22,30 +22,9 @@ PAGE_NAV_DEFAULT = { 'prev_href': None,
 
 ### helper
 
-def get_timeline_entries(n):
-    '''return n timeline entries'''
-    g.db.row_factory = sqlite3.Row
-    # --> optimize (notes only)
-    cur = g.db.execute('''SELECT id, ref, type, title,
-                           date_norm, time_norm, body_html, tags
-                          FROM entries
-                          WHERE ( type = 'article'
-                           OR type = 'note'
-                           OR type = 'latest' )
-                           AND pub = 1
-                          ORDER BY date_norm DESC, time_norm DESC
-                          LIMIT ?''', (n,))
-    pages_rows = cur.fetchall()
-
-    # --> optimize (for notes only)
-    #     move down evtl.
-    hrefs = gen_hrefs(pages_rows)
-
-    #                      WHERE ( type = 'article'
-    #                        OR type = 'note'
-    #                        OR type = 'latest' )
-
-    # create list (--> use list instear sqlite.Row instead ???)
+def gen_timeline_date_sets(pages_rows):
+    '''generate timeline entries'''
+    # create list (--> use list sqlite.Row instead ???)
     pages = []
     for page_row in pages_rows:
         #page = {}
@@ -96,7 +75,7 @@ def get_timeline_entries(n):
             if page['date_norm'] == date_set['date']:
                 date_set['pages'].append(page)
 
-    return date_sets, hrefs
+    return date_sets
 
 ### functions returning a view
 
@@ -128,6 +107,26 @@ def get_timeline_entries(n):
 def home():
     '''the home page'''
 
+    feat_id = get_feat()
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, ref, type, title,
+                           date_norm, time_norm, body_html, tags
+                          FROM entries
+                          WHERE id = ?
+                           AND type = 'note'
+                           AND pub = 1
+                          LIMIT 1''', (feat_id,))
+    page_rows = cur.fetchall()
+
+    if page_rows == None:
+        abort(404)
+
+    # --> move into the timeline entries...????
+    hrefs = gen_hrefs(page_rows)
+
+    date_sets = gen_timeline_date_sets(page_rows)
+
     # latest
     # --> use changelog
     #latest_rows = get_entrylist_limit( 'latest',
@@ -143,7 +142,7 @@ def home():
     # get list ordered by dates
     #date_sets = gen_changelog(change_rows)
 
-    date_sets, hrefs = get_timeline_entries(3)
+    #date_sets, hrefs = get_timeline_entries(3)
 
     return render_template( 'home.html',
                             title = 'Home',
@@ -154,7 +153,22 @@ def home():
 def timeline():
     '''generate timeline'''
 
-    date_sets, hrefs = get_timeline_entries(30)
+    # (number of entries to show)
+    n = 30
+
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, ref, type, title,
+                           date_norm, time_norm, body_html, tags
+                          FROM entries
+                          WHERE type = 'note'
+                          AND pub = 1
+                          ORDER BY date_norm DESC, time_norm DESC
+                          LIMIT ?''', (n,))
+    pages_rows = cur.fetchall()
+
+    hrefs = gen_hrefs(pages_rows)
+
+    date_sets = gen_timeline_date_sets(pages_rows)
 
     return render_template( 'timeline.html',
                             title = 'Timeline',
