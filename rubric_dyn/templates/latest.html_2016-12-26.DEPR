@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-{% block body %}
-
-{#  <h2>latest</h2>#}
-
-  {% include "latest_entries.html" %}
-
-{% endblock %}

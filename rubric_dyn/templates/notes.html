@@ -6,7 +6,7 @@
 <ul id="notes-list">
   {% for note in notes %}
     <li>
-      <a href="{{ url_for('pages.show_note', ref=note.ref) }}">{{ note.title }}</a>
+      <a href="{{ url_for('pages.entry_by_date_ref', date=note.date_norm, ref=note.ref) }}">{{ note.title }}</a>
     </li>
   {% endfor %}
 </ul>

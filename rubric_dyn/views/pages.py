@@ -6,16 +6,15 @@ import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
-from rubric_dyn.common import pandoc_pipe, gen_hrefs, get_feat
-from rubric_dyn.db_read import get_entry_by_date_ref_path, get_entry_by_ref, \
-    get_entrylist, get_entrylist_limit, get_changelog_limit, get_changelog, \
+from rubric_dyn.common import gen_hrefs, get_feat
+from rubric_dyn.db_read import get_entry_by_ref, get_entrylist, \
+    get_entrylist_limit, get_changelog_limit, get_changelog, \
     get_entry_by_date_ref
 from rubric_dyn.helper_pages import create_page_nav, gen_changelog
 
-from rubric_dyn.helper_interface import process_input
-
 pages = Blueprint('pages', __name__)
 
+# --> not needed atm., move to config anyway...
 PAGE_NAV_DEFAULT = { 'prev_href': None,
                      'next_href': None,
                      'index': "/" }
@@ -27,25 +26,7 @@ def gen_timeline_date_sets(pages_rows):
     # create list (--> use list sqlite.Row instead ???)
     pages = []
     for page_row in pages_rows:
-        #page = {}
-        #for i, v in enumerate(page_row):
-        #    page.update( { page_row.keys()[i]: v } )
         page = dict(page_row)
-
-        # get changes for page
-        # --> needed here ?
-        #cur = g.db.execute('''SELECT date_norm, time_norm
-        #                      FROM changelog
-        #                      WHERE entry_id = ?
-        #                       AND mod_type = 'e'
-        #                      LIMIT 1''', (page['id'],))
-        #changes_row = cur.fetchone()
-        #if changes_row != None:
-        #    page['changed'] = True
-        #    page['change_date'] = changes_row['date_norm']
-        #    page['change_time'] = changes_row['time_norm']
-        #else:
-        #    page['changed'] = False
 
         # limit page length
         #  more than three paragraphs
@@ -58,7 +39,6 @@ def gen_timeline_date_sets(pages_rows):
 
         pages.append(page)
 
-    #date_sets = gen_changelog(change_rows)
     date_sets = []
     last_date = ""
     for page in pages_rows:
@@ -85,24 +65,6 @@ def gen_timeline_date_sets(pages_rows):
 
 ### individually adapted pages
 
-#@pages.route('/test/')
-#def test():
-#    '''test page'''
-#
-#    # test db row factory
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT date_norm, time_norm
-#                          FROM changelog
-#                          WHERE entry_id = ?
-#                          LIMIT 1''', (53,))
-#    r = cur.fetchone()
-#
-#    if r == None:
-#        return "NONE"
-#
-#    return str(len(r))
-
-
 @pages.route('/')
 def home():
     '''the home page'''
@@ -118,7 +80,6 @@ def home():
                            AND pub = 1
                           LIMIT 1''', (feat_id,))
     page_rows = cur.fetchall()
-
     if page_rows == None:
         abort(404)
 
@@ -126,23 +87,6 @@ def home():
     hrefs = gen_hrefs(page_rows)
 
     date_sets = gen_timeline_date_sets(page_rows)
-
-    # latest
-    # --> use changelog
-    #latest_rows = get_entrylist_limit( 'latest',
-    #                                   current_app.config['NUM_LATEST_ON_HOME'] )
-
-    # page history
-    # (moved to about)
-    #history_rows = get_entrylist_limit( 'history',
-    #                                    current_app.config['NUM_HISTORY_ON_HOME'] )
-    # get limit no. of latest changes
-    #change_rows = get_changelog_limit(current_app.config['NUM_LATEST_ON_HOME'])
-
-    # get list ordered by dates
-    #date_sets = gen_changelog(change_rows)
-
-    #date_sets, hrefs = get_timeline_entries(3)
 
     return render_template( 'home.html',
                             title = 'Home',
@@ -152,7 +96,6 @@ def home():
 @pages.route('/timeline/')
 def timeline():
     '''generate timeline'''
-
     # (number of entries to show)
     n = 30
 
@@ -178,7 +121,6 @@ def timeline():
 @pages.route('/special/about/')
 def about():
     '''about page'''
-
     row = get_entry_by_ref('about', 'special')
 
     # page history
@@ -192,42 +134,6 @@ def about():
                             page_nav = None )
 
 ### lists / overviews
-
-#@pages.route('/articles/')
-#def articles():
-#    '''articles list/overview'''
-#
-#    # get a list of articles
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT id, ref, title, date_norm, tags
-#                           FROM entries
-#                           WHERE type = 'article'
-#                           AND pub = 1
-#                           ORDER BY date_norm DESC, time_norm DESC''' )
-#    articles_rows = cur.fetchall()
-
-    # create article preview
-    # --> currently not used
-    #if articles_rows != []:
-    #    cur = g.db.execute( '''SELECT body_md
-    #                           FROM entries
-    #                           WHERE id = ?''', (articles_rows[0]['id'],))
-    #    # --> disable sqlite3 row ???
-    #    latest_body_md = cur.fetchone()[0]
-
-    #    latest_body_md_prev = "\n".join(latest_body_md.split("\n")[:5])
-
-    #    #body_html = pandoc_pipe( body_md_prev,
-    #    #                         [ '--to=html5' ] )
-    #    prev_ref, \
-    #    prev_body_html_subst = process_input("", latest_body_md_prev)
-    #else:
-    #    prev_body_html_subst = None
-
-#    return render_template( 'articles.html',
-#                            title = 'Articles',
-#                            articles = articles_rows )
-#    #                        article_prev = prev_body_html_subst )
 
 @pages.route('/notes/')
 def notes():
@@ -244,16 +150,6 @@ def notes():
                             title = 'Notes',
                             notes = notes_rows )
 
-#@pages.route('/latest/')
-#def latest():
-#    '''show all latest entries'''
-#    # get entries
-#    rows = get_entrylist('latest')
-#
-#    return render_template( 'latest.html',
-#                            title = 'Latest',
-#                            latest = rows )
-
 @pages.route('/history/')
 def history():
     '''show all history entries'''
@@ -264,6 +160,7 @@ def history():
                             title = 'Page history',
                             history = rows )
 
+# --> merge w/ timeline...
 @pages.route('/changelog/')
 def changelog():
     '''show all changelog entries'''
@@ -335,36 +232,6 @@ def categorized():
                             hrefs = hrefs )
 
 ### individual pages
-
-#@pages.route('/articles/<path:article_path>/')
-#def article(article_path):
-#    '''single article'''
-#
-#    row = get_entry_by_date_ref_path(article_path, 'article')
-#
-#    # get previous/next navigation
-#    page_nav = create_page_nav( row['id'],
-#                                row['type'] )
-#
-#    return render_template( 'post.html',
-#                            title = row['title'],
-#                            page = row,
-#                            page_nav = page_nav )
-
-#@pages.route('/notes/<ref>/')
-#def show_note(ref):
-#    '''note pages'''
-#
-#    row = get_entry_by_ref(ref, 'note')
-#
-#    page_nav = { 'prev_href': None,
-#                 'next_href': None,
-#                 'index': "/notes/" }
-#
-#    return render_template( 'post.html',
-#                            title = row['title'],
-#                            page = row,
-#                            page_nav = page_nav )
 
 @pages.route('/special/<ref>/')
 def special(ref):

@@ -322,8 +322,6 @@ def new():
     if not session.get('logged_in'):
         abort(401)
 
-    # --> autom. fill in date and time
-
     return render_template( 'edit.html', preview=False, id="new", \
                             new=True, page=None )
 
@@ -470,41 +468,3 @@ def import_entries():
         flash("Imported entry ID: {}".format(entry['id']))
 
     return redirect(url_for('interface.overview'))
-
-# --> currently not fully functional
-#     meta data json is missing
-#     rework w/ new export/import
-# --> never used it up to now...
-# ==> deprecate
-#@interface.route('/download')
-#def download_text():
-#    '''download entry text (markdown)'''
-#    if not session.get('logged_in'):
-#        abort(401)
-#
-#    id = request.args.get('id')
-#
-#    # get text
-#    cur = g.db.execute('''SELECT ref, meta_json, body_md
-#                          FROM entries
-#                          WHERE id = ?
-#                          LIMIT 1''', (id,))
-#    ref, meta_json, body_md = cur.fetchone()
-#
-#    # add 'id' to meta
-#    #meta = json.loads(meta_json)
-#    meta = {}
-#    if 'id' not in meta.keys():
-#        meta['id'] = id
-#        meta_json_full = json.dumps(meta)
-#    else:
-#        meta_json_full = meta_json
-#
-#    text = '\n%%%\n'.join((meta_json_full, body_md))
-#
-#    datetime_str = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%S')
-#    filename = ref + "_" + datetime_str + ".page"
-#
-#    response = make_response(text)
-#    response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
-#    return response

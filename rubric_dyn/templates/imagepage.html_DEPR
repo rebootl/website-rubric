@@ -1,6 +1,0 @@
-{% extends "base.html" %}
-{% block body %}
-  {# info: image is separated here in order to being
-           able to include it in other views #}
-  {% include "image.html" %}
-{% endblock %}
