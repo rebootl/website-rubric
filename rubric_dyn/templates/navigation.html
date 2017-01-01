@@ -1,11 +1,10 @@
 <nav id="main-nav" class="menu-default-pos menu-hidden">
   <ul class="sections-nav-list">
-    <li><a href="/articles">Articles</a></li>
-    {#<li><a href="/galleries">Image galleries</a></li>#}
-    <li><a href="/notes">Notes</a></li>
+    <li><a href="{{ url_for('pages.timeline') }}">Timeline</a></li>
+    <li><a href="{{ url_for('pages.categorized') }}">Categorized</a></li>
   </ul>
   <ul id="specials-nav-list">
-    <li><a href="/">Home</a></li>
+    <li><a href="{{ url_for('pages.home') }}">Home</a></li>
     <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
   </ul>
 </nav>
