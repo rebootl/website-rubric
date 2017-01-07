@@ -1,23 +1,40 @@
+## Tasks before going live w/ current version (2017)
+
+- cleanup entries/categories, new entries
+
+- make changelog comments
+
+- improve timeline w/ changelog entries
+
+- cleanup categorized
+
+- improve "Index/Up" page nav. button
+
+- improve tags
+
+- improve main nav., evtl. simple list, other entries ??
+
+
 ## Tasks
 
-- "save/save and close" button
+- split up devel and production version ! (after going live w/ curr. v. 2017)
+
+- evtl. archive for older stuff
+
+- "save" / "save and close" button
 
 - update date checkbox
 
-- finish updated home page w/ big links etc.
+- ~~finish updated home page w/ big links etc.~~
 
-- how/where to link back from entry, "Index/Up"
-
-- tags page
+- tags page --> ?? maybe not..
 
 - make private entries
 
 - cleanup CSS
 
-- evtl. streamline types ?
 
-
---- postponed ---
+### Postponed
 
 - evtl. make link to image in image info [ref1]
 
@@ -36,7 +53,10 @@
 - evtl. freeze/upload buttons
 
 
-### Resolved:
+### Resolved
+
+- evtl. streamline types ?
+    ==> DONE
 
 - cleanup db columns
   --> new export/import needed for this
