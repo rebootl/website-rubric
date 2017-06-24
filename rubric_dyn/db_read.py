@@ -47,10 +47,11 @@ def get_entry_by_date_ref(date, ref, published=True):
                            FROM entries
                            WHERE date_norm = ?
                            AND ref = ?
-                           AND ( type = 'article'
-                            OR type = 'note'
-                            OR type = 'latest' )
+                           AND ( type = 'note'
+                            OR type = 'blog' )
                            AND pub = ?''', (date, ref, pub) )
+#type = 'article'
+#                            OR type = 'latest'
     row = cur.fetchone()
     # (catch not found !!!)
     if row is None:

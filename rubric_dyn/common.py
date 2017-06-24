@@ -50,7 +50,7 @@ def gen_href(row):
 #        return os.path.join('/articles', row['date_norm'], row['ref'])
     if row['type'] == 'special':
         return os.path.join('/special', row['ref'])
-    elif row['type'] == 'note':
+    elif row['type'] == 'note' or row['type'] == 'blog':
         return os.path.join('/', row['date_norm'], row['ref'])
     else:
         return "NOT_DEFINED"

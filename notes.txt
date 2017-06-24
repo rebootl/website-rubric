@@ -1,18 +1,32 @@
-## Tasks before going live w/ current version (2017)
+## Tasks / REWORK
 
-- cleanup entries/categories, new entries
 
-- make changelog comments
 
-- improve timeline w/ changelog entries
+- __rework the current version / make it usable again... !!!__
 
-- cleanup categorized
+
+
+- make private entries
+
+- make an edit button (when logged in)
+
+
 
 - improve "Index/Up" page nav. button
 
+
+
+- ~~cleanup entries/categories, new entries~~
+
+- ~~make changelog comments~~
+
+- ~~improve timeline w/ changelog entries~~
+
+- ~~cleanup categorized~~
+
 - improve tags
 
-- improve main nav., evtl. simple list, other entries ??
+- ?? improve main nav., evtl. simple list, other entries ??
 
 
 ## Tasks

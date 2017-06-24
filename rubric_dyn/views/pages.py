@@ -69,24 +69,25 @@ def gen_timeline_date_sets(pages_rows):
 def home():
     '''the home page'''
 
-    feat_id = get_feat()
+    #feat_id = get_feat()
+    n = 5
 
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT id, ref, type, title,
                            date_norm, time_norm, body_html, tags
                           FROM entries
-                          WHERE id = ?
-                           AND type = 'note'
+                          WHERE type = 'blog'
                            AND pub = 1
-                          LIMIT 1''', (feat_id,))
-    page_rows = cur.fetchall()
-    if page_rows == None:
+                          ORDER BY date_norm DESC, time_norm DESC
+                          LIMIT ?''', (n,))
+    pages_rows = cur.fetchall()
+    if pages_rows == None:
         abort(404)
 
     # --> move into the timeline entries...????
-    hrefs = gen_hrefs(page_rows)
+    hrefs = gen_hrefs(pages_rows)
 
-    date_sets = gen_timeline_date_sets(page_rows)
+    date_sets = gen_timeline_date_sets(pages_rows)
 
     return render_template( 'home.html',
                             title = 'Home',
@@ -104,7 +105,7 @@ def timeline():
                            date_norm, time_norm, body_html, tags
                           FROM entries
                           WHERE type = 'note'
-                          AND pub = 1
+                           AND pub = 1
                           ORDER BY date_norm DESC, time_norm DESC
                           LIMIT ?''', (n,))
     pages_rows = cur.fetchall()
@@ -134,6 +135,21 @@ def about():
                             page_nav = None )
 
 ### lists / overviews
+
+@pages.route('/blog/')
+def blog():
+    '''list of blog entries'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute( '''SELECT ref, title, date_norm, tags
+                           FROM entries
+                           WHERE type = 'blog'
+                           AND pub = 1
+                           ORDER BY date_norm DESC, time_norm DESC''' )
+    blog_rows = cur.fetchall()
+
+    return render_template( 'blog.html',
+                            title = 'Blog entries',
+                            blogentries = blog_rows )
 
 @pages.route('/notes/')
 def notes():

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+
+  <h2>by date</h2>
+
+  <ul id="article-list" class="enhanced-list">
+    {% for entry in blogentries %}
+      <li>
+        <h3><a href="{{ url_for('pages.entry_by_date_ref', date=entry.date_norm, ref=entry.ref) }}" title="View">{{ entry.title }}</a></h3>
+        <small>{{ entry.date_norm }}</small>
+        {% if entry.tags %}
+          <small class="tags list-tags">
+            Tags: <strong>{{ entry.tags }}</strong>
+          </small>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}
