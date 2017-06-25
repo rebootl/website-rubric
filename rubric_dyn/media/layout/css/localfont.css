@@ -1,0 +1,54 @@
+/* The webfont: Lora
+
+License & Copyright extract:
+
+~~~
+Copyright (c) 2011-2013, Cyreal (www.cyreal.org a@cyreal.org), with
+Reserved Font Name 'Lora'
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+~~~
+
+License provided under: /localfont/Lora/LICENSE.txt
+
+Font files downloaded from fonts.gstatic.com
+using: https://github.com/neverpanic/google-font-download
+*/
+
+@font-face {
+    font-family: 'Lora';
+    font-style: normal;
+    font-weight: 400;
+    src:
+        local('Lora'),
+        local('Lora-Regular'),
+        url('/media/localfont/Lora/regular/Lora_400.woff') format('woff'),
+        url('/media/localfont/Lora/regular/Lora_400.woff2') format('woff2'),
+        url('/media/localfont/Lora/regular/Lora_400.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Lora';
+    font-style: italic;
+    font-weight: 400;
+    src:
+        local('Lora Italic'),
+        local('Lora-Italic'),
+        url('/media/localfont/Lora/italic/Lora_400italic.woff') format('woff'),
+        url('/media/localfont/Lora/italic/Lora_400italic.woff2') format('woff2'),
+        url('/media/localfont/Lora/italic/Lora_400italic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Lora';
+    font-style: normal;
+    font-weight: 700;
+    src:
+        local('Lora Bold'),
+        local('Lora-Bold'),
+        url('/media/localfont/Lora/bold/Lora_700.woff') format('woff'),
+        url('/media/localfont/Lora/bold/Lora_700.woff2') format('woff2'),
+        url('/media/localfont/Lora/bold/Lora_700.ttf') format('truetype');
+}

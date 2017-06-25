@@ -3,12 +3,12 @@ Archive*
 __pycache__/
 
 website.db*
-media/
-static/
-#templates/
-build/
-build_*/
-localfont/
+rubric_dyn/static/
+rubric_dyn/media/*
+!rubric_dyn/media/layout
+!rubric_dyn/media/localfont
+rubric_dyn/build/
+rubric_dyn/build_*/
 test*
 
 config.py
