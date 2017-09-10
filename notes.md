@@ -1,16 +1,35 @@
 ## Tasks / REWORK
 
-
-
 - __rework the current version / make it usable again... !!!__
 
+*** focus focus focus *** :D
 
+### Content
+
+
+### Frontend
+
+- add index on Home, going to Blog entries list
+
+- evtl. remove Categorized for now?
+
+- adapt/finish timeline cut
+  - cut after one image
+  - .. ?
+
+
+### Backend
+
+- fix blog links on Pages list
+
+
+## NEW FEATURES
+
+__only work on new features once the current version is actually usable again__
 
 - make private entries
 
 - make an edit button (when logged in)
-
-
 
 - improve "Index/Up" page nav. button
 
