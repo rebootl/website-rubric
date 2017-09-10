@@ -4,6 +4,7 @@ import json
 import sqlite3
 
 from flask import g
+from flask import current_app
 
 from rubric_dyn.common import gen_href
 
@@ -140,15 +141,17 @@ def create_page_nav(curr_id, curr_type, index="/"):
     rows = cur.fetchall()
 
 
-    if curr_type == 'article':
-        prefix = "/articles"
-        index = "/articles/"
+    if curr_type in current_app.config['PAGE_TYPES_PREFIXES'].keys():
+        prefix = os.path.join(
+            '/',
+            current_app.config['PAGE_TYPES_PREFIXES'][curr_type]
+        )
     else:
         prefix = '/'
 
     page_nav = gen_page_nav(curr_id, rows, prefix, True)
 
-    page_nav['index'] = index
+    page_nav['index'] = prefix
 
     return page_nav
 

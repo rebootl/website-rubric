@@ -50,8 +50,12 @@ def gen_href(row):
 #        return os.path.join('/articles', row['date_norm'], row['ref'])
     if row['type'] == 'special':
         return os.path.join('/special', row['ref'])
-    elif row['type'] == 'note' or row['type'] == 'blog':
-        return os.path.join('/', row['date_norm'], row['ref'])
+    elif row['type'] in current_app.config['PAGE_TYPES_PREFIXES'].keys():
+        return os.path.join(
+            current_app.config['PAGE_TYPES_PREFIXES'][row['type']],
+            row['date_norm'],
+            row['ref']
+        )
     else:
         return "NOT_DEFINED"
 

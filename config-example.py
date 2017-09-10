@@ -21,6 +21,12 @@ NUM_HISTORY_ON_HOME = 3
 # json export file
 DB_ENTRIES_JSON_DUMP = '/somepath-on-server/entries.json'
 
+# mapping page types to url prefixes e.g. /notes/../..
+PAGE_TYPES_PREFIXES = {
+    'blog': 'blog',
+    'note': 'notes'
+}
+
 ### SYSTEM STUFF
 
 # date / datetime formats

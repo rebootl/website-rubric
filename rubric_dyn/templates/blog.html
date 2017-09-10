@@ -6,7 +6,9 @@
   <ul id="article-list" class="enhanced-list">
     {% for entry in blogentries %}
       <li>
-        <h3><a href="{{ url_for('pages.entry_by_date_ref', date=entry.date_norm, ref=entry.ref) }}" title="View">{{ entry.title }}</a></h3>
+{# cannot use this format atm
+        <h3><a href="{{ url_for('pages.blog', date=entry.date_norm, ref=entry.ref) }}" title="View">{{ entry.title }}</a></h3>#}
+        <h3><a href="/blog/{{ entry.date_norm }}/{{ entry.ref }}" title="View">{{ entry.title }}</a></h3>
         <small>{{ entry.date_norm }}</small>
         {% if entry.tags %}
           <small class="tags list-tags">

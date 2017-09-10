@@ -58,8 +58,7 @@ def gen_timeline_date_sets(pages_rows):
     return date_sets
 
 ### functions returning a view
-
-# (none...)
+# ...
 
 ### routes
 
@@ -94,6 +93,8 @@ def home():
                             date_sets = date_sets,
                             hrefs = hrefs )
 
+# --> not used atm...
+#
 @pages.route('/timeline/')
 def timeline():
     '''generate timeline'''
@@ -119,6 +120,8 @@ def timeline():
                             date_sets = date_sets,
                             hrefs = hrefs )
 
+# --> why is this separate actually ?
+# ==> cause of page history integrated...
 @pages.route('/special/about/')
 def about():
     '''about page'''
@@ -148,7 +151,7 @@ def blog():
     blog_rows = cur.fetchall()
 
     return render_template( 'blog.html',
-                            title = 'Blog entries',
+                            title = 'Blog',
                             blogentries = blog_rows )
 
 @pages.route('/notes/')
@@ -190,6 +193,7 @@ def changelog():
                             title = 'Latest/Changelog',
                             date_sets = date_sets )
 
+# --> don't use this atm...
 @pages.route('/categorized/')
 def categorized():
     '''create a categorized overview'''
@@ -260,8 +264,8 @@ def special(ref):
                             page = row,
                             page_nav = None )
 
-@pages.route('/<date>/<ref>/')
-def entry_by_date_ref(date, ref):
+@pages.route('/<prefix>/<date>/<ref>/')
+def entry(prefix, date, ref):
     '''single entry'''
 
     row = get_entry_by_date_ref(date, ref)
