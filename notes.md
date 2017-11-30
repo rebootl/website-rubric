@@ -1,13 +1,34 @@
 ## Tasks / REWORK
 
+*** rework concept 2017-11 ***
+
+- create overlay interface on website for easy editing,
+  appears when logged-in
+
+- structure site using categories
+
+  - Home    -- entries w/ preview
+  - Notes
+    - Astro     -- entries w/ preview
+    - Chess
+    - Comp.
+      - Linux       -- maybe subcat.
+      - FlightSim
+      - ..
+    - Gaming
+    - Movies
+    - ..
+  - Archiv  -- tbd
+
+- adapt backend as needed
+
+
+---
+
 - __rework the current version / make it usable again... !!!__
 
 *** focus focus focus *** :D
 
-### Content
-
-
-### Frontend
 
 - add index on Home, going to Blog entries list
 
@@ -17,10 +38,11 @@
   - cut after one image
   - .. ?
 
-
-### Backend
+- foto size ?
 
 - fix blog links on Pages list
+
+
 
 
 ## NEW FEATURES
