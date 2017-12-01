@@ -14,6 +14,37 @@ from flask import g, abort
 #                           WHERE id = ?''', (id,))
 #    return cur.fetchone()
 
+def get_cat_by_ref(cat_ref):
+    '''get category data, abort if not exists'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT * FROM categories
+                          WHERE ref = ?''', (cat_ref,))
+    row = cur.fetchone()
+    if row is None:
+        abort(404)
+    return row
+
+def get_entries_by_cat(cat_id, n):
+    '''get n entries by category (id)'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT * FROM entries
+                          WHERE ( type = 'note' OR TYPE = 'blog' )
+                           AND pub = 1
+                           AND cat_id = ?
+                          ORDER BY date_norm DESC, time_norm DESC
+                          LIMIT ? ''', (cat_id, n))
+    return cur.fetchall()
+
+def get_entries_for_home(n):
+    '''get n entries of type blog for the home view'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT * FROM entries
+                          WHERE type = 'blog'
+                           AND pub = 1
+                          ORDER BY date_norm DESC, time_norm DESC
+                          LIMIT ?''', (n,))
+    return cur.fetchall()
+
 def get_ref(id):
     cur = g.db.execute( '''SELECT ref
                            FROM entries
