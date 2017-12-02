@@ -10,15 +10,11 @@ from rubric_dyn.common import gen_hrefs, get_feat
 from rubric_dyn.db_read import get_entry_by_ref, get_entrylist, \
     get_entrylist_limit, get_changelog_limit, get_changelog, \
     get_entry_by_date_ref, get_cat_by_ref, get_entries_by_cat, \
-    get_entries_for_home
+    get_entries_for_home, get_cat_items
 from rubric_dyn.helper_pages import create_page_nav, gen_changelog
 
 pages = Blueprint('pages', __name__)
 
-# --> not needed atm., move to config anyway...
-#PAGE_NAV_DEFAULT = { 'prev_href': None,
-#                     'next_href': None,
-#                     'index': "/" }
 
 ### helper
 
@@ -61,20 +57,26 @@ def gen_timeline_date_sets(pages_rows):
 ### functions returning a view
 # ...
 
+def render_catmenu(*args, **kwargs):
+    '''render wrapper incl. the menu'''
+    cat_menuitems = get_cat_items()
+
+    return render_template(*args, **kwargs, cat_menuitems = cat_menuitems)
+
 def render_timeline(title, pages_rows):
     '''render a timeline view'''
 
     hrefs = gen_hrefs(pages_rows)
     date_sets = gen_timeline_date_sets(pages_rows)
 
-    return render_template( 'timeline.html',
+    return render_catmenu( 'timeline.html',
                             title = title,
                             date_sets = date_sets,
                             hrefs = hrefs )
 
 ### routes
 
-### individually adapted pages
+### lists / overviews
 
 @pages.route('/')
 def home():
@@ -103,105 +105,43 @@ def cat_list(cat_ref):
     return "FOOO"
 
 # --> not used atm...
-#
 # --> maybe reuse later, but using above func.s
-@pages.route('/timeline/')
-def timeline():
-    '''generate timeline'''
-    # (number of entries to show)
-    n = 30
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, ref, type, title,
-                           date_norm, time_norm, body_html, tags
-                          FROM entries
-                          WHERE type = 'note'
-                           AND pub = 1
-                          ORDER BY date_norm DESC, time_norm DESC
-                          LIMIT ?''', (n,))
-    pages_rows = cur.fetchall()
-
-    hrefs = gen_hrefs(pages_rows)
-
-    date_sets = gen_timeline_date_sets(pages_rows)
-
-    return render_template( 'timeline.html',
-                            title = 'Timeline',
-                            date_sets = date_sets,
-                            hrefs = hrefs )
-
-# --> why is this separate actually ?
-# ==> cause of page history integrated...
-#@pages.route('/special/about/')
-#def about():
-#    '''about page'''
-#    row = get_entry_by_ref('about', 'special')
+#@pages.route('/timeline/')
+#def timeline():
+#    '''show all entries as timeline w/ preview'''
 #
-#    # page history
-#    history_rows = get_entrylist_limit( 'history',
-#                                        current_app.config['NUM_HISTORY_ON_HOME']# )
+#    # (number of entries to show)
+#    n = 30
 #
-#    return render_template( 'about.html',
-#                            title = row['title'],
-#                            page = row,
-#                            history = history_rows,
-#                            page_nav = None )
-
-### lists / overviews
-
-#@pages.route('/blog/')
-#def blog():
-#    '''list of blog entries'''
 #    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT ref, title, date_norm, tags
-#                           FROM entries
-#                           WHERE type = 'blog'
+#    cur = g.db.execute('''SELECT id, ref, type, title,
+#                           date_norm, time_norm, body_html, tags
+#                          FROM entries
+#                          WHERE type = 'note'
 #                           AND pub = 1
-#                           ORDER BY date_norm DESC, time_norm DESC''' )
-#    blog_rows = cur.fetchall()
+#                          ORDER BY date_norm DESC, time_norm DESC
+#                          LIMIT ?''', (n,))
+#    pages_rows = cur.fetchall()
 #
-#    return render_template( 'blog.html',
-#                            title = 'Blog',
-#                            blogentries = blog_rows )
-
-#@pages.route('/notes/')
-#def notes():
-#    '''list of notes'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT ref, title, date_norm
-#                           FROM entries
-#                           WHERE type = 'note'
-#                           AND pub = 1
-#                           ORDER BY date_norm DESC, time_norm DESC''' )
-#    notes_rows = cur.fetchall()
+#    hrefs = gen_hrefs(pages_rows)
 #
-#    return render_template( 'notes.html',
-#                            title = 'Notes',
-#                            notes = notes_rows )
+#    date_sets = gen_timeline_date_sets(pages_rows)
+#
+#    return render_template( 'timeline.html',
+#                            title = 'Timeline',
+#                            date_sets = date_sets,
+#                            hrefs = hrefs )
 
-@pages.route('/history/')
-def history():
-    '''show all history entries'''
-    # get entries
-    rows = get_entrylist('history')
-
-    return render_template( 'history.html',
-                            title = 'Page history',
-                            history = rows )
-
-# --> merge w/ timeline...
-#@pages.route('/changelog/')
-#def changelog():
-#    '''show all changelog entries'''
+# --> reimplement using above functions / template etc.
+#@pages.route('/history/')
+#def history():
+#    '''show all history entries'''
 #    # get entries
-#    change_rows = get_changelog()
+#    rows = get_entrylist('history')
 #
-#    # get list ordered by dates
-#    date_sets = gen_changelog(change_rows)
-#
-#    return render_template( 'changelog.html',
-#                            title = 'Latest/Changelog',
-#                            date_sets = date_sets )
+#    return render_template( 'history.html',
+#                            title = 'Page history',
+#                            history = rows )
 
 ### individual pages
 

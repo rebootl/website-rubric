@@ -24,6 +24,13 @@ def get_cat_by_ref(cat_ref):
         abort(404)
     return row
 
+def get_cat_items():
+    '''get category items for menu'''
+#    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT * FROM categories
+                          ORDER BY title ASC''')
+    return cur.fetchall()
+
 def get_entries_by_cat(cat_id, n):
     '''get n entries by category (id)'''
     g.db.row_factory = sqlite3.Row

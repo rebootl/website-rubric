@@ -1,13 +1,16 @@
 <nav id="main-nav" class="menu-default-pos menu-hidden">
   <ul class="sections-nav-list">
-    {#<li><a href="{{ url_for('pages.blog') }}">Blog</a></li>#}
-    {#<li><a href="{{ url_for('pages.timeline') }}">Timeline</a></li>#}
-    {#<li><a href="{{ url_for('pages.notes') }}">Notes</a></li>#}
-    <li>Notes</li>
-    {#<li><a href="{{ url_for('pages.categorized') }}">Categorized</a></li>#}
-  </ul>
-  <ul id="specials-nav-list">
     <li><a href="{{ url_for('pages.home') }}">Home</a></li>
+    <li>Notes
+      <ul>
+      {% for item in cat_menuitems %}
+        <li><a href="/{{ item.ref }}">{{ item.title }}</a></li>
+      {% endfor %}
+      </ul>
+    </li>
     <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
   </ul>
+  {#<ul id="specials-nav-list">
+    <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
+  </ul>#}
 </nav>

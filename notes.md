@@ -22,6 +22,10 @@
 
 - adapt backend as needed
 
+- min-height for menu --> evtl. js toggle
+
+
+
 
 ---
 
