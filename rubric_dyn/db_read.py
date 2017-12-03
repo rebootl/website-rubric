@@ -98,28 +98,6 @@ def db_load_category(id):
         abort(404)
     return row
 
-# not used/DEPR.
-#def get_changelog():
-#    '''get number of changelog entries'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT id, entry_id, mod_type,
-#                           date_norm, time_norm, pub
-#                          FROM changelog
-#                          WHERE pub = 1
-#                          ORDER BY date_norm DESC, time_norm DESC''')
-#    return cur.fetchall()
-#
-#def get_changelog_limit(limit):
-#    '''get number of changelog entries'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT id, entry_id, mod_type,
-#                           date_norm, time_norm, pub
-#                          FROM changelog
-#                          WHERE pub = 1
-#                          ORDER BY date_norm DESC, time_norm DESC
-#                          LIMIT ?''', (limit,))
-#    return cur.fetchall()
-
 def get_latest():
     '''get latest entry id (used for changelog)'''
     cur = g.db.execute('''SELECT id FROM entries
@@ -130,56 +108,6 @@ def get_latest():
         return row[0]
     else:
         return None
-
-# not used / DEPR.
-#def get_entrylist(type):
-#    '''return rows of entries'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT body_html, date_norm
-#                           FROM entries
-#                           WHERE type = ?
-#                           AND pub = 1
-#                           ORDER BY date_norm DESC''',
-#                           (type,) )
-#    rows = cur.fetchall()
-#    return rows
-#
-#def get_entrylist_limit(type, limit):
-#    '''return rows of entries'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT body_html, date_norm
-#                           FROM entries
-#                           WHERE type = ?
-#                           AND pub = 1
-#                           ORDER BY date_norm DESC
-#                           LIMIT ?''',
-#                           (type, limit) )
-#    rows = cur.fetchall()
-#    return rows
-#
-#def get_entry_by_date_ref_path(date_ref_path, type, published=True):
-#    '''return entry data from db, by <date>/<ref> path'''
-#    date, ref = os.path.split(date_ref_path)
-#
-#    if published == True:
-#        pub = 1
-#    else:
-#        pub = 0
-#
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT id, type, ref, title, date_norm, time_norm,
-#                            body_html, tags
-#                           FROM entries
-#                           WHERE date_norm = ?
-#                           AND ref = ?
-#                           AND type = ?
-#                           AND pub = ?''', (date, ref, type, pub))
-#    row = cur.fetchone()
-#    # (catch not found !!!)
-#    if row is None:
-#        abort(404)
-#
-#    return row
 
 def get_entry_by_ref(ref, type, published=True):
     '''return entry data from db, by ref'''
