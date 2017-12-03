@@ -14,6 +14,8 @@ import json
 
 from flask import current_app
 
+from rubric_dyn.db_read import get_cat_items
+
 import config
 # --> shouldn't flask current_app config be used here ???
 
@@ -36,28 +38,28 @@ def get_feat():
     with open(current_app.config['FEAT_STORE_F'], 'r') as f:
         return json.load(f)
 
+def gen_href(row, cat_ref):
+    '''generate href for different page types'''
+    if row['type'] == 'special':
+        return os.path.join('/special', row['ref'])
+    else:
+        return os.path.join('/', cat_ref, row['date_norm'], row['ref'])
+
 def gen_hrefs(rows):
     '''generate hrefs for pages'''
     hrefs = {}
+
+    # get category info from db here
+    cat_rows = get_cat_items()
+    cat_dict = {}
+    for row in cat_rows:
+        cat_dict.update({ row['id']: row['ref'] })
+
     for row in rows:
-        href = gen_href(row)
+        cat_ref = cat_dict[row['cat_id']]
+        href = gen_href(row, cat_ref)
         hrefs.update({ row['id']: href })
     return hrefs
-
-def gen_href(row):
-    '''generate href for different page types'''
-#    if row['type'] == 'article':
-#        return os.path.join('/articles', row['date_norm'], row['ref'])
-    if row['type'] == 'special':
-        return os.path.join('/special', row['ref'])
-    elif row['type'] in current_app.config['PAGE_TYPES_PREFIXES'].keys():
-        return os.path.join(
-            current_app.config['PAGE_TYPES_PREFIXES'][row['type']],
-            row['date_norm'],
-            row['ref']
-        )
-    else:
-        return "NOT_DEFINED"
 
 def pandoc_pipe(content, opts):
     '''create a pandoc pipe reading from a variable and returning the output'''

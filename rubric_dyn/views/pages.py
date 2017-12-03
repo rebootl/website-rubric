@@ -156,8 +156,8 @@ def special(ref):
                             page = row,
                             page_nav = None )
 
-@pages.route('/<prefix>/<date>/<ref>/')
-def entry(prefix, date, ref):
+@pages.route('/<cat_ref>/<date>/<ref>/')
+def entry(cat_ref, date, ref):
     '''single entry'''
 
     row = get_entry_by_date_ref(date, ref)
