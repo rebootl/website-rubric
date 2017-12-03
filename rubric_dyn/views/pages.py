@@ -7,8 +7,7 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
 from rubric_dyn.common import gen_hrefs, get_feat
-from rubric_dyn.db_read import get_entry_by_ref, get_entrylist, \
-    get_entrylist_limit, get_changelog_limit, get_changelog, \
+from rubric_dyn.db_read import get_entry_by_ref, \
     get_entry_by_date_ref, get_cat_by_ref, get_entries_by_cat, \
     get_entries_for_home, get_cat_items
 from rubric_dyn.helper_pages import create_page_nav, gen_changelog
@@ -80,9 +79,10 @@ def render_timeline(title, pages_rows):
 
 @pages.route('/')
 def home():
-    '''the home page'''
+    '''the home page,
+currently this shows n entries of type blog as timeline w/ preview
 
-    # (use feat. entry here instead if wanted)
+alternatively something like a featured entry could be used'''
     n = 5
     pages_rows = get_entries_for_home(n)
 
@@ -90,11 +90,9 @@ def home():
 
 @pages.route('/<cat_ref>/')
 def cat_view(cat_ref):
-    '''show entries from category as timeline w/ preview'''
-
+    '''show n entries from given category as timeline w/ preview'''
     cat_row = get_cat_by_ref(cat_ref)
 
-    # --> get n entries from cat.
     n = 5
     pages_rows = get_entries_by_cat(cat_row['id'], n)
 
@@ -102,48 +100,25 @@ def cat_view(cat_ref):
 
 @pages.route('/<cat_ref>/list/')
 def cat_list(cat_ref):
-    return "FOOO"
+    '''ToDo: show entries from given category as list
+this shall be used to show all entries by clicking on list button
+below timeline'''
+    pass
 
-# --> not used atm...
-# --> maybe reuse later, but using above func.s
+# evtl. (re-)implement
+#
 #@pages.route('/timeline/')
 #def timeline():
 #    '''show all entries as timeline w/ preview'''
+#    pass
 #
-#    # (number of entries to show)
-#    n = 30
-#
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute('''SELECT id, ref, type, title,
-#                           date_norm, time_norm, body_html, tags
-#                          FROM entries
-#                          WHERE type = 'note'
-#                           AND pub = 1
-#                          ORDER BY date_norm DESC, time_norm DESC
-#                          LIMIT ?''', (n,))
-#    pages_rows = cur.fetchall()
-#
-#    hrefs = gen_hrefs(pages_rows)
-#
-#    date_sets = gen_timeline_date_sets(pages_rows)
-#
-#    return render_template( 'timeline.html',
-#                            title = 'Timeline',
-#                            date_sets = date_sets,
-#                            hrefs = hrefs )
-
-# --> reimplement using above functions / template etc.
 #@pages.route('/history/')
 #def history():
 #    '''show all history entries'''
-#    # get entries
-#    rows = get_entrylist('history')
-#
-#    return render_template( 'history.html',
-#                            title = 'Page history',
-#                            history = rows )
+#    pass
 
-### individual pages
+
+### page views
 
 @pages.route('/special/<ref>/')
 def special(ref):

@@ -26,7 +26,6 @@ def get_cat_by_ref(cat_ref):
 
 def get_cat_items():
     '''get category items for menu'''
-#    g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT * FROM categories
                           ORDER BY title ASC''')
     return cur.fetchall()
@@ -57,7 +56,6 @@ def get_ref(id):
                            FROM entries
                            WHERE id = ?''', (id,) )
     row = cur.fetchone()
-    # (catch not found !!!)
     if row is None:
         abort(404)
 
@@ -78,23 +76,15 @@ def get_entry_by_date_ref(date, ref, published=True):
         pub = 1
     else:
         pub = 0
-
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, type, ref, title, author,
-                            date_norm, time_norm, body_html, tags
-                           FROM entries
+    cur = g.db.execute( '''SELECT * FROM entries
                            WHERE date_norm = ?
                            AND ref = ?
-                           AND ( type = 'note'
-                            OR type = 'blog' )
+                           AND ( type = 'note' OR type = 'blog' )
                            AND pub = ?''', (date, ref, pub) )
-#type = 'article'
-#                            OR type = 'latest'
     row = cur.fetchone()
-    # (catch not found !!!)
     if row is None:
         abort(404)
-
     return row
 
 def db_load_category(id):
@@ -104,31 +94,31 @@ def db_load_category(id):
                           FROM categories
                           WHERE id = ?''', (id,))
     row = cur.fetchone()
-    # (catch not found !!!)
     if row is None:
         abort(404)
     return row
 
-def get_changelog():
-    '''get number of changelog entries'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, entry_id, mod_type,
-                           date_norm, time_norm, pub
-                          FROM changelog
-                          WHERE pub = 1
-                          ORDER BY date_norm DESC, time_norm DESC''')
-    return cur.fetchall()
-
-def get_changelog_limit(limit):
-    '''get number of changelog entries'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, entry_id, mod_type,
-                           date_norm, time_norm, pub
-                          FROM changelog
-                          WHERE pub = 1
-                          ORDER BY date_norm DESC, time_norm DESC
-                          LIMIT ?''', (limit,))
-    return cur.fetchall()
+# not used/DEPR.
+#def get_changelog():
+#    '''get number of changelog entries'''
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute('''SELECT id, entry_id, mod_type,
+#                           date_norm, time_norm, pub
+#                          FROM changelog
+#                          WHERE pub = 1
+#                          ORDER BY date_norm DESC, time_norm DESC''')
+#    return cur.fetchall()
+#
+#def get_changelog_limit(limit):
+#    '''get number of changelog entries'''
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute('''SELECT id, entry_id, mod_type,
+#                           date_norm, time_norm, pub
+#                          FROM changelog
+#                          WHERE pub = 1
+#                          ORDER BY date_norm DESC, time_norm DESC
+#                          LIMIT ?''', (limit,))
+#    return cur.fetchall()
 
 def get_latest():
     '''get latest entry id (used for changelog)'''
@@ -141,63 +131,62 @@ def get_latest():
     else:
         return None
 
-def get_entrylist(type):
-    '''return rows of entries'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT body_html, date_norm
-                           FROM entries
-                           WHERE type = ?
-                           AND pub = 1
-                           ORDER BY date_norm DESC''',
-                           (type,) )
-    rows = cur.fetchall()
-    return rows
-
-def get_entrylist_limit(type, limit):
-    '''return rows of entries'''
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT body_html, date_norm
-                           FROM entries
-                           WHERE type = ?
-                           AND pub = 1
-                           ORDER BY date_norm DESC
-                           LIMIT ?''',
-                           (type, limit) )
-    rows = cur.fetchall()
-    return rows
-
-def get_entry_by_date_ref_path(date_ref_path, type, published=True):
-    '''return entry data from db, by <date>/<ref> path'''
-    date, ref = os.path.split(date_ref_path)
-
-    if published == True:
-        pub = 1
-    else:
-        pub = 0
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, type, ref, title, date_norm, time_norm,
-                            body_html, tags
-                           FROM entries
-                           WHERE date_norm = ?
-                           AND ref = ?
-                           AND type = ?
-                           AND pub = ?''', (date, ref, type, pub))
-    row = cur.fetchone()
-    # (catch not found !!!)
-    if row is None:
-        abort(404)
-
-    return row
+# not used / DEPR.
+#def get_entrylist(type):
+#    '''return rows of entries'''
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute( '''SELECT body_html, date_norm
+#                           FROM entries
+#                           WHERE type = ?
+#                           AND pub = 1
+#                           ORDER BY date_norm DESC''',
+#                           (type,) )
+#    rows = cur.fetchall()
+#    return rows
+#
+#def get_entrylist_limit(type, limit):
+#    '''return rows of entries'''
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute( '''SELECT body_html, date_norm
+#                           FROM entries
+#                           WHERE type = ?
+#                           AND pub = 1
+#                           ORDER BY date_norm DESC
+#                           LIMIT ?''',
+#                           (type, limit) )
+#    rows = cur.fetchall()
+#    return rows
+#
+#def get_entry_by_date_ref_path(date_ref_path, type, published=True):
+#    '''return entry data from db, by <date>/<ref> path'''
+#    date, ref = os.path.split(date_ref_path)
+#
+#    if published == True:
+#        pub = 1
+#    else:
+#        pub = 0
+#
+#    g.db.row_factory = sqlite3.Row
+#    cur = g.db.execute( '''SELECT id, type, ref, title, date_norm, time_norm,
+#                            body_html, tags
+#                           FROM entries
+#                           WHERE date_norm = ?
+#                           AND ref = ?
+#                           AND type = ?
+#                           AND pub = ?''', (date, ref, type, pub))
+#    row = cur.fetchone()
+#    # (catch not found !!!)
+#    if row is None:
+#        abort(404)
+#
+#    return row
 
 def get_entry_by_ref(ref, type, published=True):
     '''return entry data from db, by ref'''
-
     if published == True:
         pub = 1
     else:
         pub = 0
-
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute( '''SELECT type, ref, title, date_norm,
                             body_html, tags
@@ -206,15 +195,13 @@ def get_entry_by_ref(ref, type, published=True):
                            AND type = ?
                            AND pub = ?''', (ref, type, pub))
     row = cur.fetchone()
-    # (catch not found !!!)
     if row is None:
         abort(404)
-
     return row
 
+# --> use get_entry_by_id above ^^
 def db_load_to_edit(id):
-    '''load editor page for id'''
-    # get data for the page to edit
+    '''gets page data by id'''
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT ref, title, author, date_norm, time_norm,
                            tags, type, body_md
@@ -222,8 +209,6 @@ def db_load_to_edit(id):
                           WHERE id = ?
                           LIMIT 1''', (id,))
     row = cur.fetchone()
-    # catch not found
     if row == None:
         abort(404)
-
     return row
