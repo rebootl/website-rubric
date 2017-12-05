@@ -85,9 +85,6 @@ shows:
     if not session.get('logged_in'):
         abort(401)
 
-    # get featured id
-    feat_id = get_feat()
-
     # get all pages
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT id, type, title, date_norm, time_norm,
@@ -96,11 +93,14 @@ shows:
                           ORDER BY date_norm DESC, time_norm DESC''')
     rows = cur.fetchall()
 
-    # get link hrefs
-    hrefs = gen_hrefs(rows)
+    # categories
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, title, tags
+                          FROM categories
+                          ORDER BY id ASC''')
+    categories = cur.fetchall()
 
     # insert changelog
-
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT id, entry_id, mod_type,
                            date_norm, time_norm, pub
@@ -113,7 +113,6 @@ shows:
         change = {}
         for i, v in enumerate(change_row):
             change.update( { change_row.keys()[i]: v } )
-
             cur = g.db.execute('''SELECT title FROM entries
                                   WHERE id = ?''', (change_row['entry_id'],))
             row = cur.fetchone()
@@ -122,23 +121,13 @@ shows:
             else:
                 entry_title = row[0]
             change.update( { 'entry_title': entry_title } )
-
         changes.append(change)
 
-    # categories
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, title, tags
-                          FROM categories
-                          ORDER BY id ASC''')
-    categories = cur.fetchall()
-
     return render_template( 'overview.html',
-                            feat_id = feat_id,
-                            entries = rows,
                             title = "Overview",
-                            hrefs = hrefs,
-                            changes = changes,
-                            categories = categories )
+                            entries = rows,
+                            categories = categories,
+                            changes = changes )
 
 @interface.route('/edit', methods=['GET', 'POST'])
 def edit():

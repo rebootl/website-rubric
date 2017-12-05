@@ -6,11 +6,10 @@ import json
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
-from rubric_dyn.common import gen_hrefs, get_feat
 from rubric_dyn.db_read import get_entry_by_ref, get_entry_by_date_ref, \
     get_cat_by_ref, get_entries_by_cat, \
     get_entries_for_home, get_cat_items
-from rubric_dyn.helper_pages import create_page_nav, gen_changelog
+from rubric_dyn.helper_pages import create_page_nav
 
 pages = Blueprint('pages', __name__)
 
@@ -65,13 +64,12 @@ def render_catmenu(*args, **kwargs):
 def render_timeline(title, pages_rows):
     '''render a timeline view'''
 
-    hrefs = gen_hrefs(pages_rows)
+    #hrefs = gen_hrefs(pages_rows)
     date_sets = gen_timeline_date_sets(pages_rows)
 
-    return render_catmenu( 'timeline.html',
-                            title = title,
-                            date_sets = date_sets,
-                            hrefs = hrefs )
+    return render_catmenu('timeline.html',
+                           title = title,
+                           date_sets = date_sets)
 
 ### routes
 
@@ -116,7 +114,6 @@ below timeline'''
 #def history():
 #    '''show all history entries'''
 #    pass
-
 
 ### page views
 
