@@ -30,13 +30,6 @@ def db_write_change(id, type):
                   ( id, type, date_curr, time_curr ) )
     g.db.commit()
 
-def update_pub_change(id, pub):
-    '''update publish state in database'''
-    g.db.execute('''UPDATE changelog
-                    SET pub = ?
-                    WHERE id = ?''', (pub, id))
-    g.db.commit()
-
 def update_pub(id, pub):
     '''update publish state in database'''
     g.db.execute('''UPDATE entries

@@ -39,11 +39,7 @@
         {% endif %}
       </td>
       <td>
-        {% if entry.pub and ( entry.type == 'article' or entry.type == 'note' or entry.type == 'special' ) %}
-          <a href="{{ hrefs[ entry.id ] }}">{{ entry.title }}</a>
-        {% else %}
-          {{ entry.title }}
-        {% endif %}
+          <a href="/{{ entry.date_norm }}/{{ entry.ref }}">{{ entry.title }}</a>
       </td>
       <td>
       {% if entry.pub %}

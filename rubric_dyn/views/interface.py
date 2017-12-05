@@ -8,10 +8,9 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 from werkzeug.utils import secure_filename
 
-from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_hrefs, \
-    get_feat
+from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_hrefs
 from rubric_dyn.db_read import db_load_to_edit, db_load_category
-from rubric_dyn.db_write import update_pub, update_pub_change, db_store_category
+from rubric_dyn.db_write import update_pub, db_store_category
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
     gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
 from rubric_dyn.Page import Page
@@ -47,33 +46,7 @@ def login():
 def logout():
     '''logout'''
     session.pop('logged_in', None)
-    #flash('You were logged out.')
     return redirect(url_for('interface.login'))
-
-@interface.route('/store-feat')
-def store_feat():
-    '''store featured id (shown on home page)'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    feat_id = request.args.get('feat-id')
-
-    # make sure it's int
-    try:
-        feat_id_int = int(feat_id)
-    except ValueError:
-        flash('Featuring ID must be an integer, returning...')
-        return redirect(url_for('interface.overview'))
-    except:
-        abort(404)
-
-    # store it
-    with open(current_app.config['FEAT_STORE_F'], 'w') as f:
-        json.dump(feat_id, f)
-
-    flash('Featuring ID {}'.format(feat_id))
-
-    return redirect(url_for('interface.overview'))
 
 @interface.route('/overview', methods=['GET', 'POST'])
 def overview():
@@ -313,38 +286,6 @@ def new():
 
     return render_template( 'edit.html', preview=False, id="new", \
                             new=True, page=None )
-
-@interface.route('/pub-change')
-def pub_change():
-    '''publish change'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    id = request.args.get('id')
-    if id == None:
-        abort(404)
-
-    # change state
-    update_pub_change(id, 1)
-    flash('Published change ID: {}'.format(id))
-
-    return redirect(url_for('interface.overview'))
-
-@interface.route('/unpub-change')
-def unpub_change():
-    '''unpublish change'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    id = request.args.get('id')
-    if id == None:
-        abort(404)
-
-    # change state
-    update_pub_change(id, 0)
-    flash('Unpublished change ID: {}'.format(id))
-
-    return redirect(url_for('interface.overview'))
 
 @interface.route('/pub')
 def pub():
