@@ -7,7 +7,9 @@
              id="pos_{{ page.date_norm }}_{{ page.time_norm }}">{{ page.time_norm }}</small>
     {% endif %}
 
-    <small><a href="{{ hrefs[page.id] }}">{{ page.ref }}</a></small>
+    <small>
+      <a href="/{{ page.cat_ref }}/{{ page.date_norm }}/{{ page.ref }}">{{ page.ref }}</a>
+    </small>
 
     <div class="timeline-entry">
 

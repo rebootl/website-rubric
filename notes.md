@@ -25,7 +25,8 @@
 - min-height for menu --> evtl. js toggle
 
 - improve the href gen./storage
-  - evtl. impr. sql query
+  - evtl. impr. sql query ==> DONE
+    --> remove href gen. from timelines
 
 
 ---
