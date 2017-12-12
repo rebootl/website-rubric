@@ -13,7 +13,7 @@ from rubric_dyn.db_read import db_load_category, get_entries_info, \
     get_cat_items, get_changes, get_entry_by_id
 from rubric_dyn.db_write import update_pub, db_store_category
 from rubric_dyn.helper_interface import process_input, gen_image_md, \
-    get_images_from_md, gen_image_subpath, allowed_image_file
+    get_images_from_md, gen_image_subpath, allowed_image_file, upload_images
 from rubric_dyn.Page import Page
 
 interface = Blueprint('interface', __name__,
@@ -132,29 +132,11 @@ def edit_post():
     if action == "upld_imgs":
         if not request.files.getlist("files"):
             abort(404)
-        else:
-            files = request.files.getlist("files")
 
-        filenames = []
-        for file in files:
-            if file and allowed_image_file(file.filename):
-                subpath = gen_image_subpath()
-                filename = secure_filename(file.filename)
-                filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
-                                             'media',
-                                             subpath,
-                                             filename )
-                if not os.path.isfile(filepath_abs):
-                    file.save(filepath_abs)
-                else:
-                    flash("File w/ same name already present, not saved: {}".format(filename))
-                filenames.append(filename)
+        filenames = upload_images(request.files.getlist("files"))
 
-            else:
-                flash("Not a valid image file: {}".format(file.filename))
-
+        # generate markdown
         if filenames != []:
-            # generate markdown
             img_md = gen_image_md(subpath, filenames)
 
             # update object
@@ -169,7 +151,6 @@ def edit_post():
                                 images = page_obj.images )
 
     elif action == "preview" or action == "save":
-
         if action == "preview":
             return render_template( 'edit.html',
                                      preview = True,

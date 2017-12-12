@@ -11,6 +11,28 @@ from rubric_dyn.ExifNice import ExifNice
 # for debug only !!
 #import sys
 
+def upload_images(files):
+    '''upload image files by POST request,
+return filenames for markdown gen.'''
+    filenames = []
+    for file in files:
+        if file and allowed_image_file(file.filename):
+            subpath = gen_image_subpath()
+            filename = secure_filename(file.filename)
+            filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
+                                         'media',
+                                         subpath,
+                                         filename )
+            if not os.path.isfile(filepath_abs):
+                file.save(filepath_abs)
+            else:
+                flash("File w/ same name already present, not saved: {}".format(filename))
+            filenames.append(filename)
+
+        else:
+            flash("Not a valid image file: {}".format(file.filename))
+    return filenames
+
 def allowed_image_file(filename):
     '''check allowed image extension (adapted from flask docs)'''
     if os.path.splitext(filename)[1] in current_app.config['IMG_EXTS']:
