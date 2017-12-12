@@ -9,7 +9,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 from werkzeug.utils import secure_filename
 
 from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_hrefs
-from rubric_dyn.db_read import db_load_to_edit, db_load_category
+from rubric_dyn.db_read import db_load_to_edit, db_load_category, \
+    get_entries_info, get_cat_items, get_changes
 from rubric_dyn.db_write import update_pub, db_store_category
 from rubric_dyn.helper_interface import process_input, get_images_from_path, \
     gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
@@ -59,42 +60,13 @@ shows:
         abort(401)
 
     # get all pages
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, type, title, date_norm, time_norm,
-                            ref, pub
-                          FROM entries
-                          ORDER BY date_norm DESC, time_norm DESC''')
-    rows = cur.fetchall()
+    rows = get_entries_info()
 
     # categories
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, title, tags
-                          FROM categories
-                          ORDER BY id ASC''')
-    categories = cur.fetchall()
+    categories = get_cat_items()
 
     # insert changelog
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, entry_id, mod_type,
-                           date_norm, time_norm, pub
-                          FROM changelog
-                          ORDER BY date_norm DESC, time_norm DESC''')
-    change_rows = cur.fetchall()
-
-    changes = []
-    for change_row in change_rows:
-        change = {}
-        for i, v in enumerate(change_row):
-            change.update( { change_row.keys()[i]: v } )
-            cur = g.db.execute('''SELECT title FROM entries
-                                  WHERE id = ?''', (change_row['entry_id'],))
-            row = cur.fetchone()
-            if row == None:
-                entry_title = "DELETED_ENTRY"
-            else:
-                entry_title = row[0]
-            change.update( { 'entry_title': entry_title } )
-        changes.append(change)
+    changes = get_changes()
 
     return render_template( 'overview.html',
                             title = "Overview",

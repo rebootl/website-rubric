@@ -17,7 +17,7 @@ from flask import g, abort
 ### categories
 
 def get_cat_items():
-    '''get category items for menu'''
+    '''get category items'''
     cur = g.db.execute('''SELECT * FROM categories
                           ORDER BY title ASC''')
     return cur.fetchall()
@@ -44,6 +44,18 @@ def db_load_category(id):
     return row
 
 ### entries
+
+def get_entries_info():
+    '''get all entries information
+(no body)'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT entries.id, entries.type, entries.title,
+                            entries.date_norm, entries.time_norm,
+                            entries.ref, entries.pub, categories.ref AS cat_ref
+                          FROM entries
+                          INNER JOIN categories ON entries.cat_id = categories.id
+                          ORDER BY date_norm DESC, time_norm DESC''')
+    return cur.fetchall()
 
 def get_entries_by_cat(cat_id, n):
     '''get n entries by category (id)'''
@@ -118,6 +130,17 @@ def db_load_to_edit(id):
     if row == None:
         abort(404)
     return row
+
+### changelog
+
+def get_changes():
+    '''get list of changes from changelog'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT changelog.*, entries.title AS entry_title
+                          FROM changelog
+                          INNER JOIN entries ON entries.id = changelog.entry_id
+                          ORDER BY date_norm DESC, time_norm DESC''')
+    return cur.fetchall()
 
 ### other
 

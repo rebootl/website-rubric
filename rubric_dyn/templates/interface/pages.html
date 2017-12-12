@@ -39,7 +39,11 @@
         {% endif %}
       </td>
       <td>
-          <a href="/{{ entry.date_norm }}/{{ entry.ref }}">{{ entry.title }}</a>
+        {% if entry.pub %}
+          <a href="/{{ entry.cat_ref }}/{{ entry.date_norm }}/{{ entry.ref }}">{{ entry.title }}</a>
+        {% else %}
+          {{ entry.title }}
+        {% endif %}
       </td>
       <td>
       {% if entry.pub %}
