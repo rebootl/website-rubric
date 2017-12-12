@@ -9,14 +9,22 @@ from flask import flash, g
 
 class Page:
 
-    def __init__(self, id, type, title, author,
+    def __init__(self, id, type, custom_type, title, author,
                  date_str, time_str, tags, body_md,
                  pub=0):
         '''assembling data,
 norm and set defaults if necessary'''
 
         self.id = id
-        self.type = type
+
+        if type == 'custom':
+            if custom_type == '':
+                self.type = 'undefined'
+                flash("Warning: custom type not specified, setting to undefined.")
+            else:
+                self.type = custom_type
+        else:
+            self.type = type
 
         if title == "":
             self.title = 'NOT_SET'

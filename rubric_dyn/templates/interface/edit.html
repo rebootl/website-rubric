@@ -90,41 +90,7 @@
 
   <p>
 
-    <pre>(hover for preview)</pre>
-
-    <div class="prev-table-box">
-      <table class="prev-table">
-        {% for image in images %}
-          <tr>
-            <td>
-              {{ image.src }}
-              <div class="prev-box">
-                <img class="prev-thumb" src="{{ image.thumb }}" width="100" /><br />
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-
     <table>
-      <tr>
-        <th>
-          Insert images from server:<br />
-          (media directory)
-        </th>
-        <td>
-          /media/<input type="text" form="edit-page" name="imagepath" value=""
- /><br />
-          (subdirectory path e.g.: images/2016-01-01/
-        </td>
-        <td>
-          <button form="edit-page" type="submit" name="actn" value="add_imgs">
-            Add
-          </button><br />
-          (adds markdown only [??])
-        </td>
-      </tr>
       <tr>
         <th>
           Upload and insert new images:

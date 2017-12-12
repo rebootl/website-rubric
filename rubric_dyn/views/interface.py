@@ -9,11 +9,11 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 from werkzeug.utils import secure_filename
 
 from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_hrefs
-from rubric_dyn.db_read import db_load_to_edit, db_load_category, \
-    get_entries_info, get_cat_items, get_changes
+from rubric_dyn.db_read import db_load_category, get_entries_info, \
+    get_cat_items, get_changes, get_entry_by_id
 from rubric_dyn.db_write import update_pub, db_store_category
-from rubric_dyn.helper_interface import process_input, get_images_from_path, \
-    gen_image_md, get_images_from_md, gen_image_subpath, allowed_image_file
+from rubric_dyn.helper_interface import process_input, gen_image_md, \
+    get_images_from_md, gen_image_subpath, allowed_image_file
 from rubric_dyn.Page import Page
 
 interface = Blueprint('interface', __name__,
@@ -49,6 +49,8 @@ def logout():
     session.pop('logged_in', None)
     return redirect(url_for('interface.login'))
 
+### interface overview
+
 @interface.route('/overview', methods=['GET', 'POST'])
 def overview():
     '''interface overview
@@ -74,142 +76,116 @@ shows:
                             categories = categories,
                             changes = changes )
 
-@interface.route('/edit', methods=['GET', 'POST'])
+### edit / new page buttons
+
+@interface.route('/edit')
 def edit():
+    '''edit button / new page'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    id = request.args.get('id')
+
+    if id == "new":
+        return render_template('edit.html',
+                                preview = False,
+                                id = id,
+                                page = None)
+    elif id == None:
+        abort(404)
+    else:
+        row = get_entry_by_id(id)
+        return render_template('edit.html',
+                                preview = False,
+                                id = id,
+                                page = row,
+                                images = get_images_from_md(row['body_md']))
+
+### preview / save / cancel / upload images
+### buttons on edit page
+
+@interface.route('/edit', methods=['POST'])
+def edit_post():
     '''edit a page entry'''
     if not session.get('logged_in'):
         abort(401)
 
-    # POST
-    # button pressed on edit page (preview / save / cancel)
-    if request.method == 'POST':
-        action = request.form['actn']
-        if action == "cancel":
-            return redirect(url_for('interface.overview'))
+    # actions
+    action = request.form['actn']
 
-        # request data and instantiate Page object
-        type = request.form['type']
-        if type == 'custom':
-            custom_type = request.form['custom_type']
-            if custom_type == '':
-                type = 'undefined'
-                flash("Warning: custom type not specified, setting to undefined.")
+    # cancel
+    if action == "cancel":
+        return redirect(url_for('interface.overview'))
+
+    # instantiate Page object
+    page_obj = Page( request.form['id'],
+                     request.form['type'],
+                     request.form['custom_type'],
+                     request.form['title'],
+                     current_app.config['AUTHOR_NAME'],
+                     datetime.now().strftime('%Y-%m-%d'),
+                     datetime.now().strftime('%H:%M'),
+                     request.form['tags'],
+                     request.form['text-input'] )
+
+    # upload selected images
+    if action == "upld_imgs":
+        if not request.files.getlist("files"):
+            abort(404)
+        else:
+            files = request.files.getlist("files")
+
+        filenames = []
+        for file in files:
+            if file and allowed_image_file(file.filename):
+                subpath = gen_image_subpath()
+                filename = secure_filename(file.filename)
+                filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
+                                             'media',
+                                             subpath,
+                                             filename )
+                if not os.path.isfile(filepath_abs):
+                    file.save(filepath_abs)
+                else:
+                    flash("File w/ same name already present, not saved: {}".format(filename))
+                filenames.append(filename)
+
             else:
-                type = custom_type
+                flash("Not a valid image file: {}".format(file.filename))
 
-        page_obj = Page( request.form['id'],
-                         type,
-                         request.form['title'],
-                         current_app.config['AUTHOR_NAME'],
-                         #request.form['date'],
-                         #request.form['time'],
-                         datetime.now().strftime('%Y-%m-%d'),
-                         datetime.now().strftime('%H:%M'),
-                         request.form['tags'],
-                         request.form['text-input'] )
-
-        # actions
-
-        # add images from subpath
-        if action == "add_imgs":
-            images_subpath = request.form['imagepath']
-
-            # create and add image markdown
-            images = get_images_from_path(images_subpath)
-            img_md = gen_image_md(images_subpath, images)
+        if filenames != []:
+            # generate markdown
+            img_md = gen_image_md(subpath, filenames)
 
             # update object
             page_obj.body_md = page_obj.body_md + img_md
             page_obj.update_images()
 
-            # return
-            return render_template( 'edit.html',
-                                    preview = False,
-                                    id = page_obj.id,
-                                    page = page_obj,
-                                    images = page_obj.images )
+        # return to edit
+        return render_template( 'edit.html',
+                                preview = False,
+                                id = page_obj.id,
+                                page = page_obj,
+                                images = page_obj.images )
 
-        # upload selected images
-        elif action == "upld_imgs":
-            if not request.files.getlist("files"):
-                abort(404)
+    elif action == "preview" or action == "save":
+
+        if action == "preview":
+            return render_template( 'edit.html',
+                                     preview = True,
+                                     id = page_obj.id,
+                                     page = page_obj,
+                                     images = page_obj.images )
+        elif action == "save":
+            if page_obj.id == "new":
+                page_obj.db_write_new_entry()
+                flash("New Page saved successfully!")
             else:
-                files = request.files.getlist("files")
-
-            filenames = []
-            for file in files:
-                if file and allowed_image_file(file.filename):
-                    subpath = gen_image_subpath()
-                    filename = secure_filename(file.filename)
-                    filepath_abs = os.path.join( current_app.config['RUN_ABSPATH'],
-                                                 'media',
-                                                 subpath,
-                                                 filename )
-                    if not os.path.isfile(filepath_abs):
-                        file.save(filepath_abs)
-                    else:
-                        flash("File w/ same name already present, not saved: {}".format(filename))
-
-                    filenames.append(filename)
-
-                else:
-                    flash("Not a valid image file: {}".format(file.filename))
-
-            if filenames != []:
-                # generate markdown
-                img_md = gen_image_md(subpath, filenames)
-
-                # update object
-                page_obj.body_md = page_obj.body_md + img_md
-                page_obj.update_images()
-
-            # return to edit
-            return render_template( 'edit.html',
-                                    preview = False,
-                                    id = page_obj.id,
-                                    page = page_obj,
-                                    images = page_obj.images )
-
-        elif action == "preview" or action == "save":
-
-            if action == "preview":
-                return render_template( 'edit.html',
-                                         preview = True,
-                                         id = page_obj.id,
-                                         page = page_obj,
-                                         images = page_obj.images )
-            elif action == "save":
-                if page_obj.id == "new":
-                    page_obj.db_write_new_entry()
-                    flash("New Page saved successfully!")
-                else:
-                    page_obj.db_update_entry()
-                    flash("Page ID {} saved successfully!".format(page_obj.id))
-                return redirect(url_for('interface.overview'))
-        else:
-            abort(404)
-
-    # GET
-    # (loading from overview)
+                page_obj.db_update_entry()
+                flash("Page ID {} saved successfully!".format(page_obj.id))
+            return redirect(url_for('interface.overview'))
     else:
-        id = request.args.get('id')
-
-        if id == "new":
-            # create new
-            return render_template( 'edit.html',
-                                    preview = False,
-                                    id = id,
-                                    page = None )
-        elif id == None:
-            # abort for now
-            abort(404)
-        else:
-            row = db_load_to_edit(id)
-            return render_template( 'edit.html',
-                                    preview = False,
-                                    id = id,
-                                    page = row,
-                                    images = get_images_from_md(row['body_md']) )
+        abort(404)
 
 @interface.route('/edit_category', methods=['GET', 'POST'])
 def edit_category():
@@ -244,7 +220,6 @@ def edit_category():
             # abort for now
             abort(404)
         else:
-            #row = db_load_to_edit(id)
             row = db_load_category(id)
             return render_template( 'edit_category.html',
                                     id = id,

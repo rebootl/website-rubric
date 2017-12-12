@@ -3,17 +3,6 @@ import os
 import sqlite3
 from flask import g, abort
 
-# (curr. not used)
-#def get_entry_by_id(id):
-#    '''return entry data from database'''
-#    g.db.row_factory = sqlite3.Row
-#    cur = g.db.execute( '''SELECT type, ref, title, date_norm,
-#                            datetime_norm, body_html, data1, exifs_json,
-#                            meta_json
-#                           FROM entries
-#                           WHERE id = ?''', (id,))
-#    return cur.fetchone()
-
 ### categories
 
 def get_cat_items():
@@ -117,15 +106,13 @@ def get_entry_by_ref(ref, type, published=True):
         abort(404)
     return row
 
-# --> use get_entry_by_id above ^^
-def db_load_to_edit(id):
+def get_entry_by_id(id):
     '''gets page data by id'''
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT ref, title, author, date_norm, time_norm,
-                           tags, type, body_md
+    cur = g.db.execute('''SELECT entries.*,  categories.ref AS cat_ref
                           FROM entries
-                          WHERE id = ?
-                          LIMIT 1''', (id,))
+                          INNER JOIN categories ON entries.cat_id = categories.id
+                          WHERE entries.id = ?''', (id,))
     row = cur.fetchone()
     if row == None:
         abort(404)

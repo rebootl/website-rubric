@@ -62,28 +62,6 @@ def get_images_from_md(md_text):
 
     return images
 
-def get_images_from_path(subpath):
-    '''get image list from subpath (inside /media/)'''
-    # absolute paths
-    media_abspath = os.path.join(current_app.config['RUN_ABSPATH'], 'media')
-    images_path = os.path.join(media_abspath, subpath)
-
-    if not os.path.isdir(images_path):
-        flash("Warning: Invalid image-path given...")
-        return []
-
-    files = os.listdir(images_path)
-    # filter images
-    image_files = []
-    for file in files:
-        file_ext = os.path.splitext(file)[1]
-        if file_ext in current_app.config['IMG_EXTS']:
-            image_files.append(file)
-
-    image_files.sort()
-
-    return image_files
-
 def gen_image_md(subpath, images):
     '''generate markdown from a list of image filenames'''
     md_text = ""
