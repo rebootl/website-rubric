@@ -8,22 +8,17 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 from werkzeug.utils import secure_filename
 
-from rubric_dyn.common import url_encode_str, date_norm2, time_norm, gen_hrefs
 from rubric_dyn.db_read import db_load_category, get_entries_info, \
     get_cat_items, get_changes, get_entry_by_id
 from rubric_dyn.db_write import update_pub, db_store_category
-from rubric_dyn.helper_interface import process_input, gen_image_md, \
-    get_images_from_md, gen_image_subpath, allowed_image_file, upload_images
+from rubric_dyn.helper_interface import gen_image_md, get_images_from_md \
+    upload_images
 from rubric_dyn.Page import Page
 
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
 
-### functions returning a "view"
-
-# (none...)
-
-### routes
+### login / logout
 
 @interface.route('/', methods=['GET', 'POST'])
 def login():
@@ -53,11 +48,7 @@ def logout():
 
 @interface.route('/overview', methods=['GET', 'POST'])
 def overview():
-    '''interface overview
-shows:
-- a list of all pages
-- new page creation (done in template)
-'''
+    '''interface overview'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -76,11 +67,12 @@ shows:
                             categories = categories,
                             changes = changes )
 
-### edit / new page buttons
+### edit / new page
 
 @interface.route('/edit')
 def edit():
-    '''edit button / new page'''
+    '''shows the edit page
+edit button / new page'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -101,12 +93,10 @@ def edit():
                                 page = row,
                                 images = get_images_from_md(row['body_md']))
 
-### preview / save / cancel / upload images
-### buttons on edit page
-
 @interface.route('/edit', methods=['POST'])
 def edit_post():
-    '''edit a page entry'''
+    '''action invoked by buttons on edit page
+preview / save / cancel / upload images'''
     if not session.get('logged_in'):
         abort(401)
 
@@ -168,52 +158,7 @@ def edit_post():
     else:
         abort(404)
 
-@interface.route('/edit_category', methods=['GET', 'POST'])
-def edit_category():
-    '''edit/create a category'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    # POST
-    # button pressed on edit page (preview / save / cancel)
-    if request.method == 'POST':
-        action = request.form['actn']
-        if action == "cancel":
-            return redirect(url_for('interface.overview'))
-        elif action == "store":
-            db_store_category( request.form['id'],
-                               request.form['title'],
-                               request.form['tags'] )
-            flash("Category stored: {}".format(request.form['title']))
-            return redirect(url_for('interface.overview'))
-
-    # GET
-    # (loading from overview)
-    else:
-        id = request.args.get('id')
-
-        if id == "new":
-            # create new
-            return render_template( 'edit_category.html',
-                                    id = id,
-                                    category = None )
-        elif id == None:
-            # abort for now
-            abort(404)
-        else:
-            row = db_load_category(id)
-            return render_template( 'edit_category.html',
-                                    id = id,
-                                    category = row )
-
-@interface.route('/new')
-def new():
-    '''create new page using editor'''
-    if not session.get('logged_in'):
-        abort(401)
-
-    return render_template( 'edit.html', preview=False, id="new", \
-                            new=True, page=None )
+### publish / unpublish buttons
 
 @interface.route('/pub')
 def pub():
@@ -251,6 +196,44 @@ def unpub():
     flash('Unpublished ID {}'.format(id))
 
     return redirect(url_for('interface.overview'))
+
+### edit categories
+
+@interface.route('/edit_category')
+def edit_category():
+    '''show the edit category page
+edit / new category buttons'''
+    if not session.get('logged_in'):
+        abort(401)
+
+    id = request.args.get('id')
+    if id == "new":
+        return render_template( 'edit_category.html',
+                                id = id,
+                                category = None )
+    elif id == None:
+        abort(404)
+    else:
+        row = db_load_category(id)
+        return render_template( 'edit_category.html',
+                                id = id,
+                                category = row )
+
+@interface.route('/edit_category', methods=['POST'])
+def edit_category_post():
+    '''actions invoked on edit category page
+store / cancel'''
+    action = request.form['actn']
+    if action == "cancel":
+        return redirect(url_for('interface.overview'))
+    elif action == "store":
+        db_store_category( request.form['id'],
+                           request.form['title'],
+                           request.form['tags'] )
+        flash("Category stored: {}".format(request.form['title']))
+        return redirect(url_for('interface.overview'))
+
+### import / export
 
 @interface.route('/export_entries')
 def export_entries():

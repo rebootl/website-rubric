@@ -13,6 +13,7 @@
     <tr>
       <th>ID</th>
       <th>Title</th>
+      <th>Desc.</th>
       <th>Tags</th>
     </tr>
   </thead>
@@ -20,11 +21,8 @@
     <tr>
       <td>{{ category.id }}</td>
       <td><em>{{ category.title }}</em></td>
-      <td>{{ category.tags }}
-        {#{% for tag in topic.tags %}
-          {{ tag }},
-        {% endfor %}#}
-      </td>
+      <td>{{ category.desc }}</td>
+      <td><small>{{ category.tags }}<small></td>
       <td><button form="call-edit-category"
                   type="submit"
                   name="id" value="{{ category.id }}">Edit</button></td>
