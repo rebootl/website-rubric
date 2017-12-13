@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from rubric_dyn.db_read import db_load_category, get_entries_info, \
     get_cat_items, get_changes, get_entry_by_id
 from rubric_dyn.db_write import update_pub, db_store_category
-from rubric_dyn.helper_interface import gen_image_md, get_images_from_md \
+from rubric_dyn.helper_interface import gen_image_md, get_images_from_md, \
     upload_images
 from rubric_dyn.Page import Page
 
