@@ -112,7 +112,6 @@ preview / save / cancel / upload images'''
     # instantiate Page object
     page_obj = Page( request.form['id'],
                      request.form['type'],
-                     request.form['custom_type'],
                      request.form['title'],
                      current_app.config['AUTHOR_NAME'],
                      datetime.now().strftime('%Y-%m-%d'),
@@ -140,23 +139,26 @@ preview / save / cancel / upload images'''
                                 preview = False,
                                 id = page_obj.id,
                                 page = page_obj,
+                                types = current_app.config['ENTRY_TYPES'],
+                                categories = get_cat_items(),
                                 images = page_obj.images )
 
-    elif action == "preview" or action == "save":
-        if action == "preview":
-            return render_template( 'edit.html',
-                                     preview = True,
-                                     id = page_obj.id,
-                                     page = page_obj,
-                                     images = page_obj.images )
-        elif action == "save":
-            if page_obj.id == "new":
-                page_obj.db_write_new_entry()
-                flash("New Page saved successfully!")
-            else:
-                page_obj.db_update_entry()
-                flash("Page ID {} saved successfully!".format(page_obj.id))
-            return redirect(url_for('interface.overview'))
+    elif action == "preview":
+        return render_template( 'edit.html',
+                                 preview = True,
+                                 id = page_obj.id,
+                                 page = page_obj,
+                                 types = current_app.config['ENTRY_TYPES'],
+                                 categories = get_cat_items(),
+                                 images = page_obj.images )
+    elif action == "save":
+        if page_obj.id == "new":
+            page_obj.db_write_new_entry()
+            flash("New Page saved successfully!")
+        else:
+            page_obj.db_update_entry()
+            flash("Page ID {} saved successfully!".format(page_obj.id))
+        return redirect(url_for('interface.overview'))
     else:
         abort(404)
 

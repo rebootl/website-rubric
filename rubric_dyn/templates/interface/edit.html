@@ -25,12 +25,6 @@
       </td>
     </tr>
     <tr>
-{#      <th>Author:</th>
-      <td>
-        <input type="text" form="edit-page" name="author" value="{{ page.author }}" />
-      </td>
-    </tr>
-#}
 {#    <tr>
       <th>Date:</th>
       <td>
@@ -68,7 +62,7 @@
       <th>Category:</th>
       <td>
         {% for cat in categories %}
-          <input type="radio" form="" name="cat_id"
+          <input type="radio" form="edit-page" name="cat_id"
                  value="{{ cat.id }}"
                  {% if cat.ref == "misc-" %}checked{% endif %}>{{ cat.title }}
           </input>

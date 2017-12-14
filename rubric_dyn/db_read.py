@@ -7,6 +7,7 @@ from flask import g, abort
 
 def get_cat_items():
     '''get category items'''
+    g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT * FROM categories
                           ORDER BY title ASC''')
     return cur.fetchall()
