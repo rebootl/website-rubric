@@ -42,7 +42,7 @@ def get_entries_info():
                             entries.date_norm, entries.time_norm,
                             entries.ref, entries.pub, categories.ref AS cat_ref
                           FROM entries
-                          INNER JOIN categories ON entries.cat_id = categories.id
+                          LEFT JOIN categories ON entries.cat_id = categories.id
                           ORDER BY date_norm DESC, time_norm DESC''')
     return cur.fetchall()
 
@@ -111,7 +111,7 @@ def get_entry_by_id(id):
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT entries.*,  categories.ref AS cat_ref
                           FROM entries
-                          INNER JOIN categories ON entries.cat_id = categories.id
+                          LEFT JOIN categories ON entries.cat_id = categories.id
                           WHERE entries.id = ?''', (id,))
     row = cur.fetchone()
     if row == None:

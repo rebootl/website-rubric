@@ -91,6 +91,8 @@ edit button / new page'''
                                 preview = False,
                                 id = id,
                                 page = row,
+                                types = current_app.config['ENTRY_TYPES'],
+                                categories = get_cat_items(),
                                 images = get_images_from_md(row['body_md']))
 
 @interface.route('/edit', methods=['POST'])

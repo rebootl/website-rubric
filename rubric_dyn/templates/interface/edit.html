@@ -56,19 +56,23 @@
     <tr>
       <th>Type:</th>
       <td>
-        <input type="radio" form="edit-page" name="type" value="article" {% if page.type == 'article' %}checked{% endif %}>
-          article
-        </input>
-        <input type="radio" form="edit-page" name="type" value="note" {% if page.type == 'note' %}checked{% endif %}>
-          note
-        </input>
-        <input type="radio" form="edit-page" name="type" value="special" {% if page.type == 'special' %}checked{% endif %}>
-          special
-        </input>
-        <input type="radio" form="edit-page" name="type" value="custom" {% if page.type != 'article' and page.type != 'note' and page.type != 'special' %}checked{% endif %}>
-          custom
-        <input type="text" form="edit-page" name="custom_type" value="{% if page.type != 'article' and page.type != 'note' and page.type != 'special' %}{{ page.type }}{% endif %}" />
-        </input>
+        {% for type in types %}
+          <input type="radio" form="edit-page" name="type"
+                 value="{{ type }}"
+                 {% if page.type == type %}checked{% endif %}>{{ type }}
+          </input>
+        {% endfor %}
+      </td>
+    </tr>
+    <tr>
+      <th>Category:</th>
+      <td>
+        {% for cat in categories %}
+          <input type="radio" form="" name="cat_id"
+                 value="{{ cat.id }}"
+                 {% if cat.ref == "misc-" %}checked{% endif %}>{{ cat.title }}
+          </input>
+        {% endfor %}
       </td>
     </tr>
   </table>
