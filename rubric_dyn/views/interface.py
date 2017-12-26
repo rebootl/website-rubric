@@ -109,15 +109,22 @@ preview / save / cancel / upload images'''
     if action == "cancel":
         return redirect(url_for('interface.overview'))
 
+    # get checkbox value
+    if request.form.get('show_home'):
+        show_home = True
+    else:
+        show_home = False
+
     # instantiate Page object
-    page_obj = Page( request.form['id'],
-                     request.form['type'],
-                     request.form['title'],
+    page_obj = Page( request.form.get('id'),
+                     request.form.get('type'),
+                     request.form.get('title'),
                      current_app.config['AUTHOR_NAME'],
                      datetime.now().strftime('%Y-%m-%d'),
                      datetime.now().strftime('%H:%M'),
-                     request.form['tags'],
-                     request.form['text-input'] )
+                     request.form.get('tags'),
+                     request.form.get('text-input'),
+                     show_home )
 
     # upload selected images
     if action == "upld_imgs":

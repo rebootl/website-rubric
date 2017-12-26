@@ -59,6 +59,13 @@
       </td>
     </tr>
     <tr>
+      <th>Display:</th>
+      <td>
+        <input type="checkbox" form="edit-page" name="show_home"
+          {% if page.show_home %}checked{% endif %}>Show on home</input>
+      </td>
+    </tr>
+    <tr>
       <th>Category:</th>
       <td>
         {% for cat in categories %}

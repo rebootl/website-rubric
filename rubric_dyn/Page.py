@@ -11,7 +11,7 @@ class Page:
 
     def __init__(self, id, type, title, author,
                  date_str, time_str, tags, body_md,
-                 pub=0):
+                 show_home, pub=0):
         '''assembling data,
 norm and set defaults if necessary'''
 
@@ -37,19 +37,11 @@ norm and set defaults if necessary'''
 
         self.tags = tags
         self.body_md = body_md
+        self.show_home = show_home
         self.pub = pub
 
         # process input
         self.body_html = process_input(self.body_md)
-
-        # backward compatibility data
-        # --> remove this crap !!!
-        #self.date_str = "NOT_SET"
-        #self.datetime_norm = "NOT_SET"
-        #self.body_md5sum = "NOT_SET"
-        #self.meta_json = "NOT_SET"
-        #self.data1 = None
-        #self.img_exifs_json = None
 
         self.update_images()
 
