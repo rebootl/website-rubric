@@ -15,7 +15,9 @@
       <th>Time</th>
       <th>Type</th>
       <th>Title</th>
-      <th>Published</th>
+      <th>Cat.</th>
+      <th>Home</th>
+      <th>Pub.</th>
     </tr>
   </thead>
   <tbody>
@@ -24,15 +26,7 @@
       <td>{{ entry.id }}</td>
       <td>{{ entry.date_norm }}</td>
       <td>{{ entry.time_norm }}</td>
-      <td>
-        {% if entry.type == 'latest' %}
-          <a href="/latest/">latest</a>
-        {% elif entry.type == 'history' %}
-          <a href="/history/">history</a>
-        {% else %}
-          {{ entry.type }}
-        {% endif %}
-      </td>
+      <td>{{ entry.type }}</td>
       <td>
         {% if entry.pub %}
           <a href="/{{ entry.cat_ref }}/{{ entry.date_norm }}/{{ entry.ref }}">{{ entry.title }}</a>
@@ -40,6 +34,8 @@
           {{ entry.title }}
         {% endif %}
       </td>
+      <td>{{ entry.cat_title }}</td>
+      <td>{{ entry.note_show_home }}</td>
       <td>
       {% if entry.pub %}
         <button form="call-unpub" type="submit" name="id" value="{{ entry.id }}" title="Unpublish">

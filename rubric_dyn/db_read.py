@@ -41,7 +41,9 @@ def get_entries_info():
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT entries.id, entries.type, entries.title,
                             entries.date_norm, entries.time_norm,
-                            entries.ref, entries.pub, categories.ref AS cat_ref
+                            entries.ref, entries.pub, entries.note_show_home,
+                            categories.title AS cat_title,
+                            categories.ref AS cat_ref
                           FROM entries
                           LEFT JOIN categories
                            ON entries.note_cat_id = categories.id
