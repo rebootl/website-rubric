@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from rubric_dyn.db_read import db_load_category, get_entries_info, \
     get_cat_items, get_changes, get_entry_by_id
 from rubric_dyn.db_write import update_pub, db_store_category
+from rubric_dyn.common import url_encode_str
 from rubric_dyn.helper_interface import gen_image_md, get_images_from_md, \
     upload_images
 from rubric_dyn.Page import Page
@@ -77,10 +78,10 @@ edit button / new page'''
         abort(401)
 
     id = request.args.get('id')
-
     if id == None:
         abort(404)
-    elif id == "new":
+
+    if id == "new":
         row = None
         images = None
     else:
@@ -213,10 +214,10 @@ edit / new category buttons'''
         abort(401)
 
     id = request.args.get('id')
-
     if id == None:
         abort(404)
-    elif id == "new":
+
+    if id == "new":
         row = None
     else:
         row = db_load_category(id)
@@ -229,15 +230,24 @@ edit / new category buttons'''
 def edit_category_post():
     '''actions invoked on edit category page
 store / cancel'''
+    if not session.get('logged_in'):
+        abort(401)
+
     action = request.form['actn']
+
     if action == "cancel":
         return redirect(url_for('interface.overview'))
     elif action == "store":
         db_store_category( request.form['id'],
+                           url_encode_str(request.form['title']),
                            request.form['title'],
+                           request.form['desc'],
                            request.form['tags'] )
         flash("Category stored: {}".format(request.form['title']))
-        return redirect(url_for('interface.overview'))
+    else:
+        abort(404)
+
+    return redirect(url_for('interface.overview'))
 
 ### import / export
 

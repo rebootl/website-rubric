@@ -25,7 +25,7 @@ def get_cat_by_ref(cat_ref):
 def db_load_category(id):
     '''load category'''
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT id, title, tags
+    cur = g.db.execute('''SELECT *
                           FROM categories
                           WHERE id = ?''', (id,))
     row = cur.fetchone()
