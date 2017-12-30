@@ -43,7 +43,8 @@ def get_entries_info():
                             entries.date_norm, entries.time_norm,
                             entries.ref, entries.pub, categories.ref AS cat_ref
                           FROM entries
-                          LEFT JOIN categories ON entries.cat_id = categories.id
+                          LEFT JOIN categories
+                           ON entries.note_cat_id = categories.id
                           ORDER BY date_norm DESC, time_norm DESC''')
     return cur.fetchall()
 
@@ -52,10 +53,11 @@ def get_entries_by_cat(cat_id, n):
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT entries.*, categories.ref AS cat_ref
                           FROM entries
-                          INNER JOIN categories ON entries.cat_id = categories.id
+                          INNER JOIN categories
+                           ON entries.note_cat_id = categories.id
                           WHERE ( type = 'note' OR TYPE = 'blog' )
                            AND pub = 1
-                           AND cat_id = ?
+                           AND note_cat_id = ?
                           ORDER BY date_norm DESC, time_norm DESC
                           LIMIT ? ''', (cat_id, n))
     return cur.fetchall()
@@ -65,7 +67,8 @@ def get_entries_for_home(n):
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT entries.*, categories.ref AS cat_ref
                           FROM entries
-                          INNER JOIN categories ON entries.cat_id = categories.id
+                          INNER JOIN categories
+                           ON entries.note_cat_id = categories.id
                           WHERE type = 'blog'
                            AND pub = 1
                           ORDER BY date_norm DESC, time_norm DESC
@@ -112,7 +115,8 @@ def get_entry_by_id(id):
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT entries.*,  categories.ref AS cat_ref
                           FROM entries
-                          LEFT JOIN categories ON entries.cat_id = categories.id
+                          LEFT JOIN categories
+                           ON entries.note_cat_id = categories.id
                           WHERE entries.id = ?''', (id,))
     row = cur.fetchone()
     if row == None:

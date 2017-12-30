@@ -78,22 +78,22 @@ edit button / new page'''
 
     id = request.args.get('id')
 
-    if id == "new":
-        return render_template('edit.html',
-                                preview = False,
-                                id = id,
-                                page = None)
-    elif id == None:
+    if id == None:
         abort(404)
+    elif id == "new":
+        row = None
+        images = None
     else:
         row = get_entry_by_id(id)
-        return render_template('edit.html',
-                                preview = False,
-                                id = id,
-                                page = row,
-                                types = current_app.config['ENTRY_TYPES'],
-                                categories = get_cat_items(),
-                                images = get_images_from_md(row['body_md']))
+        images = get_images_from_md(row['body_md'])
+
+    return render_template('edit.html',
+                            preview = False,
+                            id = id,
+                            page = row,
+                            types = current_app.config['ENTRY_TYPES'],
+                            categories = get_cat_items(),
+                            images = images)
 
 @interface.route('/edit', methods=['POST'])
 def edit_post():
@@ -109,12 +109,6 @@ preview / save / cancel / upload images'''
     if action == "cancel":
         return redirect(url_for('interface.overview'))
 
-    # get checkbox value
-    if request.form.get('show_home'):
-        show_home = True
-    else:
-        show_home = False
-
     # instantiate Page object
     page_obj = Page( request.form.get('id'),
                      request.form.get('type'),
@@ -124,7 +118,8 @@ preview / save / cancel / upload images'''
                      datetime.now().strftime('%H:%M'),
                      request.form.get('tags'),
                      request.form.get('text-input'),
-                     show_home )
+                     request.form.get('cat_id'),
+                     1 if request.form.get('show_home') else 0 )
 
     # upload selected images
     if action == "upld_imgs":
@@ -218,17 +213,17 @@ edit / new category buttons'''
         abort(401)
 
     id = request.args.get('id')
-    if id == "new":
-        return render_template( 'edit_category.html',
-                                id = id,
-                                category = None )
-    elif id == None:
+
+    if id == None:
         abort(404)
+    elif id == "new":
+        row = None
     else:
         row = db_load_category(id)
-        return render_template( 'edit_category.html',
-                                id = id,
-                                category = row )
+
+    return render_template('edit_category.html',
+                            id = id,
+                            category = row)
 
 @interface.route('/edit_category', methods=['POST'])
 def edit_category_post():
