@@ -130,39 +130,10 @@ def get_entry_by_id(id):
 def get_changes():
     '''get list of changes from changelog'''
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT changelog.*, entries.title AS entry_title
+    cur = g.db.execute('''SELECT changelog.*,
+                           entries.title AS entry_title
                           FROM changelog
-                          INNER JOIN entries ON entries.id = changelog.entry_id
+                          INNER JOIN entries
+                           ON entries.id = changelog.entry_id
                           ORDER BY date_norm DESC, time_norm DESC''')
     return cur.fetchall()
-
-### other
-
-def get_ref(id):
-    cur = g.db.execute( '''SELECT ref
-                           FROM entries
-                           WHERE id = ?''', (id,) )
-    row = cur.fetchone()
-    if row is None:
-        abort(404)
-    return row[0]
-
-def get_numentries(date):
-    '''get number of untitled entries for date'''
-    cur = g.db.execute( '''SELECT id
-                           FROM entries
-                           WHERE date_norm = ?''',
-                        (date,))
-    rows = cur.fetchall()
-    return len(rows)
-
-def get_latest():
-    '''get latest entry id (used for changelog)'''
-    cur = g.db.execute('''SELECT id FROM entries
-                          ORDER BY id DESC
-                          LIMIT 1''')
-    row = cur.fetchone()
-    if row != []:
-        return row[0]
-    else:
-        return None
