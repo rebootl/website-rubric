@@ -2,9 +2,12 @@
 
 *** rework concept 2017-11 ***
 
+1) update database data
+
 - rework date/time functions/norming in Page class and general
 
 - make default cat. configurable in config
+    ==> DONE
 
 - create overlay interface on website for easy editing,
   appears when logged-in

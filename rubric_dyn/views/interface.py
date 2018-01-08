@@ -94,6 +94,7 @@ edit button / new page'''
                             page = row,
                             types = current_app.config['ENTRY_TYPES'],
                             categories = get_cat_items(),
+                            default_cat_id = current_app.config['DEFAULT_CAT_ID'],
                             images = images)
 
 @interface.route('/edit', methods=['POST'])

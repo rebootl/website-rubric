@@ -71,7 +71,11 @@
         {% for cat in categories %}
           <input type="radio" form="edit-page" name="cat_id"
                  value="{{ cat.id }}"
-                 {% if cat.ref == "misc-" %}checked{% endif %}>{{ cat.title }}
+                 {% if id == "new" %}
+                   {% if cat.id == default_cat_id %}checked{% endif %}
+                 {% else %}
+                   {% if page.cat_id == cat.id %}checked{% endif %}
+                 {% endif %}>{{ cat.title }}
           </input>
         {% endfor %}
       </td>

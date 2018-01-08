@@ -115,7 +115,7 @@ def get_entry_by_ref(ref, type, published=True):
 def get_entry_by_id(id):
     '''gets page data by id'''
     g.db.row_factory = sqlite3.Row
-    cur = g.db.execute('''SELECT entries.*,  categories.ref AS cat_ref
+    cur = g.db.execute('''SELECT entries.*,  categories.id AS cat_id
                           FROM entries
                           LEFT JOIN categories
                            ON entries.note_cat_id = categories.id
