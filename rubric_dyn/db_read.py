@@ -57,7 +57,7 @@ def get_entries_by_cat(cat_id, n):
                           FROM entries
                           INNER JOIN categories
                            ON entries.note_cat_id = categories.id
-                          WHERE ( type = 'note' OR TYPE = 'blog' )
+                          WHERE type = 'note'
                            AND pub = 1
                            AND note_cat_id = ?
                           ORDER BY date_norm DESC, time_norm DESC
@@ -65,14 +65,15 @@ def get_entries_by_cat(cat_id, n):
     return cur.fetchall()
 
 def get_entries_for_home(n):
-    '''get n entries of type blog for the home view'''
+    '''get n entries for the home view'''
     g.db.row_factory = sqlite3.Row
     cur = g.db.execute('''SELECT entries.*, categories.ref AS cat_ref
                           FROM entries
                           INNER JOIN categories
                            ON entries.note_cat_id = categories.id
-                          WHERE type = 'blog'
+                          WHERE type = 'note'
                            AND pub = 1
+                           AND note_show_home = 1
                           ORDER BY date_norm DESC, time_norm DESC
                           LIMIT ?''', (n,))
     return cur.fetchall()
@@ -87,7 +88,7 @@ def get_entry_by_date_ref(date, ref, published=True):
     cur = g.db.execute( '''SELECT * FROM entries
                            WHERE date_norm = ?
                            AND ref = ?
-                           AND ( type = 'note' OR type = 'blog' )
+                           AND type = 'note'
                            AND pub = ?''', (date, ref, pub) )
     row = cur.fetchone()
     if row is None:
