@@ -13,7 +13,6 @@ from rubric_dyn.helper_pages import create_page_nav
 
 pages = Blueprint('pages', __name__)
 
-
 ### helper
 
 def gen_timeline_date_sets(pages_rows):
@@ -52,24 +51,24 @@ def gen_timeline_date_sets(pages_rows):
 
     return date_sets
 
-### functions returning a view
-# ...
-
-def render_catmenu(*args, **kwargs):
-    '''render wrapper incl. the menu'''
-    cat_menuitems = get_cat_items()
-
-    return render_template(*args, **kwargs, cat_menuitems = cat_menuitems)
-
 def render_timeline(title, pages_rows):
     '''render a timeline view'''
 
     #hrefs = gen_hrefs(pages_rows)
     date_sets = gen_timeline_date_sets(pages_rows)
 
-    return render_catmenu('timeline.html',
+    return render_final('timeline.html',
                            title = title,
                            date_sets = date_sets)
+
+### functions returning a view
+
+def render_final(*args, **kwargs):
+    '''final render wrapper
+- incl. categories for menu'''
+    cat_menuitems = get_cat_items()
+
+    return render_template(*args, **kwargs, cat_menuitems = cat_menuitems)
 
 ### routes
 
@@ -123,10 +122,10 @@ def special(ref):
 
     row = get_entry_by_ref(ref, 'special')
 
-    return render_template( 'post.html',
-                            title = row['title'],
-                            page = row,
-                            page_nav = None )
+    return render_final( 'post.html',
+                         title = row['title'],
+                         page = row,
+                         page_nav = None )
 
 @pages.route('/<cat_ref>/<date>/<ref>/')
 def entry(cat_ref, date, ref):
@@ -138,7 +137,7 @@ def entry(cat_ref, date, ref):
     page_nav = create_page_nav( row['id'],
                                 row['type'] )
 
-    return render_template( 'post.html',
-                            title = row['title'],
-                            page = row,
-                            page_nav = page_nav )
+    return render_final( 'post.html',
+                         title = row['title'],
+                         page = row,
+                         page_nav = page_nav )

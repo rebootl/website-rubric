@@ -2,7 +2,18 @@
 
 *** rework concept 2017-11 ***
 
-1) update database data
+- fix page navigation
+  - timeline / list switch
+      timeline showing n entries (make configurable)
+      list showing all entries
+  - entry view
+      back to timeline/list
+      next/prev. entry in cat.
+
+- improve/rework timeline preview
+  - add cut after 1-2 images
+
+- cleanup config
 
 - rework date/time functions/norming in Page class and general
 
@@ -28,6 +39,7 @@
   - Archiv  -- tbd
 
 - adapt backend as needed
+    ==> DONE (for now
 
 - min-height for menu --> evtl. js toggle
 

@@ -1,7 +1,7 @@
 <nav id="main-nav" class="menu-default-pos menu-hidden">
   <ul class="sections-nav-list">
     <li><a href="{{ url_for('pages.home') }}">Home</a></li>
-    <li class="menu-submenu">Notes
+    <li class="menu-submenu"><span class="main-menu-topics">Categories</span>
       <ul>
       {% for item in cat_menuitems %}
         <li><a href="/{{ item.ref }}">{{ item.title }}</a></li>
@@ -10,7 +10,7 @@
     </li>
     <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
   </ul>
-  {#<ul id="specials-nav-list">
-    <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
-  </ul>#}
+{#<ul id="specials-nav-list">
+  <li><a href="{{ url_for('pages.special', ref='about') }}">About</a></li>
+</ul>#}
 </nav>
