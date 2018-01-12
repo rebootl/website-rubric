@@ -7,8 +7,8 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
 from rubric_dyn.db_read import get_entry_by_ref, get_entry_by_date_ref, \
-    get_cat_by_ref, get_entries_by_cat, \
-    get_entries_for_home, get_cat_items
+    get_cat_by_ref, get_entries_by_cat, get_entries_for_home, get_cat_items, \
+    get_listentries_by_cat
 from rubric_dyn.helper_pages import create_page_nav
 
 pages = Blueprint('pages', __name__)
@@ -58,8 +58,8 @@ def render_timeline(title, pages_rows):
     date_sets = gen_timeline_date_sets(pages_rows)
 
     return render_final('timeline.html',
-                           title = title,
-                           date_sets = date_sets)
+                         title = title,
+                         date_sets = date_sets)
 
 ### functions returning a view
 
@@ -97,10 +97,15 @@ def cat_view(cat_ref):
 
 @pages.route('/<cat_ref>/list/')
 def cat_list(cat_ref):
-    '''ToDo: show entries from given category as list
-this shall be used to show all entries by clicking on list button
+    '''show all entries from given category as list
+used to show all entries by clicking on list button
 below timeline'''
-    pass
+    cat_row = get_cat_by_ref(cat_ref)
+
+    return render_final('list.html',
+                        title = cat_row['title'],
+                        cat_ref = cat_row['ref'],
+                        pages = get_listentries_by_cat(cat_row['id']))
 
 # evtl. (re-)implement
 #

@@ -64,6 +64,18 @@ def get_entries_by_cat(cat_id, n):
                           LIMIT ? ''', (cat_id, n))
     return cur.fetchall()
 
+def get_listentries_by_cat(cat_id):
+    '''get a list of entries for given category (id)'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT id, ref, date_norm, time_norm, title, tags
+                          FROM entries
+                          WHERE type = 'note'
+                           AND pub = 1
+                           AND note_cat_id = ?
+                          ORDER BY date_norm DESC, time_norm DESC''',
+                          (cat_id,))
+    return cur.fetchall()
+
 def get_entries_for_home(n):
     '''get n entries for the home view'''
     g.db.row_factory = sqlite3.Row
