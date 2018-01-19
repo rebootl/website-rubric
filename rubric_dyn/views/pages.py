@@ -51,17 +51,6 @@ def gen_timeline_date_sets(pages_rows):
 
     return date_sets
 
-def render_timeline(title, pages_rows, page_nav = None):
-    '''render a timeline view'''
-
-    #hrefs = gen_hrefs(pages_rows)
-    date_sets = gen_timeline_date_sets(pages_rows)
-
-    return render_final('timeline.html',
-                         title = title,
-                         date_sets = date_sets,
-                         page_nav = page_nav)
-
 ### functions returning a view
 
 def render_final(*args, **kwargs):
@@ -84,7 +73,9 @@ alternatively something like a featured entry could be used'''
     n = 5
     pages_rows = get_entries_for_home(n)
 
-    return render_timeline('Home', pages_rows)
+    return render_final('home.html',
+                        title = 'Home',
+                        date_sets = gen_timeline_date_sets(pages_rows))
 
 @pages.route('/<cat_ref>/')
 def cat_view(cat_ref):
@@ -97,9 +88,9 @@ def cat_view(cat_ref):
     page_nav = { 'type': 'cat',
                  'index_href': "list" }
 
-    return render_timeline(cat_row['title'],
-                           pages_rows,
-                           page_nav)
+    return render_final('timeline.html',
+                        title = cat_row['title'],
+                        date_sets = gen_timeline_date_sets(pages_rows))
 
 @pages.route('/<cat_ref>/list/')
 def cat_list(cat_ref):
