@@ -90,7 +90,8 @@ def cat_view(cat_ref):
 
     return render_final('timeline.html',
                         title = cat_row['title'],
-                        date_sets = gen_timeline_date_sets(pages_rows))
+                        date_sets = gen_timeline_date_sets(pages_rows),
+                        page_nav = page_nav)
 
 @pages.route('/<cat_ref>/list/')
 def cat_list(cat_ref):
