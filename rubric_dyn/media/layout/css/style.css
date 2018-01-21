@@ -211,6 +211,7 @@ article {
        same problematic as for body background */
     background-color: #151515;
     color: #b0b0b0;
+    position: relative;
 }
 
 article h1 {
@@ -404,6 +405,7 @@ hr {
 /* <nav> #page-nav <div> */
 #prev-link-box {
     border-right: 1px solid #333;
+    position: absolute;
 }
 
 #next-link-box {
@@ -417,7 +419,7 @@ hr {
     margin-left: auto;
     margin-right: auto;
     width: 48px;
-    margin-top: -43px;
+    /*margin-top: -43px;*/
 }
 
 /* <nav> */
@@ -426,6 +428,25 @@ hr {
 }
 
 /* MAIN VIEWS, LISTS, etc. */
+
+/* Category views */
+
+.cat-nav-button {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+/*    background-color: #212121;*/
+    border: 1px solid #333;
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+}
+
+.cat-nav-button img {
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+}
 
 /* Home */
 

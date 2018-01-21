@@ -38,10 +38,11 @@
 {% include 'navigation.html' %}
 
 <article id="page-content" class="{% if imagepage %}imagepage-article{% endif %}">
-  {% if title == "NOT_SET" %}
-    {#<h1 class="date">(untitled)</h1>#}
-  {% else %}
+  {% if title != "NOT_SET" %}
     <h1>{{ title }}</h1>
+  {% endif %}
+  {% if cat_nav %}
+    {% include 'cat_nav.html' %}
   {% endif %}
   {% block body %}{% endblock %}
   <footer>
