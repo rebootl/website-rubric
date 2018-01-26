@@ -4,8 +4,11 @@
 
 - fix page navigation
   - timeline / list switch
-      timeline showing n entries (make configurable)
+      ==> DONE
+      timeline showing n entries
+        ==> DONE (make configurable)
       list showing all entries
+        ==> DONE
   - entry view
       back to timeline/list
       next/prev. entry in cat.

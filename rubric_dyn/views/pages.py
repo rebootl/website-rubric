@@ -137,8 +137,9 @@ def entry(cat_ref, date, ref):
     row = get_entry_by_date_ref(date, ref)
 
     # get previous/next navigation
-    page_nav = create_page_nav( row['id'],
-                                row['type'] )
+    page_nav = create_page_nav( row['note_cat_id'],
+                                row['date_norm'],
+                                row['time_norm'] )
 
     return render_final( 'post.html',
                          title = row['title'],

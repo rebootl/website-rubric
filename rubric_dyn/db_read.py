@@ -150,3 +150,36 @@ def get_changes():
                            ON entries.id = changelog.entry_id
                           ORDER BY date_norm DESC, time_norm DESC''')
     return cur.fetchall()
+
+### previous/next entry
+
+def get_next_entryref(cat_id, date_norm, time_norm):
+    '''get the next entry ref info by cat., date and time'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT ref, date_norm from entries
+                          WHERE (( date_norm = ? AND time_norm > ? )
+                            OR date_norm > ? )
+                            AND note_cat_id = ?
+                            AND pub = 1
+                          ORDER BY date_norm ASC, time_norm ASC
+                          LIMIT 1''',
+                       (date_norm, time_norm, date_norm, cat_id))
+    return cur.fetchone()
+
+def get_prev_entryref(cat_id, date_norm, time_norm):
+    '''get the next entry ref info by cat., date and time'''
+    g.db.row_factory = sqlite3.Row
+    cur = g.db.execute('''SELECT ref, date_norm from entries
+                          WHERE (( date_norm = ? AND time_norm < ? )
+                            OR date_norm < ? )
+                            AND note_cat_id = ?
+                            AND pub = 1
+                          ORDER BY date_norm DESC, time_norm DESC
+                          LIMIT 1''',
+                       (date_norm, time_norm, date_norm, cat_id))
+    # (debug-print)
+    #rows = cur.fetchall()
+    #for row in rows:
+    #    print(row['date_norm'], row['ref'])
+    #return rows[0]
+    return cur.fetchone()

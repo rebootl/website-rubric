@@ -7,6 +7,8 @@ from flask import g
 from flask import current_app
 
 from rubric_dyn.common import gen_href
+from rubric_dyn.db_read import get_next_entryref, get_prev_entryref, \
+    db_load_category
 
 def gen_changelog(change_rows):
     '''generate changelog output ordered by dates'''
@@ -82,84 +84,28 @@ def gen_changelog(change_rows):
 
     return date_sets
 
-def gen_page_nav(curr_id, rows, prefix, date_path=False):
-    '''get previous and next entry from list of db entries
-and generate page_nav'''
-    cnt = 0
-    for row in rows:
-        if row['id'] == curr_id:
-            break
-        cnt += 1
+def create_page_nav(cat_id, date_norm, time_norm):
 
-    prev_row_num = cnt-1
-    if prev_row_num < 0:
-        page_nav = { 'prev_href': None }
-    elif date_path:
-        page_nav = { 'prev_href': os.path.join( prefix,
-            rows[prev_row_num]['date_norm'],
-            rows[prev_row_num]['ref'] ) }
-    else:
-        page_nav = { 'prev_href': os.path.join( prefix,
-            rows[prev_row_num]['ref'] ) }
+    row_next = get_next_entryref(cat_id, date_norm, time_norm)
+    row_prev = get_prev_entryref(cat_id, date_norm, time_norm)
 
-    next_row_num = cnt+1
-    if next_row_num > len(rows)-1:
-        page_nav['next_href'] = None
-    elif date_path:
-        page_nav['next_href'] = os.path.join( prefix,
-            rows[next_row_num]['date_norm'],
-            rows[next_row_num]['ref'] )
+    cat_row = db_load_category(cat_id)
+
+    if row_next == None:
+        page_nav = { 'next_href': None }
     else:
-        page_nav['next_href'] = os.path.join( prefix,
-            rows[next_row_num]['ref'] )
+        page_nav = { 'next_href': os.path.join('/',
+                                               cat_row['ref'],
+                                               row_next['date_norm'],
+                                               row_next['ref']) }
+    if row_prev == None:
+        page_nav['prev_href'] = None
+    else:
+        page_nav['prev_href'] = os.path.join('/',
+                                             cat_row['ref'],
+                                             row_prev['date_norm'],
+                                             row_prev['ref'])
+
+    page_nav['index_href'] = os.path.join('/', cat_row['ref'])
 
     return page_nav
-
-def create_page_nav(curr_id, curr_type, index="/"):
-    '''create previous/next navigation for posts (using same type)'''
-
-    # get all items as list
-    # get the current index
-    # get the next and preview out of list
-    # --> evtl. this could all be done by a sqlite query,
-    #     but how ? the query would become very complicated...
-
-    # another variant would be (better for larger dataset)
-    # select all with the same datetime
-    # if there are order by another criteria
-    # and get the next/previous
-    # else get the next/previous by datetime
-
-    g.db.row_factory = sqlite3.Row
-    cur = g.db.execute( '''SELECT id, ref, date_norm
-                           FROM entries
-                           WHERE date_norm IS NOT 'NOT_SET'
-                           AND ( type = ? )
-                           AND pub = 1
-                           ORDER BY date_norm ASC, time_norm ASC''',
-                           (curr_type,) )
-    rows = cur.fetchall()
-
-
-    if curr_type in current_app.config['PAGE_TYPES_PREFIXES'].keys():
-        prefix = os.path.join(
-            '/',
-            current_app.config['PAGE_TYPES_PREFIXES'][curr_type]
-        )
-    else:
-        prefix = '/'
-
-    page_nav = gen_page_nav(curr_id, rows, prefix, True)
-
-    page_nav['index'] = prefix
-
-    return page_nav
-
-# (--> DEPRECATED, since tags are csv)
-#def extract_tags(meta_json):
-#    '''extract tags from json'''
-#    meta = json.loads(meta_json)
-#    if 'tags' in meta.keys():
-#        return meta['tags']
-#    else:
-#        return None
