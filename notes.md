@@ -2,6 +2,8 @@
 
 *** rework concept 2017-11 ***
 
+- cats not sel. on preview
+
 - fix page navigation
   - timeline / list switch
       ==> DONE
@@ -13,12 +15,17 @@
       back to timeline/list
       next/prev. entry in cat.
 
+    --> check/fix hint texts
+
 - improve/rework timeline preview
   - add cut after 1-2 images
+
+- check/rework image handling
 
 - cleanup config
 
 - rework date/time functions/norming in Page class and general
+  - evtl. one field for date and time
 
 - make default cat. configurable in config
     ==> DONE

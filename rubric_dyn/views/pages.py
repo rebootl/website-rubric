@@ -9,47 +9,9 @@ from flask import Blueprint, render_template, g, request, session, redirect, \
 from rubric_dyn.db_read import get_entry_by_ref, get_entry_by_date_ref, \
     get_cat_by_ref, get_entries_by_cat, get_entries_for_home, get_cat_items, \
     get_listentries_by_cat
-from rubric_dyn.helper_pages import create_page_nav
+from rubric_dyn.helper_pages import gen_timeline_date_sets, create_page_nav
 
 pages = Blueprint('pages', __name__)
-
-### helper
-
-def gen_timeline_date_sets(pages_rows):
-    '''generate timeline entries'''
-    # create list (--> use list sqlite.Row instead ???)
-    pages = []
-    for page_row in pages_rows:
-        page = dict(page_row)
-
-        # limit page length
-        #  more than three paragraphs
-        if page['body_html'].count('</p>') > 3:
-            body_html_cut = "</p>".join(page['body_html'].split("</p>", 3)[:3])
-            page['body_html'] = body_html_cut
-            page['cut'] = True
-        # --> more than one image
-        #elif ...
-
-        pages.append(page)
-
-    date_sets = []
-    last_date = ""
-    for page in pages_rows:
-        curr_date = page['date_norm']
-        if curr_date != last_date:
-            date_set = { 'date': curr_date,
-                         'pages': [] }
-            date_sets.append(date_set)
-            last_date = curr_date
-
-    # add the changes to the sets
-    for date_set in date_sets:
-        for page in pages:
-            if page['date_norm'] == date_set['date']:
-                date_set['pages'].append(page)
-
-    return date_sets
 
 ### functions returning a view
 

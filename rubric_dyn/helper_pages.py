@@ -84,6 +84,47 @@ def gen_changelog(change_rows):
 
     return date_sets
 
+def gen_timeline_date_sets(pages_rows):
+    '''generate timeline entries'''
+    # create list (--> use list sqlite.Row instead ???)
+    pages = []
+    for page_row in pages_rows:
+        page = dict(page_row)
+
+        # limit page length
+        #  more than three paragraphs
+        if page['body_html'].count('</p>') > 3:
+            body_html_cut = "</p>".join(page['body_html'].split("</p>", 3)[:3])
+            page['body_html'] = body_html_cut
+            page['cut'] = True
+        # more than one image
+        if page['body_html'].count('</figure>') > 1:
+            body_html_cut = page['body_html'].split('</figure>')[0] + '</figure>'
+            print(body_html_cut)
+            page['body_html'] = body_html_cut
+            page['cut'] = True
+        #if ...
+
+        pages.append(page)
+
+    date_sets = []
+    last_date = ""
+    for page in pages_rows:
+        curr_date = page['date_norm']
+        if curr_date != last_date:
+            date_set = { 'date': curr_date,
+                         'pages': [] }
+            date_sets.append(date_set)
+            last_date = curr_date
+
+    # add the changes to the sets
+    for date_set in date_sets:
+        for page in pages:
+            if page['date_norm'] == date_set['date']:
+                date_set['pages'].append(page)
+
+    return date_sets
+
 def create_page_nav(cat_id, date_norm, time_norm):
 
     row_next = get_next_entryref(cat_id, date_norm, time_norm)

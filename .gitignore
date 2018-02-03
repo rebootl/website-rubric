@@ -13,7 +13,7 @@ test*
 
 config.py
 upload.sh
-slocs
+slocs*
 
 *.json*
 schema.sql_*
