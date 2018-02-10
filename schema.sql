@@ -1,55 +1,30 @@
-drop table if exists entries;
-create table entries (
-  id integer primary key autoincrement,
-  ref text not null,
-  type text not null,
-  title text not null,
-  author text not null,
+CREATE TABLE IF NOT EXISTS changelog (
+  id        integer primary key autoincrement,
+  entry_id  integer not null,
+  mod_type  text not null,
   date_norm text not null,
   time_norm text not null,
-  body_html text not null,
-  body_md text not null,
-  tags text,
-  pub int default 0
+  pub       int default 0
 );
-
-drop table if exists changelog;
-create table changelog (
-  id integer primary key autoincrement,
-  entry_id integer not null,
-  mod_type text not null,
-  date_norm text not null,
-  time_norm text not null,
-  pub int default 0
+CREATE TABLE IF NOT EXISTS "categories" (
+	`id`	integer PRIMARY KEY AUTOINCREMENT,
+	`ref`	TEXT NOT NULL,
+	`title`	text NOT NULL,
+	`desc`	TEXT,
+	`tags`	text
 );
-
-drop table if exists categories;
-create table categories (
-  id integer primary key autoincrement,
-  title text not null,
-  tags text
+CREATE TABLE IF NOT EXISTS "entries" (
+	`id`	integer PRIMARY KEY AUTOINCREMENT,
+	`ref`	text NOT NULL,
+	`type`	text NOT NULL,
+	`title`	text NOT NULL,
+	`author`	text NOT NULL,
+	`date_norm`	text NOT NULL,
+	`time_norm`	text NOT NULL,
+	`body_html`	text NOT NULL,
+	`body_md`	text NOT NULL,
+	`tags`	text,
+	`pub`	int NOT NULL DEFAULT 0,
+	`note_cat_id`	INTEGER,
+	`note_show_home`	INTEGER DEFAULT 0
 );
-
-/* not used atm. */
-/*drop table if exists galleries;
-create table galleries (
-  id integer primary key autoincrement,
-  ref text not null,
-  title text not null,
-  desc text not null,
-  tags text not null,
-  date_norm text not null,
-  pub int default 0
-);
-
-drop table if exists images;
-create table images (
-  id integer primary key autoincrement,
-  ref text not null,
-  thumb_ref text not null,
-  caption text not null,
-  datetime_norm text not null,
-  exif_json text not null,
-  gallery_id int,
-  pub ind default 1
-);*/
