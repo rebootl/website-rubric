@@ -239,7 +239,7 @@ def process_input(text_md):
 
     # process markdown
     body_html_subst = pandoc_pipe( text_md_subst,
-                                   [ '--to=html5', '--smart' ] )
+                                   [ '--to=html5' ] )
 #                                   [ '--to=html5',
 #                                     '--toc',
 #                                     '--template=/home/cem/Scripts/rubric-dyn/rubric_dyn/templates/pandoc/pandoc-base.html' ] )
