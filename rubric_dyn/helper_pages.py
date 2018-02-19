@@ -100,7 +100,8 @@ def gen_timeline_date_sets(pages_rows):
         # more than one image
         if page['body_html'].count('</figure>') > 1:
             body_html_cut = page['body_html'].split('</figure>')[0] + '</figure>'
-            print(body_html_cut)
+            # (debug-print)
+            #print(body_html_cut)
             page['body_html'] = body_html_cut
             page['cut'] = True
         #if ...
