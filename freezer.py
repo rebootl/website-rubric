@@ -10,13 +10,14 @@ import config
 
 #app.config['FREEZER_IGNORE_ENDPOINTS'] = ['endpoint1', 'endpoint2']
 app.config['FREEZER_IGNORE_ENDPOINTS'] = [ 'interface.login',
+                                           'interface.logout',
                                            'interface.overview',
                                            'interface.edit',
-                                           'interface.new',
-                                           'interface.pub_change',
-                                           'interface.unpub_change',
+                                           'interface.edit_post',
                                            'interface.pub',
                                            'interface.unpub',
+                                           'interface.edit_category',
+                                           'interface.edit_category_post',
                                            'interface.export_entries',
                                            'interface.import_entries' ]
 

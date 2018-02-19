@@ -1,5 +1,15 @@
 ## Tasks / REWORK
 
+*** test setup 2018-02-16 ***
+
+- default type not sel. on new page
+
+- show on home not sel./not keeping sel.
+
+- cat. not keeping sel. on preview
+
+
+
 *** rework concept 2017-11 ***
 
 - cats not sel. on preview
