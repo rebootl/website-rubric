@@ -1,6 +1,9 @@
 ## Tasks / REWORK
 
+
 *** test setup 2018-02-16 ***
+
+* bugs *
 
 - default type not sel. on new page
 
@@ -8,6 +11,12 @@
 
 - cat. not keeping sel. on preview
 
+
+* general *
+
+- fix freezer
+
+- write tests :D
 
 
 *** rework concept 2017-11 ***

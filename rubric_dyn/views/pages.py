@@ -48,7 +48,7 @@ def cat_view(cat_ref):
     pages_rows = get_entries_by_cat(cat_row['id'], n)
 
     page_nav = { 'type': 'prev',
-                 'index_href': "list" }
+                 'index_ref': cat_row['ref'] }
 
     return render_final('timeline.html',
                         title = cat_row['title'],

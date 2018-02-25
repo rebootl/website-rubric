@@ -8,7 +8,7 @@
     {% endif %}
 
     <small>
-      <a href="/{{ page.cat_ref }}/{{ page.date_norm }}/{{ page.ref }}">{{ page.ref }}</a>
+      <a href="{{ url_for('pages.entry', cat_ref=page.cat_ref, date=page.date_norm, ref=page.ref) }}">{{ page.ref }}</a>
     </small>
 
     <div class="timeline-entry">
@@ -17,7 +17,7 @@
 
       {% if page.cut %}
         <div class="timeline-more-box">
-          <a href="/{{ page.cat_ref }}/{{ page.date_norm }}/{{ page.ref }}">
+          <a href="{{ url_for('pages.entry', cat_ref=page.cat_ref, date=page.date_norm, ref=page.ref) }}">
             <img class="timeline-more-button"
                  src="/media/layout/icons/more.png"
                  alt="timeline more button"

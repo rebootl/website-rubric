@@ -2,8 +2,11 @@
   <!-- previous button -->
   {% if page_nav.type != 'prev' %}
     <div id="prev-link-box" class="page-nav-button">
-      {% if page_nav.prev_href %}
-        <a href="{{ page_nav.prev_href }}" title="No previous entry">
+      {% if page_nav.prev %}
+        <a href="{{ url_for('pages.entry', cat_ref=page_nav.prev.cat_ref,
+                                           date=page_nav.prev.date_norm,
+                                           ref=page_nav.prev.ref) }}"
+           title="No previous entry">
           <img class="prev-next-button-img"
                alt="previous button"
                src="/media/layout/icons/prev-uppercut.png" />
@@ -20,7 +23,8 @@
 
   <!-- content button -->
   <div id="content-link-box" class="page-nav-button">
-    <a href="{{ page_nav.index_href }}" title="List all entries">
+    <a href="{{ url_for('pages.cat_list', cat_ref=page_nav.index_ref) }}"
+       title="List all entries">
       <img class="article-footer-button"
            alt="index button"
            src="/media/layout/icons/index-uppercut.png" />
@@ -30,8 +34,11 @@
   <!-- next button -->
   {% if page_nav.type != 'prev' %}
     <div id="next-link-box" class="page-nav-button">
-      {% if page_nav.next_href %}
-        <a href="{{ page_nav.next_href }}" title="Next by date">
+      {% if page_nav.next %}
+        <a href="{{ url_for('pages.entry', cat_ref=page_nav.next.cat_ref,
+                                           date=page_nav.next.date_norm,
+                                           ref=page_nav.next.ref) }}"
+           title="Next by date">
           <img class="prev-next-button-img"
                alt="next button"
                src="/media/layout/icons/next-uppercut.png" />

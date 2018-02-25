@@ -134,20 +134,19 @@ def create_page_nav(cat_id, date_norm, time_norm):
     cat_row = db_load_category(cat_id)
 
     if row_next == None:
-        page_nav = { 'next_href': None }
+        page_nav = { 'next': None }
     else:
-        page_nav = { 'next_href': os.path.join('/',
-                                               cat_row['ref'],
-                                               row_next['date_norm'],
-                                               row_next['ref']) }
-    if row_prev == None:
-        page_nav['prev_href'] = None
-    else:
-        page_nav['prev_href'] = os.path.join('/',
-                                             cat_row['ref'],
-                                             row_prev['date_norm'],
-                                             row_prev['ref'])
+        page_nav = { 'next': { 'cat_ref': cat_row['ref'],
+                               'date_norm': row_next['date_norm'],
+                               'ref': row_next['ref'] } }
 
-    page_nav['index_href'] = os.path.join('/', cat_row['ref'])
+    if row_prev == None:
+        page_nav['prev'] = None
+    else:
+        page_nav['prev'] = { 'cat_ref': cat_row['ref'],
+                             'date_norm': row_prev['date_norm'],
+                             'ref': row_prev['ref'] }
+
+    page_nav['index_ref'] = cat_row['ref']
 
     return page_nav

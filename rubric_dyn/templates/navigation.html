@@ -4,7 +4,7 @@
     <li class="menu-submenu"><span class="main-menu-topics">Categories</span>
       <ul>
       {% for item in cat_menuitems %}
-        <li><a href="/{{ item.ref }}">{{ item.title }}</a></li>
+        <li><a href="{{ url_for('pages.cat_view', cat_ref=item.ref) }}">{{ item.title }}</a></li>
       {% endfor %}
       </ul>
     </li>
