@@ -61,6 +61,8 @@ activate SSL:
     LoadModule ssl_module modules/mod_ssl.so
     Include conf/extra/httpd-ssl.conf
 
+for SSL to work obv. more steps are req.
+
 use vhosts:
 
     # vhosts

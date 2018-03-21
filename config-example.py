@@ -2,7 +2,11 @@
 
 DATABASE = '/somepath/website.db'
 
-# a random key, e.g.: 'bd9c0dd8620f6a49ebd7f2176552d141.asgo249'
+# a random key, use:
+# >>> import os
+# >>> os.urandom(24)
+# to generate one
+# acc. to flask docs http://flask.pocoo.org/docs/0.12/quickstart/#sessions
 SECRET_KEY = 'development key'
 
 # author name
