@@ -26,7 +26,7 @@ Thanks :)
 
 Create new db:
 
- $ sqlite3 website.db < schema.sql
+    $ sqlite3 website.db < schema.sql
 
 ### Config
 
@@ -40,6 +40,84 @@ starts server on port 5000
 
 interface login via: http://<host>:5000/interface/
 
+## Production environment setup / Deployment (example)
+
+Below steps were done on Arch Linux.
+Apache config. details etc. varies for diff. distributions.
+
+refs:
+
+- http://flask.pocoo.org/docs/0.12/deploying/mod_wsgi/
+- https://wiki.archlinux.org/index.php/Apache_HTTP_Server
+- https://modwsgi.readthedocs.io/en/develop/user-guides.html
+
 ### Apache Setup
 
-acc. to flask doku.: <link>
+uncomment in httpd.conf:
+
+activate SSL:
+
+    LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
+    LoadModule ssl_module modules/mod_ssl.so
+    Include conf/extra/httpd-ssl.conf
+
+use vhosts:
+
+    # vhosts
+    Include conf/extra/httpd-vhosts.conf
+
+wsgi:
+
+    # wsgi
+    LoadModule wsgi_module modules/mod_wsgi.so
+    LogLevel info
+
+virtual host config:
+
+~~~
+Listen 80xx
+<VirtualHost *:80xx>
+    ServerAdmin admin@server.org
+    ServerName foo.server.org
+
+    WSGIDaemonProcess mywebsite threads=5
+    WSGIScriptAlias / /srv/wsgi/website-rubric/website_rubric.wsgi
+
+    <Directory /srv/wsgi/website-rubric>
+        WSGIProcessGroup mywebsite
+        WSGIApplicationGroup %{GLOBAL}
+        WSGIScriptReloading On
+        Require all granted
+    </Directory>
+
+    ErrorLog "/var/log/httpd/foo.server.org-error_log"
+    CustomLog "/var/log/httpd/foo.server.org-access_log" common
+</VirtualHost>
+~~~
+
+This setup uses a separate wsgi directory outside of the default
+apache webroot /srv/www/ for additional security/benefits.
+
+### Application files
+
+Copy/clone files into /srv/wsgi/website-rubric.
+
+Create wsgi entry file, website_rubric.wsgi:
+
+ import sys
+ sys.path.insert(0, '/srv/wsgi/website-rubric')
+
+ from rubric_dyn import app as application
+
+Adapt config.
+
+Create/copy database outside of web directories.
+
+Evtl. copy media files etc.
+
+For image upload through the backend the webserver will need write
+permission on images and thumbs under rubric_dyn/media.
+
+With this setup, everything (media files etc.) is served through the wsgi app.
+
+Alternatively apache could be setup to serve the media files directly. --> ToDo
