@@ -5,6 +5,8 @@
 
 * bugs *
 
+- no link if no title in overview
+
 - default type not sel. on new page
 
 - show on home not sel./not keeping sel.

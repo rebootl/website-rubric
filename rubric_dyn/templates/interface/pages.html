@@ -14,7 +14,7 @@
       <th>Date</th>
       <th>Time</th>
       <th>Type</th>
-      <th>Title</th>
+      <th>Title/Ref.</th>
       <th>Cat.</th>
       <th>Home</th>
       <th>Pub.</th>
@@ -29,7 +29,13 @@
       <td>{{ entry.type }}</td>
       <td>
         {% if entry.pub %}
-          <a href="/{{ entry.cat_ref }}/{{ entry.date_norm }}/{{ entry.ref }}">{{ entry.title }}</a>
+          <a href="/{{ entry.cat_ref }}/{{ entry.date_norm }}/{{ entry.ref }}">
+            {% if entry.title == "" %}
+              {{ entry.ref }}
+            {% else %}
+              {{ entry.title }}
+            {% endif %}
+          </a>
         {% else %}
           {{ entry.title }}
         {% endif %}
