@@ -24,8 +24,9 @@ RUN_ABSPATH = '/webapp/rubric_dyn'
 # default category id
 DEFAULT_CAT_ID = 0
 
-# types of entries
+# types of entries and default
 ENTRY_TYPES = [ 'note', 'special' ]
+DEFAULT_PAGE_TYPE = 'note'
 
 # json export file
 DB_ENTRIES_JSON_DUMP = '/somepath-on-server/entries.json'

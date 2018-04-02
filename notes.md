@@ -6,8 +6,10 @@
 * bugs *
 
 - no link if no title in overview
+    ==> FIXED
 
 - default type not sel. on new page
+    ==> FIXED
 
 - show on home not sel./not keeping sel.
 

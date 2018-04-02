@@ -53,7 +53,11 @@
         {% for type in types %}
           <input type="radio" form="edit-page" name="type"
                  value="{{ type }}"
-                 {% if page.type == type %}checked{% endif %}>{{ type }}
+                 {% if id == "new" %}
+                   {% if type == default_page_type %}checked{% endif %}
+                 {% else %}
+                   {% if page.type == type %}checked{% endif %}
+                 {% endif %}>{{ type }}
           </input>
         {% endfor %}
       </td>
