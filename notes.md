@@ -12,6 +12,7 @@
     ==> FIXED
 
 - show on home not sel./not keeping sel.
+    ==> FIXED
 
 - cat. not keeping sel. on preview
 
