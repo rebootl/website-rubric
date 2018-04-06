@@ -15,7 +15,7 @@
     ==> FIXED
 
 - cat. not keeping sel. on preview
-
+    ==> FIXED
 
 * general *
 

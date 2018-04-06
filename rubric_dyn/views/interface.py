@@ -14,7 +14,7 @@ from rubric_dyn.db_write import update_pub, db_store_category
 from rubric_dyn.common import url_encode_str
 from rubric_dyn.helper_interface import gen_image_md, get_images_from_md, \
     upload_images
-from rubric_dyn.Page import Page
+from rubric_dyn.Page import Page, NewPage
 
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
@@ -82,20 +82,18 @@ edit button / new page'''
         abort(404)
 
     if id == "new":
-        row = None
+        rows = NewPage()
         images = None
     else:
-        row = get_entry_by_id(id)
-        images = get_images_from_md(row['body_md'])
+        rows = get_entry_by_id(id)
+        images = get_images_from_md(rows['body_md'])
 
     return render_template('edit.html',
                             preview = False,
                             id = id,
-                            page = row,
+                            page = rows,
                             types = current_app.config['ENTRY_TYPES'],
                             categories = get_cat_items(),
-                            default_cat_id = current_app.config['DEFAULT_CAT_ID'],
-                            default_page_type = current_app.config['DEFAULT_PAGE_TYPE'],
                             images = images)
 
 @interface.route('/edit', methods=['POST'])

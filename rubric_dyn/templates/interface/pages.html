@@ -37,7 +37,11 @@
             {% endif %}
           </a>
         {% else %}
-          {{ entry.title }}
+          {% if entry.title == "" %}
+            {{ entry.ref }}
+          {% else %}
+            {{ entry.title }}
+          {% endif %}
         {% endif %}
       </td>
       <td>{{ entry.cat_title }}</td>

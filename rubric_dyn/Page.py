@@ -1,16 +1,17 @@
 '''Page object'''
 
+from flask import flash, g, current_app
+
 from rubric_dyn.common import date_norm2, time_norm, url_encode_str
 from rubric_dyn.helper_interface import process_input, get_images_from_md
 from rubric_dyn.db_write import db_write_change
 
-from flask import flash, g
 
 class Page:
 
     def __init__(self, id, type, title, author,
                  date_str, time_str, tags, body_md,
-                 cat_id, show_home, pub=0):
+                 note_cat_id, note_show_home, pub=0):
         '''assembling data,
 norm and set defaults if necessary'''
 
@@ -25,9 +26,9 @@ norm and set defaults if necessary'''
 
         self.tags = tags
         self.body_md = body_md
-        self.cat_id = cat_id
-        self.show_home = show_home
-        self.pub = pub
+        self.note_cat_id = int(note_cat_id)
+        self.note_show_home = int(note_show_home)
+        self.pub = int(pub)
 
         # process input
         self.body_html = process_input(self.body_md)
@@ -60,7 +61,7 @@ norm and set defaults if necessary'''
                         self.date_norm, self.time_norm,
                         self.body_html, self.body_md,
                         self.tags, self.pub,
-                        self.cat_id, self.show_home ) )
+                        self.note_cat_id, self.note_show_home ) )
         g.db.commit()
 
         # get the autoinc. val
@@ -93,9 +94,37 @@ norm and set defaults if necessary'''
                       ( self.newref, self.type, self.title,
                         self.body_html, self.body_md,
                         self.tags,
-                        self.cat_id, self.show_home,
+                        self.note_cat_id, self.note_show_home,
                         self.id ) )
         g.db.commit()
 
         # write to changelog
         db_write_change(self.id, 'e')
+
+
+class NewPage(Page):
+
+    def __init__(self):
+        '''initialize an empty page obj. w/ default values'''
+
+        self.id = "new"
+        self.type = current_app.config['DEFAULT_PAGE_TYPE']
+        self.title = ""
+        self.author = current_app.config['AUTHOR_NAME']
+
+        # --> norm ?
+        # (date is set when saving)
+        # --> set it here
+        self.date_norm = ""
+        self.time_norm = ""
+
+        self.tags = ""
+        self.body_md = ""
+        self.note_cat_id = current_app.config['DEFAULT_CAT_ID']
+        self.note_show_home = 0
+        self.pub = 0
+
+        # process input
+        self.body_html = ""
+
+        self.images = []
