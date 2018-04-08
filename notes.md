@@ -1,105 +1,39 @@
 ## Tasks / REWORK
 
-
-*** test setup 2018-02-16 ***
-
 * bugs *
 
-- no link if no title in overview
-    ==> FIXED
 
-- default type not sel. on new page
-    ==> FIXED
-
-- show on home not sel./not keeping sel.
-    ==> FIXED
-
-- cat. not keeping sel. on preview
-    ==> FIXED
-
-* general *
+* to check *
 
 - fix freezer
 
-- write tests :D
-
-
-*** rework concept 2017-11 ***
-
-- cats not sel. on preview
-
-- fix page navigation
-  - timeline / list switch
-      ==> DONE
-      timeline showing n entries
-        ==> DONE (make configurable)
-      list showing all entries
-        ==> DONE
-  - entry view
-      back to timeline/list
-      next/prev. entry in cat.
-
-    --> check/fix hint texts
-
-- improve/rework timeline preview
-  - add cut after 1-2 images
+- check/fix hint texts
 
 - check/rework image handling
-
-- cleanup config
-
-- rework date/time functions/norming in Page class and general
-  - evtl. one field for date and time
-
-- make default cat. configurable in config
-    ==> DONE
-
-- create overlay interface on website for easy editing,
-  appears when logged-in
-
-- structure site using categories
-
-  - Home    -- entries w/ preview
-  - Notes
-    - Astro     -- entries w/ preview
-    - Chess
-    - Comp.
-      - Linux       -- maybe subcat.
-      - FlightSim
-      - ..
-    - Gaming
-    - Movies
-    - ..
-  - Archiv  -- tbd
-
-- adapt backend as needed
-    ==> DONE (for now
-
-- min-height for menu --> evtl. js toggle
 
 - improve the href gen./storage
   - evtl. impr. sql query ==> DONE
     --> remove href gen. from timelines
 
+- min-height for menu --> evtl. js toggle
 
----
-
-- __rework the current version / make it usable again... !!!__
-
-*** focus focus focus *** :D
-
-
-- add index on Home, going to Blog entries list
-
-- evtl. remove Categorized for now?
-
-- adapt/finish timeline cut
-  - cut after one image
-  - .. ?
+- improve/rework timeline preview
+  - add cut after 1-2 images
+        ==> DONE
 
 - foto size ?
 
-- fix blog links on Pages list
+
+
+* general *
+
+- write tests :D
+
+- rework date/time functions/norming in Page class and general
+  - evtl. one field for date and time
+
+- create overlay interface on website for easy editing,
+  appears when logged-in
 
 
 
@@ -167,7 +101,90 @@ __only work on new features once the current version is actually usable again__
 - evtl. freeze/upload buttons
 
 
-### Resolved
+
+## Resolved
+
+* bugs *
+
+- no link if no title in overview
+    ==> FIXED
+
+- default type not sel. on new page
+    ==> FIXED
+
+- show on home not sel./not keeping sel.
+    ==> FIXED
+
+- cat. not keeping sel. on preview
+    ==> FIXED
+
+
+
+*** rework concept 2017-11 ***
+
+_done as such, per 2018-04-08_
+
+- fix page navigation
+  - timeline / list switch
+      ==> DONE
+      timeline showing n entries
+        ==> DONE (make configurable)
+      list showing all entries
+        ==> DONE
+  - entry view
+      back to timeline/list
+        ==> DONE
+      next/prev. entry in cat.
+        ==> DONE
+
+- cleanup config
+    ==> DONE
+
+- make default cat. configurable in config
+    ==> DONE
+
+
+- structure site using categories
+
+  - Home    -- entries w/ preview
+  - Notes
+    - Astro     -- entries w/ preview
+    - Chess
+    - Comp.
+      - Linux       -- maybe subcat.
+      - FlightSim
+      - ..
+    - Gaming
+    - Movies
+    - ..
+  - Archiv  -- tbd
+
+- adapt backend as needed
+    ==> DONE (for now
+
+---
+
+- __rework the current version / make it usable again... !!!__
+
+*** focus focus focus *** :D
+
+- add index on Home, going to Blog entries list
+    ==> OBSOLETE
+
+- evtl. remove Categorized for now?
+    ==> DONE
+
+- adapt/finish timeline cut
+  - cut after one image
+  - .. ?
+    ==> DONE
+
+- fix blog links on Pages list
+    ==> OBSOLETE
+
+
+
+--- old as per 2018-04-08 ---
 
 - evtl. streamline types ?
     ==> DONE
@@ -179,6 +196,7 @@ __only work on new features once the current version is actually usable again__
 - auto-generate "latest" on home page
   --> changelog in db !!
     ==> DONE
+
 
 
 --- old ---
