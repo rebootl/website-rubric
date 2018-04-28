@@ -11,7 +11,7 @@ class Page:
 
     def __init__(self, id, type, title, author,
                  date_str, time_str, tags, body_md,
-                 note_cat_id, note_show_home, pub=0):
+                 note_cat_id, note_show_home, pub=1):
         '''assembling data,
 norm and set defaults if necessary'''
 
@@ -122,7 +122,7 @@ class NewPage(Page):
         self.body_md = ""
         self.note_cat_id = current_app.config['DEFAULT_CAT_ID']
         self.note_show_home = 0
-        self.pub = 1
+        self.pub = 1    # (re-set in init above)
 
         # process input
         self.body_html = ""

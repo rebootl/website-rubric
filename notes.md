@@ -3,13 +3,19 @@
 
 *** bugs ***
 
-- if page no title no link shown on list view
-    ==> FIXED
+- cats. not shown on interface overview
+
+- publish entries by default (not working)
+    ==> fixed
 
 
 *** improve ***
 
 - improve page nav, list overview
+
+- improve page width for widescreen
+
+- evtl. dim timeline links
 
 
 *** to check ***
@@ -31,7 +37,6 @@
         ==> DONE
 
 - image upload, size ?
-
 
 
 *** general ***
@@ -114,6 +119,9 @@ __only work on new features once the current version is actually usable again__
 ## Resolved
 
 * bugs *
+
+- if page no title no link shown on list view
+    ==> FIXED
 
 - no link if no title in overview
     ==> FIXED
