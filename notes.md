@@ -1,11 +1,20 @@
 ## Tasks / REWORK
 
-* bugs *
+
+*** bugs ***
+
+- if page no title no link shown on list view
+    ==> FIXED
 
 
-* to check *
+*** improve ***
 
-- fix freezer
+- improve page nav, list overview
+
+
+*** to check ***
+
+- freezer
 
 - check/fix hint texts
 
@@ -21,11 +30,11 @@
   - add cut after 1-2 images
         ==> DONE
 
-- foto size ?
+- image upload, size ?
 
 
 
-* general *
+*** general ***
 
 - write tests :D
 
@@ -34,7 +43,6 @@
 
 - create overlay interface on website for easy editing,
   appears when logged-in
-
 
 
 
@@ -99,6 +107,7 @@ __only work on new features once the current version is actually usable again__
 - optional page TOC (e.g. checkbox)
 
 - evtl. freeze/upload buttons
+
 
 
 

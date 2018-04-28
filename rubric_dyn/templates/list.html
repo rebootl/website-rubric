@@ -3,7 +3,7 @@
 
   <ul>
     {% for page in pages %}
-      <li><small class="small-date">{{ page.date_norm }} {{ page.time_norm }}</small> <a href="/{{ cat_ref }}/{{ page.date_norm }}/{{ page.ref }}">{{ page.title }}</a></li>
+      <li><small class="small-date">{{ page.date_norm }} {{ page.time_norm }}</small> <a href="{{ url_for('pages.entry', cat_ref=cat_ref, date=page.date_norm, ref=page.ref) }}">{% if page.title != "" %}{{ page.title }}{% else %}{{ page.ref }}{% endif %}</a></li>
     {% endfor %}
   </ul>
 
