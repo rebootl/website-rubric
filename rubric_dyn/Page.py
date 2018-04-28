@@ -122,7 +122,7 @@ class NewPage(Page):
         self.body_md = ""
         self.note_cat_id = current_app.config['DEFAULT_CAT_ID']
         self.note_show_home = 0
-        self.pub = 0
+        self.pub = 1
 
         # process input
         self.body_html = ""
