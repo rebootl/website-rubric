@@ -2,6 +2,7 @@
 import os
 import sqlite3
 import json
+import hashlib
 
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
@@ -107,3 +108,32 @@ def entry(cat_ref, date, ref):
                          title = row['title'],
                          page = row,
                          page_nav = page_nav )
+
+### login / logout
+
+@pages.route('/login-interface', methods=['GET', 'POST'])
+def login():
+    '''login page'''
+    if session.get('logged_in'):
+        return redirect(url_for('interface.overview'))
+    error = None
+
+    if request.method == 'POST':
+        passwd_str = request.form['password']
+        passwd_hash = hashlib.sha1(passwd_str.encode()).hexdigest()
+
+        if request.form['username'] != current_app.config['USERNAME'] \
+          or passwd_hash != current_app.config['PASSWD_SHA1']:
+            error = "Invalid username or password..."
+        else:
+            session['logged_in'] = True
+            flash('Login successful.')
+            return redirect(url_for('interface.overview'))
+
+    return render_template('login.html', error=error, title="")
+
+@pages.route('/logout-interface')
+def logout():
+    '''logout'''
+    session.pop('logged_in', None)
+    return redirect(url_for('pages.home'))

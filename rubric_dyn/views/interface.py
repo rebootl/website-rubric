@@ -2,7 +2,6 @@
 import os
 import sqlite3
 import json
-import hashlib
 from datetime import datetime
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
@@ -19,40 +18,18 @@ from rubric_dyn.Page import Page, NewPage
 interface = Blueprint('interface', __name__,
                       template_folder='../templates/interface')
 
-### login / logout
+### global access control
 
-@interface.route('/', methods=['GET', 'POST'])
-def login():
-    '''login page'''
-    if session.get('logged_in'):
-        return redirect(url_for('interface.overview'))
-    error = None
-    if request.method == 'POST':
-        passwd_str = request.form['password']
-        passwd_hash = hashlib.sha1(passwd_str.encode()).hexdigest()
-        if request.form['username'] != current_app.config['USERNAME'] \
-          or passwd_hash != current_app.config['PASSWD_SHA1']:
-            error = "Invalid username or password..."
-        else:
-            session['logged_in'] = True
-            flash('Login successful.')
-            return redirect(url_for('interface.overview'))
-    return render_template('login.html', error=error, title=None)
-
-@interface.route('/logout')
-def logout():
-    '''logout'''
-    session.pop('logged_in', None)
-    return redirect(url_for('interface.login'))
+@interface.before_request
+def restrict_access():
+    if not session.get('logged_in'):
+        abort(401)
 
 ### interface overview
 
 @interface.route('/overview', methods=['GET', 'POST'])
 def overview():
     '''interface overview'''
-    if not session.get('logged_in'):
-        abort(401)
-
     # get all pages
     rows = get_entries_info()
 
@@ -74,8 +51,6 @@ def overview():
 def edit():
     '''shows the edit page
 edit button / new page'''
-    if not session.get('logged_in'):
-        abort(401)
 
     id = request.args.get('id')
     if id == None:
@@ -100,8 +75,6 @@ edit button / new page'''
 def edit_post():
     '''action invoked by buttons on edit page
 preview / save / cancel / upload images'''
-    if not session.get('logged_in'):
-        abort(401)
 
     # actions
     action = request.form['actn']
@@ -172,10 +145,6 @@ def pub():
     '''publish entry'''
     # --> make this and unpub below single function
     # ==> this didn't work for galleries ! didn't it ?
-
-    if not session.get('logged_in'):
-        abort(401)
-
     id = request.args.get('id')
     if id == None:
         abort(404)
@@ -190,9 +159,6 @@ def pub():
 @interface.route('/unpub')
 def unpub():
     '''unpublish entry'''
-    if not session.get('logged_in'):
-        abort(401)
-
     id = request.args.get('id')
     if id == None:
         abort(404)
@@ -210,9 +176,6 @@ def unpub():
 def edit_category():
     '''show the edit category page
 edit / new category buttons'''
-    if not session.get('logged_in'):
-        abort(401)
-
     id = request.args.get('id')
     if id == None:
         abort(404)
@@ -230,8 +193,6 @@ edit / new category buttons'''
 def edit_category_post():
     '''actions invoked on edit category page
 store / cancel'''
-    if not session.get('logged_in'):
-        abort(401)
 
     action = request.form['actn']
 
@@ -254,8 +215,6 @@ store / cancel'''
 @interface.route('/export_entries')
 def export_entries():
     '''export db entries to json (on server)'''
-    if not session.get('logged_in'):
-        abort(401)
 
     # get the entries to export
     g.db.row_factory = sqlite3.Row
@@ -288,8 +247,6 @@ def export_entries():
 @interface.route('/import_entries')
 def import_entries():
     '''import db entries from json (on server)'''
-    if not session.get('logged_in'):
-        abort(401)
 
     # read json
     with open(current_app.config['DB_ENTRIES_JSON_DUMP'], 'r') as f:

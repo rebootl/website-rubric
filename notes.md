@@ -11,11 +11,18 @@
 
 *** improve ***
 
-- improve page nav, list overview
+- page width improvement, font size evtl. --> to test
+  bg evtl.
+  DUPLICATE (- improve page width for widescreen)
 
-- improve page width for widescreen
+- move login into reg. view,
+  try to use decorator for login check in interface
+
+- improve page nav, list overview --> ??
 
 - evtl. dim timeline links
+
+- evtl. use less for css
 
 
 *** to check ***
