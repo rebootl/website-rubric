@@ -15,8 +15,7 @@
   bg evtl.
   DUPLICATE (- improve page width for widescreen)
 
-- move login into reg. view,
-  try to use decorator for login check in interface
+- evtl. use flash in regular pages
 
 - improve page nav, list overview --> ??
 
@@ -125,7 +124,9 @@ __only work on new features once the current version is actually usable again__
 
 ## Resolved
 
-* bugs *
+- move login into reg. view,
+  try to use decorator for login check in interface
+    ==> DONE (used pre-function)
 
 - if page no title no link shown on list view
     ==> FIXED
