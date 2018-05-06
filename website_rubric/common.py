@@ -14,7 +14,7 @@ import json
 
 from flask import current_app
 
-from rubric_dyn.db_read import get_cat_items
+from website_rubric.db_read import get_cat_items
 
 import config
 # --> shouldn't flask current_app config be used here ???

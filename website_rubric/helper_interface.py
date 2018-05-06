@@ -4,9 +4,9 @@ import json
 import re
 import datetime
 from flask import current_app, flash, render_template
-from rubric_dyn.common import pandoc_pipe, date_norm2, time_norm, \
+from website_rubric.common import pandoc_pipe, date_norm2, time_norm, \
     make_thumb_samename
-from rubric_dyn.ExifNice import ExifNice
+from website_rubric.ExifNice import ExifNice
 
 # for debug only !!
 #import sys
@@ -242,7 +242,7 @@ def process_input(text_md):
                                    [ '--to=html5' ] )
 #                                   [ '--to=html5',
 #                                     '--toc',
-#                                     '--template=/home/cem/Scripts/rubric-dyn/rubric_dyn/templates/pandoc/pandoc-base.html' ] )
+#                                     '--template=/home/cem/Scripts/rubric-dyn/website_rubric/templates/pandoc/pandoc-base.html' ] )
 
     # back-substitute here
     for img_block in img_blocks:

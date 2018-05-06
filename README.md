@@ -111,7 +111,7 @@ Create wsgi entry file, website_rubric.wsgi:
  import sys
  sys.path.insert(0, '/srv/wsgi/website-rubric')
 
- from rubric_dyn import app as application
+ from website_rubric import app as application
 
 Adapt config.
 
@@ -120,7 +120,7 @@ Create/copy database outside of web directories.
 Evtl. copy media files etc.
 
 For image upload through the backend the webserver will need write
-permission on images and thumbs under rubric_dyn/media.
+permission on images and thumbs under website_rubric/media.
 
 With this setup, everything (media files etc.) is served through the wsgi app.
 

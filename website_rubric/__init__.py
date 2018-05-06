@@ -29,15 +29,15 @@ def teardown_request(exception):
 
 # getting views
 
-from rubric_dyn.views.pages import pages
+from website_rubric.views.pages import pages
 app.register_blueprint(pages)
 
-from rubric_dyn.views.interface import interface
+from website_rubric.views.interface import interface
 app.register_blueprint(interface, url_prefix='/interface')
 
 # media folder (static)
 # ==> setting above
-#from rubric_dyn.media_static import media_static
+#from website_rubric.media_static import media_static
 #app.register_blueprint(media_static)
 
 

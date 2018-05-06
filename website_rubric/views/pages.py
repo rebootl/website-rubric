@@ -7,10 +7,10 @@ import hashlib
 from flask import Blueprint, render_template, g, request, session, redirect, \
     url_for, abort, flash, current_app
 
-from rubric_dyn.db_read import get_entry_by_ref, get_entry_by_date_ref, \
+from website_rubric.db_read import get_entry_by_ref, get_entry_by_date_ref, \
     get_cat_by_ref, get_entries_by_cat, get_entries_for_home, get_cat_items, \
     get_listentries_by_cat
-from rubric_dyn.helper_pages import gen_timeline_date_sets, create_page_nav
+from website_rubric.helper_pages import gen_timeline_date_sets, create_page_nav
 
 pages = Blueprint('pages', __name__)
 

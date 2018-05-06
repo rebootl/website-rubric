@@ -6,8 +6,8 @@ import sqlite3
 from flask import g
 from flask import current_app
 
-from rubric_dyn.common import gen_href
-from rubric_dyn.db_read import get_next_entryref, get_prev_entryref, \
+from website_rubric.common import gen_href
+from website_rubric.db_read import get_next_entryref, get_prev_entryref, \
     db_load_category
 
 def gen_changelog(change_rows):
