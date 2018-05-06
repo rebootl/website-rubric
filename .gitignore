@@ -3,16 +3,17 @@ Archive*
 __pycache__/
 
 website.db*
-rubric_dyn/static/
-rubric_dyn/media/*
-!rubric_dyn/media/layout
-!rubric_dyn/media/localfont
-rubric_dyn/build/
-rubric_dyn/build_*/
+website_rubric/static/
+website_rubric/media/*
+!website_rubric/media/layout
+!website_rubric/media/localfont
+website_rubric/build/
+website_rubric/build_*/
 test*
+try*
 
 config.py
-upload.sh
+upload.sh*
 slocs*
 
 *.json*

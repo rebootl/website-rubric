@@ -3,7 +3,7 @@
 from flask_frozen import Freezer
 import subprocess
 
-from rubric_dyn import app
+from website_rubric import app
 import config
 
 #freezer = Freezer(app)
@@ -39,6 +39,6 @@ def copy_folder(in_dir, dest_dir):
 
 if __name__ == '__main__':
     freezer.freeze()
-    copy_folder('rubric_dyn/media', 'rubric_dyn/build/')
+    copy_folder('website_rubric/media', 'website_rubric/build/')
 
 #    freezer.run(debug=True)

@@ -19,7 +19,7 @@ PASSWD_SHA1 = '448h0h4hfi...'
 # program path
 # (needed for image processing)
 # --> improve ??
-RUN_ABSPATH = '/webapp/rubric_dyn'
+RUN_ABSPATH = '/webapp/website_rubric'
 
 # default category id
 DEFAULT_CAT_ID = 0

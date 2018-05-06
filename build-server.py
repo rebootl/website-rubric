@@ -11,7 +11,7 @@ CGI enabled.
 import os
 from http.server import HTTPServer, CGIHTTPRequestHandler
 
-PUBLIC_DIR = "rubric_dyn/build/"
+PUBLIC_DIR = "website_rubric/build/"
 
 ## Change WD:
 os.chdir(PUBLIC_DIR)

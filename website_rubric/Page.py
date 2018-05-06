@@ -2,9 +2,9 @@
 
 from flask import flash, g, current_app
 
-from rubric_dyn.common import date_norm2, time_norm, url_encode_str
-from rubric_dyn.helper_interface import process_input, get_images_from_md
-from rubric_dyn.db_write import db_write_change
+from website_rubric.common import date_norm2, time_norm, url_encode_str
+from website_rubric.helper_interface import process_input, get_images_from_md
+from website_rubric.db_write import db_write_change
 
 
 class Page:
