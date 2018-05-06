@@ -47,6 +47,8 @@
 
 *** general ***
 
+- update readme
+
 - write tests :D
 
 - rework date/time functions/norming in Page class and general
