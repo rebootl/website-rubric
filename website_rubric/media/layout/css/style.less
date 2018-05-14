@@ -184,7 +184,9 @@ article footer small {
 }
 
 .menu-hidden {
-    right: -290px;
+/* old val.
+    right: -290px;*/
+    right: -330px;
 }
 
 .main-menu-list {
@@ -441,54 +443,31 @@ article figure figcaption img {
 
 /* --------------- */
 
-@media screen and (max-width: 600px) {
-    article figure {
-        margin-left: 0;
-        margin-right: 0;
-    }
-    article figure.thumb {
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-}
-
 @media screen and (max-width: 500px) {
-    /* --> oocss: improve, generalize ?! */
-    /* <img> */
     .myimg {
         float: none;
     }
 }
 
-@media screen and (max-width: 380px) {
-    .menu-hidden {
-        right: -330px;
+@media screen and (max-width: 480px) {
+    .timeline-entry {
+        padding-left: 30px;
+        padding-right: 15px;
     }
-    article {
-        margin-left: 2%;
-        margin-right: 2%;
-    }
-    #page-footer {
-        margin-left: 2%;
-        margin-right: 2%;
-    }
-    /* <nav> */
-    #page-nav {
-        margin-left: 0;
-        margin-right: 0;
+    .article-content-box {
+        margin-left: 0px;
+        margin-right: 0px;
     }
 }
 
-@media screen and (max-width: 320px) {
+@media screen and (max-width: 380px) {
     article {
         padding-left: 10px;
         padding-right: 10px;
     }
-}
-
-@media screen and (max-width: 300px) {
-    article figure figcaption pre {
-        width: 220px;
+    #page-nav {
+        margin-left: 0;
+        margin-right: 0;
     }
 }
 
