@@ -4,8 +4,12 @@
 
 <small class="date">{{ page.date_norm }} {% if page.time_norm != "NOT_SET" %}{{ page.time_norm }}{% endif %}</small>
 
-{{ page.body_html | safe }}
+<div class="article-content-box">
 
-{% if page.tags %}
-  <small class="tags">Tags / Keywords: <strong>{{ page.tags|e }}</strong></small>
-{% endif %}
+  {{ page.body_html | safe }}
+
+  {% if page.tags %}
+    <small class="tags">Tags / Keywords: <strong>{{ page.tags|e }}</strong></small>
+  {% endif %}
+
+</div>

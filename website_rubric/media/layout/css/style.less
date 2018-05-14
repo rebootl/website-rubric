@@ -1,0 +1,647 @@
+/* using webfont "Lora"
+ * License and Copyright see localfont.css */
+@import url('/media/layout/css/localfont.css');
+
+/* background colors */
+//   background looks _much_ darker on android tablet
+//   than on laptop
+
+@site-background-color: #070707;
+@header-background-color: #000000;
+@header-line-color: #101010;
+@article-background-color: #151515;
+@footer-top-line-color: #333;
+@timeline-vline-color: #333;
+
+/* text colors */
+@link-color: #9cdede;
+@text-color: #b0b0b0;
+@text-color-mate: #a0a0a0;
+@article-footer-text-color: #575757;
+
+/* GENERAL */
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: @site-background-color;
+    color: @text-color;
+    font-family: 'Lora', serif;
+}
+
+header {
+//    position: fixed;  // could be used
+//    width: 100%;      // no eff. ? (maybe for pos. fixed)
+    background-color: @header-background-color;
+    border-bottom: 1px solid @header-line-color;
+    height: 48px;
+    font-family: 'Lora', serif;
+
+//    h1 {      // (curr. not used, no text)
+//       margin: 0;
+//       padding-top: 5px;
+//       text-shadow: 0px 0px 1px #667;
+//       text-align: center;
+//       width: 100%;
+//    }
+}
+
+a {
+    color: @link-color;
+}
+
+article {
+    box-sizing: border-box;
+    margin: auto;
+    max-width: 670px;
+    /* for header fixed 48px + ca. 25px */
+    padding-top: 25px;
+    padding-bottom: 15px;
+    padding-left: 30px;
+    padding-right: 30px;
+    background-color: @article-background-color;
+    color: @text-color;
+    position: relative;
+    //font-size: 16px;
+
+    p {
+        line-height: 1.6;
+        //font-family: sans-serif;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lora', serif;
+    line-height: initial;
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 2em;
+//    text-shadow: 0px 0px 1px #667;    // maybe use.. ?
+    text-align: center;
+}
+
+figure {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+figure img {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    display: block;
+}
+
+figure figcaption {
+    position: relative;
+}
+
+video {
+    max-width: 100%;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #333;
+}
+
+article footer small {
+    color: @article-footer-text-color;
+    text-align: center;
+    display: block;
+    padding-top: 10px;
+}
+
+/* WRAPPER */
+
+#site-wrapper {
+    /* used for off-screen menu moving */
+    position: relative;
+    overflow: hidden;
+    min-height: 780px;
+}
+
+/* HEADER */
+
+#logo-box {
+    width: 55px;
+    height: 38px;
+
+    img {
+        margin-left: auto;
+        margin-right: auto;
+        padding-top: 5px;
+        height: 100%;
+        display: block;
+    }
+}
+
+#menu-button-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 48px;
+    cursor: pointer;
+}
+
+/* MAIN NAVIGATION */
+
+#main-nav {
+    position: absolute;
+    padding-left: 30px;
+    padding-right: 30px;
+    height: 100%;
+    width: 260px;
+    background-color: @site-background-color;
+    opacity: 0.9;
+    z-index: 100;
+    transition: right 0.5s;
+
+    /* these are "general" */
+    a {
+        text-decoration: none;
+        color: #b0b0b0;
+    }
+    a:hover {
+        color: #9cdede;
+    }
+    ul {
+        list-style-type: none;
+    }
+}
+
+.menu-default-pos {
+    /* putting this in above id selection
+       doesn't work cause it seems to take
+       precedence over the hidden class
+       --> could important be used here ???
+       --> why is this ???
+    */
+    right: 0;
+}
+
+.menu-hidden {
+    right: -290px;
+}
+
+.main-menu-list {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-right: 40px;
+
+    a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    li {
+        border-bottom: 1px solid #333;
+        li {
+            border-bottom: none;
+        }
+    }
+}
+
+.main-menu-topics-title {
+    font-size: 0.56em;
+    font-weight: normal;
+    text-align: center;
+    width: 100%;
+    display: block;
+    padding-top: 7px;
+}
+
+.main-menu-submenu {
+    padding-top: 0px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    font-size: 0.8em;
+
+    li a {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+}
+
+#specials-nav-list {
+    margin-top: 60px;
+    font-size: 1.1em;
+
+    li {
+        display: inline-block;
+        padding-left: 25px;
+    }
+}
+
+/* ARTICLE */
+
+// --> not used atm
+/*.toc {
+    border: 1px solid #303030;
+    margin-top: 15px;
+    padding-right: 25px;
+    display: inline-block;
+    background-color: #1a1a1a;
+    float: right;
+}*/
+
+.date {
+    display: block;
+    text-align: center;
+    font-family: 'Lora', serif;
+}
+
+.small-date {
+    color: #909090;
+    font-family: 'Lora', serif;
+}
+
+.article-content-box {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+/* figure caption and info button box */
+.fig-caption {
+    background-color: #212121;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 35px;
+    padding-right: 35px;
+    min-height: 20px;
+    text-align: center;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+}
+
+/* exif info button */
+// --> use class here ... ?!?!
+article figure figcaption img {
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: 45px;
+    cursor: pointer;
+}
+
+/* exif info text */
+.fig-info {
+    padding-top: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #212121;
+    margin-top: 0;
+    padding-bottom: 10px;
+    display: none;
+
+    table {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;
+
+        caption {
+            padding-bottom: 5px;
+        }
+        td {
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+    }
+}
+
+.tags {
+    font-family: monospace;
+    color: #437543;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.myimg {
+    width: 150px;
+    float: right;
+}
+
+.footnotes {
+    padding-top: 5px;
+    font-size: 0.9em;
+}
+
+/* FOOTER */
+
+#page-footer {
+    margin: auto;
+    margin-bottom: 5px;
+    max-width: 670px;
+    height: 48px;
+    border-top: 1px solid @footer-top-line-color;
+}
+
+/*  PAGE NAVIGATION (prev, content, next) */
+
+#page-nav {
+    margin-left: 25px;
+    margin-right: 25px;
+    height: 100%;
+    position: relative;
+
+    div {
+        height: 43px;
+        width: 48px;
+    }
+
+    img.inactive {
+        opacity: 0.2;
+    }
+}
+
+#prev-link-box {
+    border-right: 1px solid #333;
+    position: absolute;
+}
+
+#next-link-box {
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+    border-left: 1px solid #333;
+}
+
+#content-link-box {
+    margin-left: auto;
+    margin-right: auto;
+    width: 48px;
+}
+
+/* MAIN VIEWS, LISTS, etc. */
+
+/* Timeline */
+
+.timeline-entry {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-left: 60px;
+    padding-right: 60px;
+    border-left: 1px solid @timeline-vline-color;
+    padding-bottom: 20px;
+    margin-bottom: 16px;
+}
+
+// --> not used ?
+/*.float-right {
+    width: 100%;
+    text-align: right;
+}*/
+
+.timeline-more-box {
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 160px;
+    position: relative;
+
+    a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        color: @text-color-mate;
+        font-size: 1.1em;
+    }
+    a:hover {
+        color: @link-color;
+    }
+}
+
+.timeline-more-button {
+    width: 44px;
+    border: 1px solid #333;
+    border-radius: 22px;
+}
+
+.timeline-more-textbox {
+    position: absolute;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 10px;
+    top: 7px;
+}
+
+.spacer {
+    margin-top: 20px;
+}
+
+/* --------------- */
+
+.imagepage-article {
+    padding-top: 0px;
+}
+
+/* --> evtl. change to id
+   ==> oocss: class should be fine */
+.imagepage-fig {
+    margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: calc(100vh - 56px);
+/*    border: 1px solid red;*/
+}
+
+.imagepage-fig img {
+    max-height: calc(100vh - 203px);
+}
+
+/* RESPONSIVE WOOW */
+
+@media screen and (max-width: 600px) {
+    article figure {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    article figure.thumb {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    /* --> oocss: improve, generalize ?! */
+    /* <img> */
+    .myimg {
+        float: none;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .menu-hidden {
+        right: -330px;
+    }
+    article {
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    #page-footer {
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    /* <nav> */
+    #page-nav {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    article {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    article figure figcaption pre {
+        width: 220px;
+    }
+}
+
+/* INTERFACE */
+
+/* general */
+
+table {
+    font-family: monospace;
+    border-collapse: collapse;
+/* --> fixed by using paragraphs (<p>) !! */
+/*    margin-bottom: 15px;*/
+}
+
+table tr td {
+    border: 1px solid #303030;
+    padding: 5px;
+}
+
+input {
+    color: #aaa;
+    background-color: #1a1a1a;
+    border: 2px solid #3a3a4a;
+    margin: 5px;
+    padding: 5px;
+}
+
+textarea {
+    color: #aaa;
+    background-color: #1a1a1a;
+    border: 2px solid #777;
+    margin: 5px;
+    padding: 5px;
+}
+
+/* flash info output
+   <em> */
+.i_flash {
+    color: yellow;
+}
+
+/* checked, unchecked button image !!!
+   <img> */
+.i_img_table {
+    width: 14px;
+}
+
+.i_tags {
+    font-family: monospace;
+    color: #437543;
+} 
+
+/* edit.html (page) */
+
+/* markdown text input field
+   <textarea> */
+#text-input {
+    width: 90%;
+    height: 250px;
+    /* leads to no wrap at all in firefox */
+    /*white-space: nowrap;*/
+    overflow: auto;
+}
+
+/* preview stuff
+   <h3> */
+.i_preview_hint {
+    margin-top: 0;
+}
+/* <hr> */
+.i_preview_line {
+    border: 0;
+    border-bottom: 1px dashed #777;
+}
+
+/* preview thumbs */
+
+.prev-table-box {
+    min-height: 240px;
+}
+
+.prev-table {
+    position: relative;
+}
+
+.prev-thumb {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+}
+
+.prev-box {
+    position: absolute;
+    top: 0;
+    right: -240px;
+    width: 220px;
+    height: 220px;
+    border: 1px solid #303030;
+/*    background-color: #555;*/
+/*    display: none;*/
+}
+
+.prev-table tr td:hover {
+    background-color: #101025;
+}
+
+.prev-table tr td:hover img {
+    display: block;
+}
+
+/*.prev-table tr td:hover img {
+    display: block;
+}*/
+
+/* images.html */
+
+/* thumbnails */
+.edit-thumb {
+    width: 150px;
+}
+
+/* edit_image.html */
+
+/* image preview */
+/* <img> */
+#edit-img-prev {
+    width: 250px;
+    padding: 15px;
+/* (debug) */
+/*    border: 1px solid #333;*/
+}
+
+/* FUCKOFF FF */
+table tr td button {
+    border: 0;
+}

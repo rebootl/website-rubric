@@ -1,8 +1,8 @@
 <nav id="main-nav" class="menu-default-pos menu-hidden">
-  <ul class="sections-nav-list">
+  <ul class="main-menu-list">
     <li><a href="{{ url_for('pages.home') }}">Home</a></li>
-    <li class="menu-submenu"><span class="main-menu-topics">Categories</span>
-      <ul>
+    <li><span class="main-menu-topics-title">Categories</span>
+      <ul class="main-menu-submenu">
       {% for item in cat_menuitems %}
         <li><a href="{{ url_for('pages.cat_view', cat_ref=item.ref) }}">{{ item.title }}</a></li>
       {% endfor %}

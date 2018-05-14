@@ -1,16 +1,16 @@
 {% for date_set in date_sets %}
-  <small class="small-date">{{ date_set.date }}</small>
+  <span class="small-date">
+    <small>{{ date_set.date }}</small>
 
-  {% for page in date_set.pages %}
-    {% if page.time_norm != 'NOT_SET' %}
-      <small class="small-date"
-             id="pos_{{ page.date_norm }}_{{ page.time_norm }}">{{ page.time_norm }}</small>
-    {% endif %}
+    {% for page in date_set.pages %}
+      {% if page.time_norm != 'NOT_SET' %}
+        <small id="pos_{{ page.date_norm }}_{{ page.time_norm }}">{{ page.time_norm }}</small>
+      {% endif %}
 
-    <small>
-      <a href="{{ url_for('pages.entry', cat_ref=page.cat_ref, date=page.date_norm, ref=page.ref) }}">{{ page.ref }}</a>
-    </small>
-
+      <small>
+        <a href="{{ url_for('pages.entry', cat_ref=page.cat_ref, date=page.date_norm, ref=page.ref) }}">{{ page.ref }}</a>
+      </small>
+    </span>
     <div class="timeline-entry">
 
       {{ page.body_html | safe}}
