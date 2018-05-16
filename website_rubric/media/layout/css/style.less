@@ -19,6 +19,8 @@
 @text-color-mate: #a0a0a0;
 @article-footer-text-color: #575757;
 
+// --> fix all colors here
+
 /* GENERAL */
 
 body {
@@ -68,6 +70,12 @@ article {
         line-height: 1.6;
         //font-family: sans-serif;
     }
+    footer small {
+        color: @article-footer-text-color;
+        text-align: center;
+        display: block;
+        padding-top: 10px;
+    }
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -108,11 +116,32 @@ hr {
     border-top: 1px solid #333;
 }
 
-article footer small {
-    color: @article-footer-text-color;
-    text-align: center;
-    display: block;
-    padding-top: 10px;
+table {
+    font-family: monospace;
+    border-collapse: collapse;
+/* --> fixed by using paragraphs (<p>) !! */
+/*    margin-bottom: 15px;*/
+
+    tr td {
+        border: 1px solid #303030;
+        padding: 5px;
+    }
+}
+
+input {
+    color: #aaa;
+    background-color: #1a1a1a;
+    border: 2px solid #3a3a4a;
+    margin: 5px;
+    padding: 5px;
+}
+
+textarea {
+    color: #aaa;
+    background-color: #1a1a1a;
+    border: 2px solid #777;
+    margin: 5px;
+    padding: 5px;
 }
 
 /* WRAPPER */
@@ -441,7 +470,7 @@ article figure figcaption img {
 
 /* RESPONSIVE WOOW */
 
-/* --------------- */
+// --> maybe rework slightly later
 
 @media screen and (max-width: 500px) {
     .myimg {
@@ -471,46 +500,14 @@ article figure figcaption img {
     }
 }
 
-/* INTERFACE */
+/* INTERFACE ETC. STUFF */
 
-/* general */
-
-table {
-    font-family: monospace;
-    border-collapse: collapse;
-/* --> fixed by using paragraphs (<p>) !! */
-/*    margin-bottom: 15px;*/
-}
-
-table tr td {
-    border: 1px solid #303030;
-    padding: 5px;
-}
-
-input {
-    color: #aaa;
-    background-color: #1a1a1a;
-    border: 2px solid #3a3a4a;
-    margin: 5px;
-    padding: 5px;
-}
-
-textarea {
-    color: #aaa;
-    background-color: #1a1a1a;
-    border: 2px solid #777;
-    margin: 5px;
-    padding: 5px;
-}
-
-/* flash info output
-   <em> */
+/* flash info output */
 .i_flash {
     color: yellow;
 }
 
-/* checked, unchecked button image !!!
-   <img> */
+/* checked, unchecked button image !!! */
 .i_img_table {
     width: 14px;
 }
@@ -520,10 +517,7 @@ textarea {
     color: #437543;
 } 
 
-/* edit.html (page) */
-
-/* markdown text input field
-   <textarea> */
+/* markdown text input field */
 #text-input {
     width: 90%;
     height: 250px;
@@ -532,74 +526,13 @@ textarea {
     overflow: auto;
 }
 
-/* preview stuff
-   <h3> */
+/* preview stuff */
 .i_preview_hint {
     margin-top: 0;
 }
-/* <hr> */
 .i_preview_line {
     border: 0;
     border-bottom: 1px dashed #777;
-}
-
-/* preview thumbs */
-
-.prev-table-box {
-    min-height: 240px;
-}
-
-.prev-table {
-    position: relative;
-}
-
-.prev-thumb {
-    display: none;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 200px;
-}
-
-.prev-box {
-    position: absolute;
-    top: 0;
-    right: -240px;
-    width: 220px;
-    height: 220px;
-    border: 1px solid #303030;
-/*    background-color: #555;*/
-/*    display: none;*/
-}
-
-.prev-table tr td:hover {
-    background-color: #101025;
-}
-
-.prev-table tr td:hover img {
-    display: block;
-}
-
-/*.prev-table tr td:hover img {
-    display: block;
-}*/
-
-/* images.html */
-
-/* thumbnails */
-.edit-thumb {
-    width: 150px;
-}
-
-/* edit_image.html */
-
-/* image preview */
-/* <img> */
-#edit-img-prev {
-    width: 250px;
-    padding: 15px;
-/* (debug) */
-/*    border: 1px solid #333;*/
 }
 
 /* FUCKOFF FF */
