@@ -1,7 +1,6 @@
 This is basically the underlaying system I use to manage my little personal website.
 
-The website is live at: <http://cem.revamp-it.ch>  
-(Static version due to server limitations.)
+The website is live at: <http://reboot.li>  
 
 It's basically a self written "micro-cms" based on python-flask (the micro-framework) and I named it __rubric-dyn__.
 
