@@ -1,3 +1,5 @@
+__Info: the website is still live, but this is not longer developed. It will be replaced by: [reflectapp](https://github.com/rebootl/reflectapp)__
+
 This is basically the underlaying system I use to manage my little personal website.
 
 The website is live at: <http://reboot.li>  
