@@ -2,7 +2,7 @@ __Info: The website is still live, but this is not longer developed. It will be 
 
 This is basically the underlaying system I use to manage my little personal website.
 
-The website is live at: <http://reboot.li>  
+The website is live at: <http://old.reboot.li>  
 
 It's basically a self written "micro-cms" based on python-flask (the micro-framework) and I named it __rubric-dyn__.
 
